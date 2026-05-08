@@ -826,10 +826,12 @@ Append to `devDependencies`:
 Add to `scripts`:
 
 ```json
-"db:generate": "drizzle-kit generate",
+"db:generate": "NODE_OPTIONS=\"--import tsx\" drizzle-kit generate",
 "db:migrate": "tsx src/migrate.ts",
-"db:studio": "drizzle-kit studio"
+"db:studio": "NODE_OPTIONS=\"--import tsx\" drizzle-kit studio"
 ```
+
+(Note: `drizzle-kit` 0.30.x runs its CLI bin under CJS-style resolution and cannot resolve our schema files' `./users.js` imports without an ESM loader. `NODE_OPTIONS="--import tsx"` makes tsx handle the `.js` → `.ts` rewrite. The runtime migrator (`tsx src/migrate.ts`) is unaffected because tsx is invoked directly.)
 
 Run from repo root: `pnpm install`.
 
@@ -935,10 +937,10 @@ import { makeDb } from "./db/client.js";
 async function main(): Promise<void> {
   const config = loadConfig();
   const { db, sql } = makeDb(config.DATABASE_URL);
-  console.log("running migrations against", config.DATABASE_URL.replace(/:.+@/, ":***@"));
+  console.info("running migrations against", config.DATABASE_URL.replace(/:.+@/, ":***@"));
   await migrate(db, { migrationsFolder: "drizzle" });
   await sql.end();
-  console.log("migrations applied");
+  console.info("migrations applied");
 }
 
 main().catch((err) => {
