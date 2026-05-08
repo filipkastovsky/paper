@@ -678,6 +678,17 @@ export async function buildServer({ config }: BuildServerOptions): Promise<Fasti
         config.NODE_ENV === "development"
           ? { target: "pino-pretty", options: { translateTime: "HH:MM:ss" } }
           : undefined,
+      redact: {
+        paths: [
+          "req.headers.authorization",
+          "req.headers.cookie",
+          "*.password",
+          "*.token",
+          "*.refresh_token",
+          "*.access_token",
+        ],
+        censor: "[REDACTED]",
+      },
     },
     disableRequestLogging: false,
   });
@@ -698,10 +709,18 @@ async function main(): Promise<void> {
   const config = loadConfig();
   const app = await buildServer({ config });
 
+  let shuttingDown = false;
   const shutdown = async (signal: string): Promise<void> => {
+    if (shuttingDown) return;
+    shuttingDown = true;
     app.log.info({ signal }, "shutdown initiated");
-    await app.close();
-    process.exit(0);
+    try {
+      await app.close();
+      process.exit(0);
+    } catch (err) {
+      app.log.error({ err }, "shutdown failed");
+      process.exit(1);
+    }
   };
   process.on("SIGTERM", () => void shutdown("SIGTERM"));
   process.on("SIGINT", () => void shutdown("SIGINT"));
@@ -723,13 +742,14 @@ import { loadConfig } from "@/config.js";
 
 export async function makeTestServer() {
   const config = loadConfig({
+    ...process.env,
     NODE_ENV: "test",
     HOST: "127.0.0.1",
     DATABASE_URL: process.env.DATABASE_URL ?? "postgres://app:app@localhost:5432/paper",
     REDIS_URL: process.env.REDIS_URL ?? "redis://localhost:6379",
     JWT_SECRET: "test-secret-must-be-at-least-32-characters-long",
     LOG_LEVEL: "fatal",
-  } as NodeJS.ProcessEnv);
+  });
   const app = await buildServer({ config });
   await app.ready();
   return app;

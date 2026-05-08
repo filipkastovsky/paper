@@ -5,10 +5,18 @@ async function main(): Promise<void> {
   const config = loadConfig();
   const app = await buildServer({ config });
 
+  let shuttingDown = false;
   const shutdown = async (signal: string): Promise<void> => {
+    if (shuttingDown) return;
+    shuttingDown = true;
     app.log.info({ signal }, "shutdown initiated");
-    await app.close();
-    process.exit(0);
+    try {
+      await app.close();
+      process.exit(0);
+    } catch (err) {
+      app.log.error({ err }, "shutdown failed");
+      process.exit(1);
+    }
   };
   process.on("SIGTERM", () => void shutdown("SIGTERM"));
   process.on("SIGINT", () => void shutdown("SIGINT"));

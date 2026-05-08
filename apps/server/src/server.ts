@@ -14,6 +14,17 @@ export async function buildServer({ config }: BuildServerOptions): Promise<Fasti
         config.NODE_ENV === "development"
           ? { target: "pino-pretty", options: { translateTime: "HH:MM:ss" } }
           : undefined,
+      redact: {
+        paths: [
+          "req.headers.authorization",
+          "req.headers.cookie",
+          "*.password",
+          "*.token",
+          "*.refresh_token",
+          "*.access_token",
+        ],
+        censor: "[REDACTED]",
+      },
     },
     disableRequestLogging: false,
   });
