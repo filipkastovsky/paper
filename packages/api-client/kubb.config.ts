@@ -26,8 +26,7 @@ export default defineConfig({
     }),
     pluginReactQuery({
       output: { path: "hooks" },
-      client: "fetch",
-      importPath: "../../http-client.ts",
+      client: { importPath: "../../http-client.ts" },
       mutation: { methods: ["post", "put", "patch", "delete"] },
     }),
     pluginMsw({ output: { path: "msw" }, handlers: true }),

@@ -3,9 +3,9 @@
 * Do not edit manually.
 */
 
-import fetch from "@kubb/plugin-client/clients/axios";
+import fetch from "../../http-client.ts";
+import type { RequestConfig, ResponseErrorConfig } from "../../http-client.ts";
 import type { PostV1AuthDeviceMutationRequest, PostV1AuthDeviceMutationResponse } from "../types/PostV1AuthDevice.ts";
-import type { RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
 import type { UseMutationOptions, QueryClient } from "@tanstack/react-query";
 import { postV1AuthDevice } from "../client/postV1AuthDevice.ts";
 import { useMutation } from "@tanstack/react-query";

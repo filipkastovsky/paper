@@ -3,9 +3,9 @@
 * Do not edit manually.
 */
 
-import fetch from "@kubb/plugin-client/clients/axios";
+import fetch from "../../http-client.ts";
+import type { RequestConfig, ResponseErrorConfig } from "../../http-client.ts";
 import type { GetV1HealthQueryResponse } from "../types/GetV1Health.ts";
-import type { RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
 import type { QueryKey, QueryClient, QueryObserverOptions, UseQueryResult } from "@tanstack/react-query";
 import { getV1Health } from "../client/getV1Health.ts";
 import { queryOptions, useQuery } from "@tanstack/react-query";
