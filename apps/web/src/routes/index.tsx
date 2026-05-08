@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Eyebrow } from "@/components/ui/eyebrow";
 import { Heading } from "@/components/ui/heading";
+import { getStoredUser } from "@/lib/auth";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/")({
@@ -9,6 +10,7 @@ export const Route = createFileRoute("/")({
 });
 
 function WelcomeScreen() {
+  const user = getStoredUser();
   return (
     <main className="min-h-dvh bg-paper px-6 py-12 flex items-center justify-center">
       <Card
@@ -33,6 +35,11 @@ function WelcomeScreen() {
           <p className="mt-4 text-ink-soft">
             No real money. Pastel lessons. A daily question. A streak you'll want to keep.
           </p>
+          {user && (
+            <p data-testid="user-id" className="mt-3 text-xs text-muted">
+              session: {user.id.slice(0, 8)}…
+            </p>
+          )}
           <Button trailing="→" fullWidth className="mt-8">
             Get started
           </Button>
