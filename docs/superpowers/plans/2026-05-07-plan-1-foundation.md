@@ -378,6 +378,8 @@ git commit -m "chore: add biome + lefthook"
 - [ ] **Step 1: Create `docker-compose.yml`**
 
 ```yaml
+name: paper
+
 services:
   postgres:
     image: postgres:16-alpine
@@ -405,7 +407,7 @@ services:
       retries: 5
 
   minio:
-    image: minio/minio:latest
+    image: minio/minio:RELEASE.2025-04-22T22-12-26Z
     ports:
       - "9000:9000"
       - "9001:9001"
@@ -415,6 +417,11 @@ services:
     command: server /data --console-address ":9001"
     volumes:
       - paper_minio_data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
 
 volumes:
   paper_pg_data: {}
@@ -433,6 +440,7 @@ HOST=0.0.0.0
 PORT=3000
 
 # Web (Vite reads VITE_*)
+# VITE_API_BASE: localhost works when web runs on the host; from inside a container use host.containers.internal.
 VITE_API_BASE=http://localhost:3000
 VITE_POSTHOG_API_KEY=
 VITE_POSTHOG_HOST=https://eu.posthog.com
