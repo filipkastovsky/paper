@@ -1028,13 +1028,22 @@ export async function registerSwagger(app: FastifyInstance): Promise<void> {
       openapi: "3.1.0",
       info: { title: "paper API", version: "0.0.0" },
       servers: [{ url: "http://localhost:3000" }],
+      components: {
+        securitySchemes: {
+          // T9 will mark protected routes with `security: [{ bearerAuth: [] }]`.
+          bearerAuth: { type: "http", scheme: "bearer", bearerFormat: "JWT" },
+        },
+      },
     },
     transform: jsonSchemaTransform,
   });
   await app.register(fastifySwaggerUi, {
     routePrefix: "/docs",
-    uiConfig: { docExpansion: "list", deepLinking: false },
+    uiConfig: { docExpansion: "list", deepLinking: true },
   });
+  // ADR 0006 §2.2 mandates the canonical OpenAPI document at /openapi.json
+  // (Swagger UI's default JSON path is /docs/json; we expose both).
+  app.get("/openapi.json", { schema: { hide: true } }, async () => app.swagger());
 }
 ```
 
@@ -1084,14 +1093,13 @@ export type AppInstance = FastifyInstance;
 - [ ] **Step 4: Modify `apps/server/src/routes/health.ts` to declare a Zod response schema (so it shows up in OpenAPI)**
 
 ```typescript
-import type { FastifyInstance } from "fastify";
+import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import { z } from "zod";
-import type { ZodTypeProvider } from "fastify-type-provider-zod";
 
 const HealthResponse = z.object({ status: z.literal("ok") });
 
-export async function healthRoutes(app: FastifyInstance): Promise<void> {
-  app.withTypeProvider<ZodTypeProvider>().get(
+export const healthRoutes: FastifyPluginAsyncZod = async (app) => {
+  app.get(
     "/v1/health",
     {
       schema: {
@@ -1102,7 +1110,7 @@ export async function healthRoutes(app: FastifyInstance): Promise<void> {
     },
     async () => ({ status: "ok" as const }),
   );
-}
+};
 ```
 
 - [ ] **Step 5: Add an OpenAPI test**
@@ -1122,7 +1130,7 @@ describe("GET /openapi.json", () => {
   });
 
   it("exposes the health endpoint in the OpenAPI spec", async () => {
-    const res = await app.inject({ method: "GET", url: "/docs/json" });
+    const res = await app.inject({ method: "GET", url: "/openapi.json" });
     expect(res.statusCode).toBe(200);
     const spec = res.json() as { paths: Record<string, unknown> };
     expect(spec.paths["/v1/health"]).toBeDefined();
@@ -1130,7 +1138,7 @@ describe("GET /openapi.json", () => {
 });
 ```
 
-(`@fastify/swagger-ui`'s default JSON route is `/docs/json`; the UI itself lives at `/docs`.)
+(`@fastify/swagger-ui`'s default JSON route is `/docs/json`; the UI itself lives at `/docs`. We additionally expose the canonical `/openapi.json` route per ADR 0006 §2.2 — the test hits that path.)
 
 - [ ] **Step 6: Run tests**
 

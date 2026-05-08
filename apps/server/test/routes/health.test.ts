@@ -31,7 +31,7 @@ describe("GET /openapi.json", () => {
   });
 
   it("exposes the health endpoint in the OpenAPI spec", async () => {
-    const res = await app.inject({ method: "GET", url: "/docs/json" });
+    const res = await app.inject({ method: "GET", url: "/openapi.json" });
     expect(res.statusCode).toBe(200);
     const spec = res.json() as { paths: Record<string, unknown> };
     expect(spec.paths["/v1/health"]).toBeDefined();
