@@ -4,7 +4,7 @@
 
 **Goal:** A user can install the `paper` PWA on their phone, automatically authenticate with a device UUID, and see a welcome screen rendered with Marshmallow primitives — fully deployed to the Hetzner k3s cluster (API) and Cloudflare Pages (PWA), with logs in Loki, traces in Tempo, and metrics in Prometheus.
 
-**Architecture:** A pnpm monorepo (`apps/web`, `apps/server`, `packages/shared`, `packages/api-client`) wired to a docker-compose dev environment (Postgres, Redis, MinIO) and a single Terragrunt stack at `../lab/stacks/paper/` that deploys the API + per-app Redis + migration Job to the existing CloudNativePG-equipped cluster. The PWA is built by Vite and shipped to Cloudflare Pages; the API is a Fastify+Drizzle service behind a Cloudflare-proxied Traefik IngressRoute. End-user auth is a custom JWT-with-refresh flow keyed by a client-generated device UUID.
+**Architecture:** A pnpm monorepo (`apps/web`, `apps/server`, `packages/shared`, `packages/api-client`) wired to a `podman compose` dev environment (Postgres, Redis, MinIO) and a single Terragrunt stack at `../lab/stacks/paper/` that deploys the API + per-app Redis + migration Job to the existing CloudNativePG-equipped cluster. The PWA is built by Vite and shipped to Cloudflare Pages; the API is a Fastify+Drizzle service behind a Cloudflare-proxied Traefik IngressRoute. End-user auth is a custom JWT-with-refresh flow keyed by a client-generated device UUID.
 
 **Tech Stack:** Node 22 LTS, pnpm 9, Fastify 5, Zod 4, Drizzle, Kubb, postgres.js, pino, OpenTelemetry, Vite 5, React 18, TanStack Router, TanStack Query, Zustand, Tailwind v4, vite-plugin-pwa, Vitest, Playwright, Biome, lefthook, Docker (ARM64), kubectl, terragrunt, wrangler. See `docs/decisions/0001`–`0009` for the full rationale.
 
@@ -17,15 +17,27 @@ These must exist before Task 1. Verify each.
 | # | Prerequisite | How to verify |
 |---|---|---|
 | P1 | Node 22 + pnpm 9 installed | `node -v` → `v22.*`; `pnpm -v` → `9.*` |
-| P2 | Docker Desktop (or Colima) running | `docker ps` succeeds |
+| P2 | Podman machine running (macOS) or podman socket up (Linux) | `podman ps` succeeds |
 | P3 | `lab` repo cloned at `/Users/filipkastovsky/work/personal/lab` with cluster reachable | `cd ../lab && kubectl --kubeconfig=lab_kubeconfig.yaml get nodes` shows 3 nodes Ready |
 | P4 | Cloudflare account with API token (Zone:DNS:Edit + Pages:Edit + Workers R2 Storage:Edit) | `npx wrangler whoami` succeeds |
 | P5 | DNS A record `paper.lab.filipkastovsky.cz` (orange-cloud proxied) → cluster ingress IP — **created via Cloudflare dashboard before Task 22** | `dig paper.lab.filipkastovsky.cz` returns Cloudflare IP |
-| P6 | GitHub Personal Access Token with `write:packages` scope, exported as `GHCR_TOKEN`, plus `GHCR_USER=<your-github-username>` | `echo $GHCR_TOKEN \| docker login ghcr.io -u $GHCR_USER --password-stdin` succeeds |
+| P6 | GitHub Personal Access Token with `write:packages` scope, exported as `GHCR_TOKEN`, plus `GHCR_USER=<your-github-username>` | `echo $GHCR_TOKEN \| podman login ghcr.io -u $GHCR_USER --password-stdin` succeeds |
 | P7 | Cloudflare R2 bucket `paper-share-cards` and a Pages project named `paper-web` (created via dashboard or `wrangler r2 bucket create paper-share-cards` + `wrangler pages project create paper-web`) | both visible in dashboard |
 | P8 | `tofu` (OpenTofu) and `terragrunt` installed | `tofu -version`, `terragrunt -v` |
 
 If any P-row fails, fix it before starting Task 1.
+
+---
+
+## Container runtime note
+
+This project uses **podman** end-to-end (the user does not have docker installed). Implications threaded through the plan:
+
+- `podman compose` shells out to `docker-compose` (or `podman-compose`) to read `docker-compose.yml`. The on-disk filename remains `docker-compose.yml` because that's the canonical compose file name; only the CLI invocation is `podman compose`.
+- `podman build --platform=linux/arm64 ...` replaces `docker buildx build`. No `--load` flag (built images go to the local store directly). `--push` is replaced by a separate `podman push` after the build completes.
+- On macOS, podman runs containers in a Linux VM. Containers reach the host via `host.containers.internal`, **not** `localhost`. The smoke-run step in Task 20 reflects this.
+- `podman login ghcr.io` for registry auth.
+- `Dockerfile` filename and `# syntax=docker/dockerfile:1.7` directive are kept as-is; podman build understands them natively.
 
 ---
 
@@ -205,10 +217,10 @@ packages:
     "node": ">=22",
     "pnpm": ">=9"
   },
-  "packageManager": "pnpm@9.15.0",
+  "packageManager": "pnpm@10.30.3",
   "scripts": {
-    "dev:infra": "docker compose up -d",
-    "dev:infra:down": "docker compose down -v",
+    "dev:infra": "podman compose up -d",
+    "dev:infra:down": "podman compose down -v",
     "dev": "pnpm dev:infra && pnpm -r --parallel dev",
     "dev:web": "pnpm --filter @paper/web dev",
     "dev:server": "pnpm --filter @paper/server dev",
@@ -357,7 +369,7 @@ git commit -m "chore: add biome + lefthook"
 
 ---
 
-### Task 3: Add docker-compose for local infra
+### Task 3: Add `docker-compose.yml` for local infra (run via `podman compose`)
 
 **Files:**
 - Create: `docker-compose.yml`, `.env.example`
@@ -428,7 +440,7 @@ VITE_POSTHOG_HOST=https://eu.posthog.com
 - [ ] **Step 3: Bring up local infra**
 
 Run: `cp .env.example .env && pnpm dev:infra`
-Expected: `docker compose up -d` finishes, `docker compose ps` shows 3 services healthy. Verify Postgres: `docker exec -i $(docker compose ps -q postgres) psql -U app -d paper -c "SELECT 1;"` returns `1`.
+Expected: `podman compose up -d` finishes, `podman compose ps` shows 3 services healthy. Verify Postgres: `podman exec -i $(podman compose ps -q postgres) psql -U app -d paper -c "SELECT 1;"` returns `1`.
 
 - [ ] **Step 4: Commit**
 
@@ -911,12 +923,12 @@ Expected: writes `apps/server/drizzle/0000_<random_name>.sql` containing `CREATE
 
 - [ ] **Step 9: Apply the migration to the local docker-compose Postgres**
 
-Ensure `docker compose ps` shows postgres healthy. Then:
+Ensure `podman compose ps` shows postgres healthy. Then:
 
 Run: `pnpm --filter @paper/server db:migrate`
 Expected: prints `migrations applied`.
 
-Verify: `docker exec -i $(docker compose ps -q postgres) psql -U app -d paper -c "\dt"` shows `users` and `refresh_tokens` tables.
+Verify: `podman exec -i $(podman compose ps -q postgres) psql -U app -d paper -c "\dt"` shows `users` and `refresh_tokens` tables.
 
 - [ ] **Step 10: Create `apps/server/test/helpers/db.ts` for tests that need a clean DB**
 
@@ -2029,7 +2041,7 @@ Add to `apps/server/package.json` `scripts`:
 "openapi:dump": "tsx scripts/dump-openapi.ts"
 ```
 
-(Note: this script does not need a live database — Drizzle/postgres connection is only opened, not exercised. It's fine if `docker compose` is not running, because `app.swagger()` runs after `app.ready()` based purely on registered route schemas.)
+(Note: this script does not need a live database — Drizzle/postgres connection is only opened, not exercised. It's fine if `podman compose` is not running, because `app.swagger()` runs after `app.ready()` based purely on registered route schemas.)
 
 - [ ] **Step 2: Create `packages/api-client/package.json`**
 
@@ -3034,7 +3046,7 @@ test("second load reuses the existing session (refresh path)", async ({ page }) 
 
 - [ ] **Step 4: Run E2E**
 
-Ensure docker-compose is up and migrations applied: `pnpm dev:infra && pnpm db:migrate`.
+Ensure local infra is up and migrations applied: `pnpm dev:infra && pnpm db:migrate`.
 
 Run: `pnpm --filter @paper/web test:e2e`
 Expected: 2 passed.
@@ -3075,7 +3087,7 @@ tests
 # ----- Stage 1: build -----
 FROM --platform=linux/arm64 node:22-alpine AS build
 WORKDIR /repo
-RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
+RUN corepack enable && corepack prepare pnpm@10.30.3 --activate
 
 # Copy workspace manifests for cache-friendly install
 COPY pnpm-workspace.yaml pnpm-lock.yaml package.json tsconfig.base.json ./
@@ -3101,7 +3113,7 @@ ENV NODE_ENV=production
 COPY pnpm-workspace.yaml pnpm-lock.yaml package.json ./
 COPY apps/server/package.json apps/server/
 COPY packages/shared/package.json packages/shared/
-RUN corepack enable && corepack prepare pnpm@9.15.0 --activate \
+RUN corepack enable && corepack prepare pnpm@10.30.3 --activate \
     && pnpm install --frozen-lockfile --prod --filter "@paper/server..." --filter "@paper/shared"
 
 COPY --from=build /repo/apps/server/dist apps/server/dist
@@ -3115,15 +3127,15 @@ CMD ["node", "apps/server/dist/index.js"]
 
 - [ ] **Step 3: Local build (validates the Dockerfile end-to-end)**
 
-Run: `docker buildx build --platform=linux/arm64 -t ghcr.io/$GHCR_USER/paper:dev -f apps/server/Dockerfile --load .`
+Run: `podman build --platform=linux/arm64 -t ghcr.io/$GHCR_USER/paper:dev -f apps/server/Dockerfile .`
 Expected: a successful build. The resulting image is ~150–200 MB.
 
-- [ ] **Step 4: Smoke-run the container locally against the docker-compose Postgres**
+- [ ] **Step 4: Smoke-run the container locally against the local Postgres**
 
 ```bash
-docker run --rm --network=host \
-  -e DATABASE_URL=postgres://app:app@localhost:5432/paper \
-  -e REDIS_URL=redis://localhost:6379 \
+podman run --rm -p 3000:3000 \
+  -e DATABASE_URL=postgres://app:app@host.containers.internal:5432/paper \
+  -e REDIS_URL=redis://host.containers.internal:6379 \
   -e JWT_SECRET=dev-only-change-me-to-a-64-byte-hex-string-in-prod-please-rotate \
   -e LOG_LEVEL=info \
   ghcr.io/$GHCR_USER/paper:dev
@@ -3470,7 +3482,8 @@ From the `paper` repo:
 
 ```bash
 SHA=$(git rev-parse --short=12 HEAD)
-docker buildx build --platform=linux/arm64 -t ghcr.io/$GHCR_USER/paper:$SHA -f apps/server/Dockerfile --push .
+podman build --platform=linux/arm64 -t ghcr.io/$GHCR_USER/paper:$SHA -f apps/server/Dockerfile .
+podman push ghcr.io/$GHCR_USER/paper:$SHA
 ```
 
 - [ ] **Step 2: Apply the Terragrunt stack with the new tag**
