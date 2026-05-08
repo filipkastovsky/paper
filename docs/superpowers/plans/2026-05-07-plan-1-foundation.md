@@ -1600,7 +1600,6 @@ Expected: all 3 fail (route does not exist).
 
 ```typescript
 import { randomUUID } from "node:crypto";
-import { eq } from "drizzle-orm";
 import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import { z } from "zod";
 import { refreshTokens, users } from "@/db/schema/index.js";
@@ -1618,7 +1617,9 @@ const TokenResponse = z.object({
   access_token: z.string(),
   refresh_token: z.string(),
   user: z.object({
-    id: z.guid(),
+    // Server-issued user.id is always a real RFC 4122 v4 UUID (drizzle defaultRandom()).
+    // Strict z.uuid() tightens the OpenAPI contract; request body keeps z.guid() for client tolerance.
+    id: z.uuid(),
     handle: z.string().nullable(),
   }),
 });
@@ -1641,14 +1642,18 @@ export const authRoutes: FastifyPluginAsyncZod = async (app) => {
     async (request) => {
       const { device_uuid } = request.body;
 
-      // upsert user
-      const [existing] = await app.db.select().from(users).where(eq(users.deviceUuid, device_uuid));
-      const user =
-        existing ??
-        (await app.db
-          .insert(users)
-          .values({ deviceUuid: device_uuid })
-          .returning())[0];
+      // Atomic upsert: collapses the previous SELECT-then-INSERT into one round-trip
+      // and removes the TOCTOU race when two concurrent first-time auths share a
+      // device_uuid (the second would have hit the unique constraint as a 500).
+      const [user] = await app.db
+        .insert(users)
+        .values({ deviceUuid: device_uuid })
+        .onConflictDoUpdate({
+          target: users.deviceUuid,
+          // No-op SET to force RETURNING to surface the existing row.
+          set: { deviceUuid: device_uuid },
+        })
+        .returning();
       if (!user) throw new Error("failed to upsert user");
 
       // mint tokens
