@@ -1589,17 +1589,21 @@ import {
 import { randomUUID } from "node:crypto";
 
 const DeviceAuthBody = z.object({
-  device_uuid: z.string().uuid(),
+  device_uuid: z.guid(),
 });
 
 const TokenResponse = z.object({
   access_token: z.string(),
   refresh_token: z.string(),
   user: z.object({
-    id: z.string().uuid(),
+    id: z.guid(),
     handle: z.string().nullable(),
   }),
 });
+
+// Note: Zod 4's `z.uuid()` is strict RFC 9562 (rejects non-conforming version/variant
+// nibbles, including test fixtures like all-`1`s). `z.guid()` is the loose hex-grouping
+// matcher; accepts client-generated `crypto.randomUUID()` as well as legacy device IDs.
 
 export async function authRoutes(app: FastifyInstance): Promise<void> {
   const typed = app.withTypeProvider<ZodTypeProvider>();
