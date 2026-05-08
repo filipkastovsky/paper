@@ -5,15 +5,25 @@ import {
   validatorCompiler,
 } from "fastify-type-provider-zod";
 import type { Config } from "./config.js";
+import type { Db } from "./db/client.js";
 import { authPlugin } from "./plugins/auth.js";
 import { registerSwagger } from "./plugins/swagger.js";
+import { authRoutes } from "./routes/auth.js";
 import { healthRoutes } from "./routes/health.js";
+
+declare module "fastify" {
+  interface FastifyInstance {
+    db: Db;
+    config: Config;
+  }
+}
 
 export interface BuildServerOptions {
   config: Config;
+  db: Db;
 }
 
-export async function buildServer({ config }: BuildServerOptions): Promise<FastifyInstance> {
+export async function buildServer({ config, db }: BuildServerOptions): Promise<FastifyInstance> {
   const app = Fastify({
     logger: {
       level: config.LOG_LEVEL,
@@ -38,10 +48,13 @@ export async function buildServer({ config }: BuildServerOptions): Promise<Fasti
 
   app.setValidatorCompiler(validatorCompiler);
   app.setSerializerCompiler(serializerCompiler);
+  app.decorate("db", db);
+  app.decorate("config", config);
 
   await app.register(authPlugin, { config });
   await registerSwagger(app);
   await app.register(healthRoutes);
+  await app.register(authRoutes);
 
   return app;
 }

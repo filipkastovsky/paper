@@ -1,9 +1,11 @@
 import { loadConfig } from "./config.js";
+import { makeDb } from "./db/client.js";
 import { buildServer } from "./server.js";
 
 async function main(): Promise<void> {
   const config = loadConfig();
-  const app = await buildServer({ config });
+  const handles = makeDb(config.DATABASE_URL);
+  const app = await buildServer({ config, db: handles.db });
 
   let shuttingDown = false;
   const shutdown = async (signal: string): Promise<void> => {
@@ -12,6 +14,7 @@ async function main(): Promise<void> {
     app.log.info({ signal }, "shutdown initiated");
     try {
       await app.close();
+      await handles.sql.end();
       process.exit(0);
     } catch (err) {
       app.log.error({ err }, "shutdown failed");

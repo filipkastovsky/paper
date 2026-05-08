@@ -1,7 +1,15 @@
 import { loadConfig } from "@/config.js";
+import { type DbHandles, makeDb } from "@/db/client.js";
 import { buildServer } from "@/server.js";
 
-export async function makeTestServer() {
+export interface TestServer {
+  app: Awaited<ReturnType<typeof buildServer>>;
+  db: DbHandles["db"];
+  sql: DbHandles["sql"];
+  config: ReturnType<typeof loadConfig>;
+}
+
+export async function makeTestServer(): Promise<TestServer> {
   const config = loadConfig({
     ...process.env,
     NODE_ENV: "test",
@@ -11,7 +19,8 @@ export async function makeTestServer() {
     JWT_SECRET: "test-secret-must-be-at-least-32-characters-long",
     LOG_LEVEL: "fatal",
   });
-  const app = await buildServer({ config });
+  const handles = makeDb(config.DATABASE_URL, { max: 2 });
+  const app = await buildServer({ config, db: handles.db });
   await app.ready();
-  return app;
+  return { app, db: handles.db, sql: handles.sql, config };
 }
