@@ -18,3 +18,22 @@ describe("GET /v1/health", () => {
     expect(res.json()).toEqual({ status: "ok" });
   });
 });
+
+describe("GET /openapi.json", () => {
+  let app: Awaited<ReturnType<typeof makeTestServer>>;
+
+  beforeAll(async () => {
+    app = await makeTestServer();
+  });
+
+  afterAll(async () => {
+    await app.close();
+  });
+
+  it("exposes the health endpoint in the OpenAPI spec", async () => {
+    const res = await app.inject({ method: "GET", url: "/docs/json" });
+    expect(res.statusCode).toBe(200);
+    const spec = res.json() as { paths: Record<string, unknown> };
+    expect(spec.paths["/v1/health"]).toBeDefined();
+  });
+});

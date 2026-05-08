@@ -1,5 +1,11 @@
 import Fastify, { type FastifyInstance } from "fastify";
+import {
+  type ZodTypeProvider,
+  serializerCompiler,
+  validatorCompiler,
+} from "fastify-type-provider-zod";
 import type { Config } from "./config.js";
+import { registerSwagger } from "./plugins/swagger.js";
 import { healthRoutes } from "./routes/health.js";
 
 export interface BuildServerOptions {
@@ -27,9 +33,15 @@ export async function buildServer({ config }: BuildServerOptions): Promise<Fasti
       },
     },
     disableRequestLogging: false,
-  });
+  }).withTypeProvider<ZodTypeProvider>();
 
+  app.setValidatorCompiler(validatorCompiler);
+  app.setSerializerCompiler(serializerCompiler);
+
+  await registerSwagger(app);
   await app.register(healthRoutes);
 
   return app;
 }
+
+export type AppInstance = FastifyInstance;
