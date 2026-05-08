@@ -7,7 +7,10 @@ const ConfigSchema = z.object({
   DATABASE_URL: z.string().url(),
   REDIS_URL: z.string().url(),
   JWT_SECRET: z.string().min(32, "JWT_SECRET must be at least 32 chars"),
-  LOG_LEVEL: z.enum(["fatal", "error", "warn", "info", "debug", "trace"]).default("info"),
+  LOG_LEVEL: z.enum(["fatal", "error", "warn", "info", "debug", "trace", "silent"]).default("info"),
+  OTEL_EXPORTER_OTLP_ENDPOINT: z.string().url().optional(),
+  OTEL_EXPORTER_OTLP_HEADERS: z.string().optional(),
+  OTEL_SERVICE_NAME: z.string().default("paper-api"),
 });
 
 export type Config = z.infer<typeof ConfigSchema>;

@@ -1,9 +1,11 @@
 import { loadConfig } from "./config.js";
 import { makeDb } from "./db/client.js";
+import { startOtel } from "./plugins/otel.js";
 import { buildServer } from "./server.js";
 
 async function main(): Promise<void> {
   const config = loadConfig();
+  const otel = startOtel(config); // no-op if OTEL_EXPORTER_OTLP_ENDPOINT unset
   const handles = makeDb(config.DATABASE_URL);
   const app = await buildServer({ config, db: handles.db });
 
@@ -15,6 +17,7 @@ async function main(): Promise<void> {
     try {
       await app.close();
       await handles.sql.end();
+      await otel?.shutdown();
       process.exit(0);
     } catch (err) {
       app.log.error({ err }, "shutdown failed");
