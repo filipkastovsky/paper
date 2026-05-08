@@ -1967,44 +1967,51 @@ const ConfigSchema = z.object({
 - [ ] **Step 3: Create `apps/server/src/plugins/otel.ts`**
 
 ```typescript
-import { NodeSDK } from "@opentelemetry/sdk-node";
-import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
-import { getNodeAutoInstrumentations } from "@opentelemetry/auto-instrumentations-node";
-import { resourceFromAttributes } from "@opentelemetry/resources";
-import { ATTR_SERVICE_NAME } from "@opentelemetry/semantic-conventions";
 import type { Config } from "@/config.js";
+import { getNodeAutoInstrumentations } from "@opentelemetry/auto-instrumentations-node";
+import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
+import { Resource } from "@opentelemetry/resources";
+import { NodeSDK } from "@opentelemetry/sdk-node";
+import { ATTR_SERVICE_NAME } from "@opentelemetry/semantic-conventions";
 
 export function startOtel(config: Config): NodeSDK | null {
   if (!config.OTEL_EXPORTER_OTLP_ENDPOINT) return null;
   const headers = config.OTEL_EXPORTER_OTLP_HEADERS
     ? Object.fromEntries(
         config.OTEL_EXPORTER_OTLP_HEADERS.split(",").map((kv) => {
-          const [k, ...v] = kv.split("=");
-          return [k!.trim(), v.join("=").trim()];
+          const [k = "", ...v] = kv.split("=");
+          return [k.trim(), v.join("=").trim()];
         }),
       )
     : undefined;
 
   const sdk = new NodeSDK({
-    resource: resourceFromAttributes({ [ATTR_SERVICE_NAME]: config.OTEL_SERVICE_NAME }),
+    resource: new Resource({ [ATTR_SERVICE_NAME]: config.OTEL_SERVICE_NAME }),
     traceExporter: new OTLPTraceExporter({
       url: `${config.OTEL_EXPORTER_OTLP_ENDPOINT}/v1/traces`,
       headers,
     }),
-    instrumentations: [getNodeAutoInstrumentations({ "@opentelemetry/instrumentation-fs": { enabled: false } })],
+    instrumentations: [
+      getNodeAutoInstrumentations({ "@opentelemetry/instrumentation-fs": { enabled: false } }),
+    ],
   });
   sdk.start();
   return sdk;
 }
 ```
 
+Notes:
+- `@opentelemetry/resources@1.30` (resolved by sdk-node 0.55) does not yet export `resourceFromAttributes` — that's the v2 API. Use `new Resource(...)` for the 1.x line.
+- `@opentelemetry/resources` and `@opentelemetry/semantic-conventions` are added as **explicit** dependencies so types resolve under `verbatimModuleSyntax`.
+- The `[k = "", ...v]` destructuring default avoids Biome's `noNonNullAssertion` rule.
+
 - [ ] **Step 4: Create `apps/server/src/plugins/rate-limit.ts`**
 
 ```typescript
-import fp from "fastify-plugin";
-import fastifyRateLimit from "@fastify/rate-limit";
-import Redis from "ioredis";
 import type { Config } from "@/config.js";
+import fastifyRateLimit from "@fastify/rate-limit";
+import fp from "fastify-plugin";
+import { Redis } from "ioredis";
 
 export const rateLimitPlugin = fp(async (app, opts: { config: Config }) => {
   const redis = new Redis(opts.config.REDIS_URL, { maxRetriesPerRequest: 1 });
@@ -2015,24 +2022,37 @@ export const rateLimitPlugin = fp(async (app, opts: { config: Config }) => {
     timeWindow: "1 minute",
     keyGenerator: (req) => req.headers["x-forwarded-for"]?.toString() ?? req.ip,
   });
+  app.addHook("onClose", async () => {
+    redis.disconnect();
+  });
 });
 ```
+
+Notes:
+- `ioredis` ships CJS with `Redis` as both `default` and named export. Under `verbatimModuleSyntax` + NodeNext, `import Redis from "ioredis"` surfaces the namespace, not the class. Use the named import.
+- `onClose` hook ensures the redis connection releases when Fastify closes — important for test isolation.
 
 - [ ] **Step 5: Wire in `apps/server/src/server.ts` after `authPlugin`**
 
 Add to imports:
 
 ```typescript
-import fastifyMetrics from "fastify-metrics";
+// fastify-metrics ships CJS with `exports.default = plugin`, so the default
+// import surfaces the wrapper namespace under NodeNext — use `.default`.
+import fastifyMetricsPkg from "fastify-metrics";
 import { rateLimitPlugin } from "./plugins/rate-limit.js";
+
+const fastifyMetrics = fastifyMetricsPkg.default;
 ```
 
 After `app.register(authPlugin, ...)`:
 
 ```typescript
-await app.register(fastifyMetrics, { endpoint: "/metrics" });
+await app.register(fastifyMetrics, { endpoint: "/metrics", clearRegisterOnInit: true });
 await app.register(rateLimitPlugin, { config });
 ```
+
+(`clearRegisterOnInit: true` clears the prom-client registry at plugin init so vitest's repeat instantiation across suites doesn't trip "metric already registered" errors. Benign in production where the registry starts empty.)
 
 - [ ] **Step 6: Start OTel from `apps/server/src/index.ts` BEFORE `buildServer`**
 
