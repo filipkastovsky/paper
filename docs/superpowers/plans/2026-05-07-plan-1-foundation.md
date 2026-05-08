@@ -215,7 +215,7 @@ packages:
   "type": "module",
   "engines": {
     "node": ">=22",
-    "pnpm": ">=9"
+    "pnpm": ">=10"
   },
   "packageManager": "pnpm@10.30.3",
   "scripts": {
