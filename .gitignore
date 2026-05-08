@@ -1,0 +1,28 @@
+node_modules/
+dist/
+.turbo/
+.cache/
+coverage/
+.DS_Store
+*.log
+
+# env
+.env
+.env.*
+!.env.example
+
+# IDE
+.idea/
+.vscode/
+
+# build outputs
+apps/web/dist/
+apps/web/dev-dist/
+apps/web/playwright-report/
+apps/web/test-results/
+apps/server/dist/
+packages/api-client/src/
+!packages/api-client/src/.gitkeep
+
+# tooling
+.pnpm-store/

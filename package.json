@@ -1,0 +1,31 @@
+{
+  "name": "paper",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22",
+    "pnpm": ">=10"
+  },
+  "packageManager": "pnpm@10.30.3",
+  "scripts": {
+    "dev:infra": "podman compose up -d",
+    "dev:infra:down": "podman compose down -v",
+    "dev": "pnpm dev:infra && pnpm -r --parallel dev",
+    "dev:web": "pnpm --filter @paper/web dev",
+    "dev:server": "pnpm --filter @paper/server dev",
+    "build": "pnpm -r build",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "test:e2e": "pnpm --filter @paper/web test:e2e",
+    "gen:api-client": "pnpm --filter @paper/api-client gen",
+    "db:generate": "pnpm --filter @paper/server db:generate",
+    "db:migrate": "pnpm --filter @paper/server db:migrate"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "lefthook": "^1.10.0",
+    "typescript": "^5.7.2"
+  }
+}
