@@ -5,6 +5,7 @@ import {
   validatorCompiler,
 } from "fastify-type-provider-zod";
 import type { Config } from "./config.js";
+import { authPlugin } from "./plugins/auth.js";
 import { registerSwagger } from "./plugins/swagger.js";
 import { healthRoutes } from "./routes/health.js";
 
@@ -38,6 +39,7 @@ export async function buildServer({ config }: BuildServerOptions): Promise<Fasti
   app.setValidatorCompiler(validatorCompiler);
   app.setSerializerCompiler(serializerCompiler);
 
+  await app.register(authPlugin, { config });
   await registerSwagger(app);
   await app.register(healthRoutes);
 
