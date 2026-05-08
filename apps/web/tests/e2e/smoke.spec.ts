@@ -1,9 +1,18 @@
 import { expect, test } from "@playwright/test";
 
 test("first load creates a device session and renders welcome", async ({ page }) => {
-  // Clear localStorage before navigating to ensure a fresh session.
-  await page.goto("/");
-  await page.evaluate(() => localStorage.clear());
+  // Clear localStorage before any page scripts run so we deterministically
+  // observe a "first load" — without this, repeated runs against the same dev
+  // server reuse a previously-stored device UUID. Doing it via addInitScript
+  // (vs goto -> evaluate -> goto) avoids a "navigation interrupted" flake on
+  // WebKit when the second goto starts before the first commits.
+  await page.addInitScript(() => {
+    try {
+      localStorage.clear();
+    } catch {
+      // ignore — runs before the document has a usable storage origin.
+    }
+  });
   await page.goto("/");
 
   await expect(page.getByText(/Learn crypto with \$10,000/i)).toBeVisible();
