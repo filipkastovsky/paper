@@ -295,6 +295,7 @@ git commit -m "chore: initialize pnpm monorepo skeleton"
       "**/node_modules",
       "**/coverage",
       "**/.cache",
+      "docs/**",
       "packages/api-client/src/**",
       "apps/web/src/routeTree.gen.ts",
       "apps/server/drizzle/**"
