@@ -570,6 +570,7 @@ git commit -m "feat(shared): scaffold @paper/shared package with events + types"
   },
   "devDependencies": {
     "@types/node": "^22.10.5",
+    "pino-pretty": "^13.1.3",
     "tsc-alias": "^1.8.10",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2",
@@ -577,6 +578,8 @@ git commit -m "feat(shared): scaffold @paper/shared package with events + types"
   }
 }
 ```
+
+(Note: `pino-pretty` is required at dev runtime because `server.ts` references it via `transport.target` when `NODE_ENV=development`. Tests use `LOG_LEVEL: "fatal"` and never load the transport.)
 
 - [ ] **Step 2: Create `apps/server/tsconfig.json`**
 
@@ -722,11 +725,10 @@ export async function makeTestServer() {
   const config = loadConfig({
     NODE_ENV: "test",
     HOST: "127.0.0.1",
-    PORT: "0",
     DATABASE_URL: process.env.DATABASE_URL ?? "postgres://app:app@localhost:5432/paper",
     REDIS_URL: process.env.REDIS_URL ?? "redis://localhost:6379",
     JWT_SECRET: "test-secret-must-be-at-least-32-characters-long",
-    LOG_LEVEL: "silent",
+    LOG_LEVEL: "fatal",
   } as NodeJS.ProcessEnv);
   const app = await buildServer({ config });
   await app.ready();
