@@ -1,0 +1,153 @@
+/*
+ * Marshmallow — v0 design tokens
+ * Canonical source: docs/design/design-system.md
+ *
+ * Framework-agnostic. Import from the client's root stylesheet:
+ *   @import 'docs/design/tokens.css';
+ *
+ * Fonts (declare in your <head>):
+ *   <link rel="preconnect" href="https://fonts.googleapis.com">
+ *   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+ *   <link rel="stylesheet"
+ *         href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap">
+ */
+
+:root {
+  /* ---------- Neutrals (warm, tinted to h≈85) ---------- */
+  --paper: oklch(98% 0.008 85);
+  --surface: oklch(100% 0 0);
+  --surface-2: oklch(96% 0.012 85);
+  --ink: oklch(22% 0.022 275);
+  --ink-soft: oklch(40% 0.018 275);
+  --muted: oklch(58% 0.012 275);
+  --line: oklch(90% 0.008 275);
+
+  /* ---------- Pastels (rotating accents — no hue owns a category) ---------- */
+  --mint: oklch(84% 0.095 160);
+  --mint-deep: oklch(68% 0.14 160);
+  --peach: oklch(86% 0.085 35);
+  --peach-deep: oklch(72% 0.14 35);
+  --sky: oklch(87% 0.075 230);
+  --sky-deep: oklch(68% 0.14 230);
+  --lilac: oklch(86% 0.085 300);
+  --lilac-deep: oklch(68% 0.14 300);
+
+  /* ---------- Semantic ---------- */
+  --up: oklch(62% 0.17 155);
+  --down: oklch(68% 0.17 28); /* coral, not red */
+
+  /* ---------- Typography ---------- */
+  --font-display: "Bricolage Grotesque", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-body: "Hanken Grotesk", ui-sans-serif, system-ui, -apple-system, sans-serif;
+
+  --step-0: clamp(0.95rem, 0.9rem + 0.2vw, 1.05rem);
+  --step-1: clamp(1.10rem, 1.0rem + 0.4vw, 1.30rem);
+  --step-2: clamp(1.40rem, 1.2rem + 0.8vw, 1.85rem);
+  --step-3: clamp(2.00rem, 1.6rem + 1.6vw, 3.00rem);
+  --step-4: clamp(3.00rem, 2.0rem + 3.5vw, 5.50rem);
+
+  /* ---------- Spacing (4pt base, semantic) ---------- */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 12px;
+  --space-lg: 16px;
+  --space-xl: 24px;
+  --space-2xl: 32px;
+  --space-3xl: 48px;
+  --space-4xl: 64px;
+
+  /* ---------- Radii (plump) ---------- */
+  --r-xs: 10px;
+  --r-sm: 16px;
+  --r-md: 24px;
+  --r-lg: 32px;
+  --r-xl: 44px;
+  --r-pill: 9999px;
+
+  /* ---------- Shadows (tinted toward brand hue) ---------- */
+  --shadow-pop: 0 10px 24px -8px oklch(50% 0.05 275 / 0.22);
+  --shadow-float: 0 18px 40px -18px oklch(50% 0.05 275 / 0.25);
+  --shadow-inset: inset 0 -3px 0 0 oklch(30% 0.05 275 / 0.1);
+  --shadow-phone: 0 40px 80px -30px oklch(30% 0.04 275 / 0.4), 0 10px 24px -12px
+    oklch(30% 0.04 275 / 0.2);
+
+  /* ---------- Motion ---------- */
+  --ease-out: cubic-bezier(0.2, 0.9, 0.2, 1);
+  --duration-micro: 200ms;
+  --duration-entry: 400ms;
+  --stagger-step: 80ms;
+}
+
+/* ---------- Base reset + body ---------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: var(--step-0);
+  line-height: 1.5;
+  color: var(--ink);
+  background: var(--paper);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "ss01", "cv11";
+}
+
+/* ---------- Utility primitives ---------- */
+
+.numeral {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.04em;
+}
+
+.numeral--hero {
+  font-size: clamp(3rem, 8vw, 6rem);
+  line-height: 0.95;
+}
+
+.heading {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.eyebrow {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 0.82rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ---------- Focus visibility ---------- */
+:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+  border-radius: var(--r-xs);
+}
