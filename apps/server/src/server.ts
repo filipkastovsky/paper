@@ -1,3 +1,4 @@
+import fastifyCors from "@fastify/cors";
 import Fastify, { type FastifyInstance } from "fastify";
 // fastify-metrics ships CJS with `exports.default = plugin`, so the default
 // import surfaces the wrapper namespace under NodeNext — use `.default`.
@@ -56,6 +57,16 @@ export async function buildServer({ config, db }: BuildServerOptions): Promise<F
   app.setSerializerCompiler(serializerCompiler);
   app.decorate("db", db);
   app.decorate("config", config);
+
+  // CORS — allow the local Vite dev server to call the API in development /
+  // tests. In production we expect web + api to share an origin, so the empty
+  // default origin (no allow header) is the safe baseline; loosen via reverse
+  // proxy or a follow-up plugin task when that changes.
+  await app.register(fastifyCors, {
+    origin:
+      config.NODE_ENV === "production" ? false : ["http://localhost:5173", "http://127.0.0.1:5173"],
+    credentials: true,
+  });
 
   await app.register(authPlugin, { config });
   await app.register(fastifyMetrics, { endpoint: "/metrics", clearRegisterOnInit: true });

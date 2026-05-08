@@ -17,6 +17,7 @@
     "openapi:dump": "tsx scripts/dump-openapi.ts"
   },
   "dependencies": {
+    "@fastify/cors": "^11.2.0",
     "@fastify/jwt": "^9.0.4",
     "@fastify/otel": "^0.8.0",
     "@fastify/rate-limit": "^10.2.1",
