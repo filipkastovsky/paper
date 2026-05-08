@@ -21,7 +21,7 @@
     "@paper/shared": "workspace:*",
     "drizzle-orm": "^0.38.3",
     "fastify": "^5.2.0",
-    "fastify-type-provider-zod": "^4.0.2",
+    "fastify-type-provider-zod": "^6.0.0",
     "postgres": "^3.4.5",
     "zod": "^4.0.0"
   },

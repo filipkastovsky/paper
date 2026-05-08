@@ -1009,7 +1009,7 @@ Append to `apps/server/package.json` `dependencies`:
 ```json
 "@fastify/swagger": "^9.4.0",
 "@fastify/swagger-ui": "^5.2.0",
-"fastify-type-provider-zod": "^4.0.2"
+"fastify-type-provider-zod": "^6.0.0"
 ```
 
 Run: `pnpm install`.
