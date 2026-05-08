@@ -19,11 +19,18 @@ declare module "fastify" {
 }
 
 export const authPlugin = fp(async (app, opts: { config: Config }) => {
-  await app.register(fastifyJwt, { secret: opts.config.JWT_SECRET });
+  await app.register(fastifyJwt, {
+    secret: opts.config.JWT_SECRET,
+    // Pin HS256 in both directions to match `apps/server/src/lib/tokens.ts` and
+    // defend against algorithm-confusion attacks (e.g. `none`, RS256-with-HMAC-secret).
+    sign: { algorithm: "HS256" },
+    verify: { algorithms: ["HS256"] },
+  });
   app.decorate("authenticate", async (request, reply) => {
     try {
       await request.jwtVerify();
-    } catch (_err) {
+    } catch (err) {
+      request.log.warn({ err }, "jwt verify failed");
       reply.code(401).send({ error: "unauthorized" });
     }
   });
