@@ -1440,6 +1440,17 @@ export async function buildServer({ config, db }: BuildServerOptions): Promise<F
         config.NODE_ENV === "development"
           ? { target: "pino-pretty", options: { translateTime: "HH:MM:ss" } }
           : undefined,
+      redact: {
+        paths: [
+          "req.headers.authorization",
+          "req.headers.cookie",
+          "*.password",
+          "*.token",
+          "*.refresh_token",
+          "*.access_token",
+        ],
+        censor: "[REDACTED]",
+      },
     },
     disableRequestLogging: false,
   }).withTypeProvider<ZodTypeProvider>();
@@ -1460,6 +1471,8 @@ export async function buildServer({ config, db }: BuildServerOptions): Promise<F
 export type AppInstance = FastifyInstance;
 ```
 
+(The `redact` block carries forward the T5 fix; preserve it when modifying server.ts.)
+
 - [ ] **Step 3: Modify `apps/server/src/index.ts` to construct db**
 
 Replace its contents with:
@@ -1474,11 +1487,19 @@ async function main(): Promise<void> {
   const handles = makeDb(config.DATABASE_URL);
   const app = await buildServer({ config, db: handles.db });
 
+  let shuttingDown = false;
   const shutdown = async (signal: string): Promise<void> => {
+    if (shuttingDown) return;
+    shuttingDown = true;
     app.log.info({ signal }, "shutdown initiated");
-    await app.close();
-    await handles.sql.end();
-    process.exit(0);
+    try {
+      await app.close();
+      await handles.sql.end();
+      process.exit(0);
+    } catch (err) {
+      app.log.error({ err }, "shutdown failed");
+      process.exit(1);
+    }
   };
   process.on("SIGTERM", () => void shutdown("SIGTERM"));
   process.on("SIGINT", () => void shutdown("SIGINT"));
@@ -1491,6 +1512,8 @@ main().catch((err) => {
   process.exit(1);
 });
 ```
+
+(`shuttingDown` re-entry guard + try/catch carry forward the T5 fix; preserve when modifying index.ts.)
 
 - [ ] **Step 4: Write the failing test**
 
@@ -1576,17 +1599,16 @@ Expected: all 3 fail (route does not exist).
 - [ ] **Step 6: Implement `apps/server/src/routes/auth.ts`**
 
 ```typescript
-import type { FastifyInstance } from "fastify";
-import type { ZodTypeProvider } from "fastify-type-provider-zod";
-import { z } from "zod";
+import { randomUUID } from "node:crypto";
 import { eq } from "drizzle-orm";
+import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
+import { z } from "zod";
 import { refreshTokens, users } from "@/db/schema/index.js";
 import {
   REFRESH_TOKEN_TTL_DAYS,
   mintAccessToken,
   mintRefreshToken,
 } from "@/lib/tokens.js";
-import { randomUUID } from "node:crypto";
 
 const DeviceAuthBody = z.object({
   device_uuid: z.guid(),
@@ -1605,10 +1627,8 @@ const TokenResponse = z.object({
 // nibbles, including test fixtures like all-`1`s). `z.guid()` is the loose hex-grouping
 // matcher; accepts client-generated `crypto.randomUUID()` as well as legacy device IDs.
 
-export async function authRoutes(app: FastifyInstance): Promise<void> {
-  const typed = app.withTypeProvider<ZodTypeProvider>();
-
-  typed.post(
+export const authRoutes: FastifyPluginAsyncZod = async (app) => {
+  app.post(
     "/v1/auth/device",
     {
       schema: {
@@ -1653,8 +1673,10 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
       };
     },
   );
-}
+};
 ```
+
+(`FastifyPluginAsyncZod` carries forward the T7 fix — drops per-handler `withTypeProvider` boilerplate.)
 
 - [ ] **Step 7: Run the tests**
 
