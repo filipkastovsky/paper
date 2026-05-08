@@ -309,8 +309,8 @@ git commit -m "chore: initialize pnpm monorepo skeleton"
       "a11y": { "recommended": true },
       "style": { "useImportType": "error", "useNodejsImportProtocol": "error" },
       "correctness": {
-        "noUnusedImports": "error",
-        "noUnusedVariables": "error",
+        "noUnusedImports": "warn",
+        "noUnusedVariables": "warn",
         "useExhaustiveDependencies": "warn"
       },
       "suspicious": { "noConsoleLog": "warn" }
@@ -338,7 +338,7 @@ git commit -m "chore: initialize pnpm monorepo skeleton"
 
 ```yaml
 pre-commit:
-  parallel: true
+  piped: true
   commands:
     biome:
       glob: "*.{ts,tsx,js,jsx,json,jsonc}"

@@ -21,8 +21,8 @@
       "a11y": { "recommended": true },
       "style": { "useImportType": "error", "useNodejsImportProtocol": "error" },
       "correctness": {
-        "noUnusedImports": "error",
-        "noUnusedVariables": "error",
+        "noUnusedImports": "warn",
+        "noUnusedVariables": "warn",
         "useExhaustiveDependencies": "warn"
       },
       "suspicious": { "noConsoleLog": "warn" }

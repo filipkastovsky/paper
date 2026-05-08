@@ -1,5 +1,5 @@
 pre-commit:
-  parallel: true
+  piped: true
   commands:
     biome:
       glob: "*.{ts,tsx,js,jsx,json,jsonc}"
