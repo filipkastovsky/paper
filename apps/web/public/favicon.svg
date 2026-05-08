@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+  <rect width="32" height="32" rx="7" fill="oklch(86% 0.085 35)"/>
+  <text x="50%" y="58%" font-family="'Bricolage Grotesque', sans-serif" font-weight="800"
+        font-size="20" fill="oklch(22% 0.022 275)" text-anchor="middle" dominant-baseline="middle">P</text>
+</svg>
