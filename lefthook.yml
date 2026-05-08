@@ -8,3 +8,7 @@ pre-commit:
     typecheck:
       glob: "*.{ts,tsx}"
       run: pnpm -r typecheck
+    api-client-regen:
+      glob: "apps/server/src/{routes,db}/**/*.ts"
+      run: pnpm gen:api-client && git add packages/api-client/src packages/api-client/openapi.json
+      stage_fixed: true

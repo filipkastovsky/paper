@@ -21,8 +21,6 @@ apps/web/dev-dist/
 apps/web/playwright-report/
 apps/web/test-results/
 apps/server/dist/
-packages/api-client/src/
-!packages/api-client/src/.gitkeep
 
 # tooling
 .pnpm-store/

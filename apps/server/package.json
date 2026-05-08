@@ -13,7 +13,8 @@
     "test:watch": "vitest",
     "db:generate": "NODE_OPTIONS=\"--import tsx\" drizzle-kit generate",
     "db:migrate": "tsx src/migrate.ts",
-    "db:studio": "NODE_OPTIONS=\"--import tsx\" drizzle-kit studio"
+    "db:studio": "NODE_OPTIONS=\"--import tsx\" drizzle-kit studio",
+    "openapi:dump": "tsx scripts/dump-openapi.ts"
   },
   "dependencies": {
     "@fastify/jwt": "^9.0.4",

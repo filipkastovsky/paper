@@ -1,0 +1,35 @@
+{
+  "name": "@paper/api-client",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./index.ts",
+  "types": "./index.ts",
+  "exports": {
+    ".": "./index.ts",
+    "./msw": "./src/msw/index.ts",
+    "./hooks": "./src/hooks/index.ts",
+    "./types": "./src/types/index.ts"
+  },
+  "scripts": {
+    "gen": "pnpm --filter @paper/server openapi:dump && kubb",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.62.7",
+    "msw": "^2.7.0",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "@kubb/cli": "^3.4.5",
+    "@kubb/core": "^3.4.5",
+    "@kubb/plugin-client": "^3.4.5",
+    "@kubb/plugin-msw": "^3.4.5",
+    "@kubb/plugin-oas": "^3.4.5",
+    "@kubb/plugin-react-query": "^3.4.5",
+    "@kubb/plugin-ts": "^3.4.5",
+    "@kubb/plugin-zod": "^3.4.5",
+    "@types/node": "^22.10.5",
+    "typescript": "^5.7.2"
+  }
+}
