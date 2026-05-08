@@ -1868,15 +1868,10 @@ Append to `apps/server/src/routes/auth.ts` (inside `authRoutes`, before the clos
   );
 ```
 
-(Top of file: replace `import { ... } from "@/lib/tokens.js"` with `import { REFRESH_TOKEN_TTL_DAYS, hashRefreshToken, mintAccessToken, mintRefreshToken } from "@/lib/tokens.js"` and remove the dynamic import inside the handler.)
-
-Final imports for `apps/server/src/routes/auth.ts`:
+Final imports for `apps/server/src/routes/auth.ts` (drizzle gains `and` + `isNull` for the conditional UPDATE; the route is a `FastifyPluginAsyncZod` so `withTypeProvider` is no longer needed):
 
 ```typescript
-import type { FastifyInstance } from "fastify";
-import type { ZodTypeProvider } from "fastify-type-provider-zod";
-import { z } from "zod";
-import { eq } from "drizzle-orm";
+import { randomUUID } from "node:crypto";
 import { refreshTokens, users } from "@/db/schema/index.js";
 import {
   REFRESH_TOKEN_TTL_DAYS,
@@ -1884,10 +1879,10 @@ import {
   mintAccessToken,
   mintRefreshToken,
 } from "@/lib/tokens.js";
-import { randomUUID } from "node:crypto";
+import { and, eq, isNull } from "drizzle-orm";
+import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
+import { z } from "zod";
 ```
-
-And in the handler use `hashRefreshToken(refresh_token)` directly.
 
 - [ ] **Step 4: Run the auth tests**
 

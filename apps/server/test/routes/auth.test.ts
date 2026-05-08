@@ -151,4 +151,50 @@ describe("POST /v1/auth/refresh", () => {
     });
     expect(res.statusCode).toBe(401);
   });
+
+  it("rejects an expired refresh token and revokes the family", async () => {
+    const auth = await deviceAuth("55555555-5555-5555-5555-555555555555");
+    // Force the token's expiry into the past.
+    await ctx.db
+      .update(refreshTokens)
+      .set({ expiresAt: new Date(Date.now() - 1000) })
+      .where(eq(refreshTokens.tokenHash, hashRefreshToken(auth.refresh_token)));
+
+    const res = await ctx.app.inject({
+      method: "POST",
+      url: "/v1/auth/refresh",
+      payload: { refresh_token: auth.refresh_token },
+    });
+    expect(res.statusCode).toBe(401);
+
+    const all = await ctx.db.select().from(refreshTokens);
+    for (const row of all) {
+      expect(row.revokedAt).not.toBeNull();
+    }
+  });
+
+  it("survives concurrent rotation: at most one fresh token issued", async () => {
+    const auth = await deviceAuth("66666666-6666-6666-6666-666666666666");
+    const [a, b] = await Promise.all([
+      ctx.app.inject({
+        method: "POST",
+        url: "/v1/auth/refresh",
+        payload: { refresh_token: auth.refresh_token },
+      }),
+      ctx.app.inject({
+        method: "POST",
+        url: "/v1/auth/refresh",
+        payload: { refresh_token: auth.refresh_token },
+      }),
+    ]);
+    // One must win, the other must 401 (the loser was replay-detected via the
+    // conditional UPDATE returning zero rows).
+    const codes = [a.statusCode, b.statusCode].sort();
+    expect(codes).toEqual([200, 401]);
+
+    // After settling: at most one non-revoked row in the entire family.
+    const all = await ctx.db.select().from(refreshTokens);
+    const live = all.filter((r) => r.revokedAt === null);
+    expect(live.length).toBeLessThanOrEqual(1);
+  });
 });

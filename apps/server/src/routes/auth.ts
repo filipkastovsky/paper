@@ -6,7 +6,7 @@ import {
   mintAccessToken,
   mintRefreshToken,
 } from "@/lib/tokens.js";
-import { eq } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import { z } from "zod";
 
@@ -108,7 +108,8 @@ export const authRoutes: FastifyPluginAsyncZod = async (app) => {
         return reply.code(401).send({ error: "invalid_refresh_token" as const });
       }
 
-      // Detect replay: token already revoked OR expired → revoke entire family.
+      // Replay/expiry detection: an already-revoked or expired token revokes the
+      // entire family. RFC 6819 §5.2.2.3.
       if (row.revokedAt || row.expiresAt < new Date()) {
         await app.db
           .update(refreshTokens)
@@ -117,26 +118,44 @@ export const authRoutes: FastifyPluginAsyncZod = async (app) => {
         return reply.code(401).send({ error: "invalid_refresh_token" as const });
       }
 
-      // Rotate: revoke the presented token, mint a fresh one in the same family.
+      // Atomic rotation: a conditional UPDATE serialises concurrent rotations of the
+      // same token. If two requests hit, only one's UPDATE returns a row; the other
+      // sees zero rows back, treats itself as a replay loser, and revokes the family.
       const newRefresh = mintRefreshToken();
       const expiresAt = new Date(Date.now() + REFRESH_TOKEN_TTL_DAYS * 24 * 60 * 60 * 1000);
 
-      await app.db.transaction(async (tx) => {
-        await tx
+      const userId = await app.db.transaction(async (tx) => {
+        const revoked = await tx
           .update(refreshTokens)
           .set({ revokedAt: new Date() })
-          .where(eq(refreshTokens.id, row.id));
+          .where(and(eq(refreshTokens.id, row.id), isNull(refreshTokens.revokedAt)))
+          .returning({ id: refreshTokens.id });
+
+        if (revoked.length === 0) {
+          // Lost the race — another rotation just revoked this row. Treat as replay.
+          await tx
+            .update(refreshTokens)
+            .set({ revokedAt: new Date() })
+            .where(eq(refreshTokens.familyId, row.familyId));
+          return null;
+        }
+
         await tx.insert(refreshTokens).values({
           userId: row.userId,
           tokenHash: newRefresh.hash,
           familyId: row.familyId,
           expiresAt,
         });
+        return row.userId;
       });
+
+      if (!userId) {
+        return reply.code(401).send({ error: "invalid_refresh_token" as const });
+      }
 
       const accessToken = await mintAccessToken({
         secret: app.config.JWT_SECRET,
-        userId: row.userId,
+        userId,
       });
 
       return { access_token: accessToken, refresh_token: newRefresh.token };
