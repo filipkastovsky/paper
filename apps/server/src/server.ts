@@ -58,13 +58,19 @@ export async function buildServer({ config, db }: BuildServerOptions): Promise<F
   app.decorate("db", db);
   app.decorate("config", config);
 
-  // CORS — allow the local Vite dev server to call the API in development /
-  // tests. In production we expect web + api to share an origin, so the empty
-  // default origin (no allow header) is the safe baseline; loosen via reverse
-  // proxy or a follow-up plugin task when that changes.
+  // CORS — local Vite dev in development; the production web origin in production.
+  // Web is on `papercrypto.tech` (and its `www.` alias + the .pages.dev fallback);
+  // API is on `api.papercrypto.tech`, so the request is cross-origin and needs the
+  // explicit allowlist.
   await app.register(fastifyCors, {
     origin:
-      config.NODE_ENV === "production" ? false : ["http://localhost:5173", "http://127.0.0.1:5173"],
+      config.NODE_ENV === "production"
+        ? [
+            "https://papercrypto.tech",
+            "https://www.papercrypto.tech",
+            "https://paper-web.pages.dev",
+          ]
+        : ["http://localhost:5173", "http://127.0.0.1:5173"],
     credentials: true,
   });
 
