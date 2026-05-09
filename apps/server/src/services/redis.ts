@@ -8,7 +8,13 @@ export function getRedis(redisUrl: string): Redis {
   return _redis;
 }
 
-/** Test/shutdown only. Closes the singleton so the next getRedis() reconnects. */
+/**
+ * Test/shutdown only. Closes the singleton so the next getRedis() reconnects.
+ *
+ * Caller contract: do not race this with in-flight ops. Tests should `await`
+ * any pending work first; production callers should only invoke during
+ * graceful shutdown when no further requests will land.
+ */
 export async function closeRedis(): Promise<void> {
   if (_redis) {
     await _redis.quit();

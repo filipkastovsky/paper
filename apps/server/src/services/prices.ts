@@ -51,9 +51,15 @@ interface BinanceTicker {
   prevClosePrice: string;
 }
 
+const BINANCE_TIMEOUT_MS = 10_000;
+
 async function fetchBinanceTicker(symbol: string): Promise<BinanceTicker> {
+  // 10s ceiling per asset — without it, a stuck TCP socket would block all 12
+  // parallel fetches in fetchAndCacheAllPrices until Node's default ~minutes-long
+  // socket timeout, and the next cron tick would pile up behind it.
   const res = await fetch(`${BINANCE_24HR}?symbol=${encodeURIComponent(symbol)}`, {
     headers: { accept: "application/json" },
+    signal: AbortSignal.timeout(BINANCE_TIMEOUT_MS),
   });
   if (!res.ok) throw new Error(`binance ${symbol}: HTTP ${res.status}`);
   const json = (await res.json()) as BinanceTicker;
@@ -84,7 +90,18 @@ export async function fetchAndCacheAllPrices(
           PRICE_CACHE_TTL_SECONDS,
         );
         ok++;
-      } catch (_err) {
+      } catch (err) {
+        // Log so the cron's structured output (T8) surfaces the cause when a
+        // binanceSymbol is misconfigured, Binance delists, or the per-fetch
+        // timeout fires. The cron still treats {failed > 0, ok > 0} as soft.
+        console.warn(
+          JSON.stringify({
+            event: "price_fetch_failed",
+            asset_id: a.id,
+            binance_symbol: a.binanceSymbol,
+            error: err instanceof Error ? err.message : String(err),
+          }),
+        );
         failed++;
       }
     }),
