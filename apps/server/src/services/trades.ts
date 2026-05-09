@@ -10,6 +10,7 @@ import { ASSETS, isAssetId } from "@paper/shared";
 import { Decimal } from "decimal.js";
 import { and, desc, eq } from "drizzle-orm";
 import { getCachedPrice } from "./prices.js";
+import { ensureTodaySnapshot } from "./snapshots.js";
 
 export type ExecuteTradeInput = {
   userId: string;
@@ -66,6 +67,13 @@ export async function executeTrade(
     // Pathological tiny order: $0.00000001 / $50,000 rounds to 0.
     return { kind: "error", code: "invalid_amount" };
   }
+
+  // Back-fill today's open snapshot if this is the first interaction of the
+  // UTC day. Idempotent: a returning user with a row already won't insert.
+  // Done OUTSIDE the trade transaction so a snapshot insert failure (very
+  // unlikely) doesn't roll back the trade itself.
+  await ensureTodaySnapshot(db, redisUrl, input.userId);
+
   // Both sides of the trade must agree: cash moved == qty * price. If we used the
   // requested usdAmount on either side, the rounding scrap from `qtyDec` would
   // leak (a sell would credit more cash than the qty surrendered, a buy would

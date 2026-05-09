@@ -50,6 +50,7 @@ export type GetV1Me200 = {
          * @type string
         */
         total_value_usd: string;
+        today_pct_change: (number | null);
     };
 };
 

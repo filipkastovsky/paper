@@ -1,4 +1,4 @@
-import { portfolios, users } from "@/db/schema/index.js";
+import { portfolioSnapshots, portfolios, users } from "@/db/schema/index.js";
 import { closeRedis } from "@/services/redis.js";
 import { eq } from "drizzle-orm";
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
@@ -48,13 +48,19 @@ describe("GET /v1/me", () => {
     expect(res.statusCode).toBe(200);
     const body = res.json() as {
       user: { id: string; handle: string | null; avatar: string | null };
-      portfolio: { cash_usd: string; holdings: unknown[]; total_value_usd: string };
+      portfolio: {
+        cash_usd: string;
+        holdings: unknown[];
+        total_value_usd: string;
+        today_pct_change: number | null;
+      };
     };
     expect(body.user.handle).toBeNull();
     expect(body.user.avatar).toBeNull();
     expect(body.portfolio.cash_usd).toBe("10000.00000000");
     expect(body.portfolio.holdings).toEqual([]);
     expect(body.portfolio.total_value_usd).toBe("10000.00000000");
+    expect(body.portfolio.today_pct_change).toBeNull();
   });
 
   it("returns valued holdings with the documented shape", async () => {
@@ -85,6 +91,7 @@ describe("GET /v1/me", () => {
         portfolio: {
           cash_usd: string;
           total_value_usd: string;
+          today_pct_change: number | null;
           holdings: Array<{
             asset_id: string;
             qty: string;
@@ -104,6 +111,32 @@ describe("GET /v1/me", () => {
       expect(btc?.value_usd).toBe("35000.00000000");
       // 1000 cash + 35000 BTC = 36000
       expect(body.portfolio.total_value_usd).toBe("36000.00000000");
+    });
+  });
+
+  it("computes today_pct_change against today's snapshot", async () => {
+    await withFreshRedis(async (r) => {
+      const { token, userId } = await deviceAuth("00000000-0000-0000-0000-00000000c003");
+      // Pre-seed an "open" snapshot at 9,000 so a 10,000 portfolio is +11.11%.
+      const today = new Date().toISOString().slice(0, 10);
+      await ctx.db.insert(portfolioSnapshots).values({
+        userId,
+        snapshotDate: today,
+        totalValueUsd: "9000.00000000",
+      });
+      const ts = Math.floor(Date.now() / 1000);
+      await r.set("paper:price:BTC", JSON.stringify({ usd: 70000, prevUsd: 69000, ts }), "EX", 120);
+
+      const res = await ctx.app.inject({
+        method: "GET",
+        url: "/v1/me",
+        headers: { authorization: `Bearer ${token}` },
+      });
+      expect(res.statusCode).toBe(200);
+      const body = res.json() as {
+        portfolio: { today_pct_change: number | null };
+      };
+      expect(body.portfolio.today_pct_change).toBeCloseTo(11.1111, 4);
     });
   });
 });

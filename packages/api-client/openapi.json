@@ -352,9 +352,19 @@
                         },
                         "total_value_usd": {
                           "type": "string"
+                        },
+                        "today_pct_change": {
+                          "anyOf": [
+                            {
+                              "type": "number"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
                         }
                       },
-                      "required": ["cash_usd", "holdings", "total_value_usd"],
+                      "required": ["cash_usd", "holdings", "total_value_usd", "today_pct_change"],
                       "additionalProperties": false
                     }
                   },

@@ -1,5 +1,5 @@
 import { makeDb } from "@/db/client.js";
-import { portfolios, trades, users } from "@/db/schema/index.js";
+import { portfolioSnapshots, portfolios, trades, users } from "@/db/schema/index.js";
 import { closeRedis } from "@/services/redis.js";
 import { executeTrade, listTrades } from "@/services/trades.js";
 import { Decimal } from "decimal.js";
@@ -373,6 +373,44 @@ describe("listTrades", () => {
       });
       const list = await listTrades(handles.db, { userId: u2, limit: 50 });
       expect(list).toHaveLength(0);
+    });
+  });
+});
+
+describe("executeTrade — snapshot back-fill", () => {
+  const handles = makeDb(dbUrl, { max: 2 });
+  afterEach(async () => {
+    await truncateAllTables(handles.db);
+  });
+  afterAll(async () => {
+    await handles.sql.end();
+    await closeRedis();
+  });
+
+  it("inserts a today snapshot BEFORE the trade, capturing the pre-trade portfolio value", async () => {
+    await withFreshRedis(async (r) => {
+      const userId = await seedUser(handles.db);
+      await seedPriceBTC(r, 50_000);
+
+      const result = await executeTrade(handles.db, redisUrl, {
+        userId,
+        assetId: "BTC",
+        side: "buy",
+        usdAmount: "1000.00000000",
+        idempotencyKey: "k-snapshot-backfill",
+      });
+      expect(result.kind).toBe("ok");
+
+      const today = new Date().toISOString().slice(0, 10);
+      const [snap] = await handles.db
+        .select()
+        .from(portfolioSnapshots)
+        .where(eq(portfolioSnapshots.userId, userId));
+
+      // The snapshot must exist and must reflect the PRE-trade balance ($10k cash, $0 holdings).
+      expect(snap).toBeDefined();
+      expect(snap?.snapshotDate).toBe(today);
+      expect(snap?.totalValueUsd).toBe("10000.00000000");
     });
   });
 });

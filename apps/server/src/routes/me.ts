@@ -1,6 +1,7 @@
 import { users } from "@/db/schema/index.js";
 import { normalizeHandle, validateHandleFormat } from "@/services/handles.js";
 import { getPortfolioWithValuation, initializePortfolio } from "@/services/portfolio.js";
+import { todayPctChange } from "@/services/snapshots.js";
 import { ASSET_PASTELS, type AssetPastel } from "@paper/shared";
 import { and, eq, ne } from "drizzle-orm";
 import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
@@ -24,6 +25,7 @@ const MePortfolio = z.object({
   cash_usd: z.string(),
   holdings: z.array(Holding),
   total_value_usd: z.string(),
+  today_pct_change: z.number().nullable(),
 });
 
 const MeResponse = z.object({
@@ -81,12 +83,18 @@ export const meRoutes: FastifyPluginAsyncZod = async (app) => {
       }
       if (!p) throw new Error("portfolio init failed for authenticated user");
 
+      const pct = await todayPctChange(app.db, {
+        userId,
+        currentTotalUsd: p.total_value_usd,
+      });
+
       return {
         user: { id: u.id, handle: u.handle, avatar: u.avatar },
         portfolio: {
           cash_usd: p.cash_usd,
           holdings: p.holdings,
           total_value_usd: p.total_value_usd,
+          today_pct_change: pct,
         },
       };
     },

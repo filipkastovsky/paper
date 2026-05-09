@@ -25,7 +25,8 @@ export const getV1Me200Schema = z.object({
 "price_usd": z.union([z.number(), z.null()]),
 "value_usd": z.union([z.string(), z.null()])
     })),
-"total_value_usd": z.string()
+"total_value_usd": z.string(),
+"today_pct_change": z.union([z.number(), z.null()])
     })
     }) as unknown as ToZod<GetV1Me200>
 
