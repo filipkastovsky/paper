@@ -58,7 +58,12 @@ export function HandleInput({
           onChange={(e: ChangeEvent<HTMLInputElement>) => onChange(e.target.value)}
         />
       </div>
-      <p id="handle-hint" className={cn("mt-2 text-xs", TONE_CLASS[status.kind])}>
+      <p
+        id="handle-hint"
+        aria-live="polite"
+        aria-atomic="true"
+        className={cn("mt-2 text-xs", TONE_CLASS[status.kind])}
+      >
         {HINTS[status.kind]}
       </p>
     </div>

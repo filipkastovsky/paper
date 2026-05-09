@@ -17,10 +17,14 @@ function HandlePick() {
   const navigate = useNavigate();
   const setClaimedHandle = useOnboardingStore((s) => s.setClaimedHandle);
 
+  // Normalise at the input edge so what the user sees is what we submit.
+  // The check + claim use `draft` directly without further re-casing.
   const [draft, setDraft] = useState("");
+  const handleChange = (next: string) => setDraft(next.toLowerCase().replace(/\s+/g, ""));
+
   const [debounced, setDebounced] = useState("");
   useEffect(() => {
-    const t = setTimeout(() => setDebounced(draft.toLowerCase().trim()), 300);
+    const t = setTimeout(() => setDebounced(draft), 300);
     return () => clearTimeout(t);
   }, [draft]);
 
@@ -33,7 +37,7 @@ function HandlePick() {
   const status: Status = useMemo(() => {
     if (draft.length === 0) return { kind: "idle" };
     if (!enabled) return { kind: "idle" };
-    if (debounced !== draft.toLowerCase().trim()) return { kind: "checking" };
+    if (debounced !== draft) return { kind: "checking" };
     if (check.isFetching) return { kind: "checking" };
     if (check.data) {
       if (check.data.available) return { kind: "available" };
@@ -55,7 +59,9 @@ function HandlePick() {
     // ~300ms ago, so this is extremely unlikely; we let the rejection propagate
     // for now. T-future: catch and refetch the check, surfacing "taken".
     const result = await claim.mutateAsync({ data: { handle: debounced } });
-    setClaimedHandle(result.user.handle ?? null);
+    // Server normalises again, but if it ever comes back null trust the value
+    // we just successfully claimed instead of wiping the store.
+    setClaimedHandle(result.user.handle ?? debounced);
     await navigate({ to: "/onboarding/balance" });
   }
 
@@ -71,7 +77,7 @@ function HandlePick() {
           Shows up on leaderboards and share cards. Pick something you'll be proud to screenshot.
         </p>
         <div className="mt-6">
-          <HandleInput value={draft} status={status} onChange={setDraft} />
+          <HandleInput value={draft} status={status} onChange={handleChange} />
         </div>
         <Button
           trailing="→"
