@@ -1,5 +1,14 @@
 import { expect, test } from "@playwright/test";
 
+/** Wait until bootstrapAuth has populated localStorage (keys appear together). */
+async function waitForAuthHydration(page: import("@playwright/test").Page) {
+  await page.waitForFunction(
+    () => !!localStorage.getItem("paper.user") && !!localStorage.getItem("paper.refresh_token"),
+    null,
+    { timeout: 10_000 },
+  );
+}
+
 test("first load creates a device session and renders welcome", async ({ page }) => {
   // Clear localStorage before any page scripts run so we deterministically
   // observe a "first load" — without this, repeated runs against the same dev
@@ -15,8 +24,14 @@ test("first load creates a device session and renders welcome", async ({ page })
   });
   await page.goto("/");
 
-  await expect(page.getByText(/Learn crypto with \$10,000/i)).toBeVisible();
-  await expect(page.getByTestId("user-id")).toContainText(/session:/);
+  // Welcome screen renders synchronously now — assert the hero numeral
+  // (which is the actual hero per Marshmallow §4, not the headline) appears
+  // before auth resolves.
+  await expect(page.getByText("$10,000").first()).toBeVisible();
+  await expect(page.getByText(/practice cash/i).first()).toBeVisible();
+
+  // Auth happens in the background; wait for storage hydration.
+  await waitForAuthHydration(page);
 
   const ls = await page.evaluate(() => ({
     device: localStorage.getItem("paper.device_uuid"),
@@ -30,12 +45,12 @@ test("first load creates a device session and renders welcome", async ({ page })
 
 test("second load reuses the existing session (refresh path)", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByTestId("user-id")).toBeVisible();
-  const firstId = await page.getByTestId("user-id").textContent();
+  await waitForAuthHydration(page);
+  const firstUser = await page.evaluate(() => localStorage.getItem("paper.user"));
 
   await page.reload();
-  await expect(page.getByTestId("user-id")).toBeVisible();
-  const secondId = await page.getByTestId("user-id").textContent();
+  await waitForAuthHydration(page);
+  const secondUser = await page.evaluate(() => localStorage.getItem("paper.user"));
 
-  expect(secondId).toBe(firstId);
+  expect(secondUser).toBe(firstUser);
 });
