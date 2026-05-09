@@ -1,4 +1,6 @@
+import { portfolios, users } from "@/db/schema/index.js";
 import { closeRedis } from "@/services/redis.js";
+import { eq } from "drizzle-orm";
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
 import { truncateAllTables } from "../helpers/db.js";
 import { withFreshRedis } from "../helpers/redis.js";
@@ -19,14 +21,16 @@ describe("GET /v1/me", () => {
     await closeRedis();
   });
 
-  async function deviceAuth(deviceUuid: string): Promise<string> {
+  async function deviceAuth(deviceUuid: string): Promise<{ token: string; userId: string }> {
     const res = await ctx.app.inject({
       method: "POST",
       url: "/v1/auth/device",
       payload: { device_uuid: deviceUuid },
     });
     const body = res.json() as { access_token: string };
-    return body.access_token;
+    const [u] = await ctx.db.select().from(users).where(eq(users.deviceUuid, deviceUuid));
+    if (!u) throw new Error("user not found after deviceAuth");
+    return { token: body.access_token, userId: u.id };
   }
 
   it("requires auth", async () => {
@@ -35,8 +39,42 @@ describe("GET /v1/me", () => {
   });
 
   it("returns the current user + a $10k portfolio", async () => {
-    await withFreshRedis(async () => {
-      const token = await deviceAuth("00000000-0000-0000-0000-00000000c001");
+    const { token } = await deviceAuth("00000000-0000-0000-0000-00000000c001");
+    const res = await ctx.app.inject({
+      method: "GET",
+      url: "/v1/me",
+      headers: { authorization: `Bearer ${token}` },
+    });
+    expect(res.statusCode).toBe(200);
+    const body = res.json() as {
+      user: { id: string; handle: string | null; avatar: string | null };
+      portfolio: { cash_usd: string; holdings: unknown[]; total_value_usd: string };
+    };
+    expect(body.user.handle).toBeNull();
+    expect(body.user.avatar).toBeNull();
+    expect(body.portfolio.cash_usd).toBe("10000.00000000");
+    expect(body.portfolio.holdings).toEqual([]);
+    expect(body.portfolio.total_value_usd).toBe("10000.00000000");
+  });
+
+  it("returns valued holdings with the documented shape", async () => {
+    await withFreshRedis(async (r) => {
+      const { token, userId } = await deviceAuth("00000000-0000-0000-0000-00000000c002");
+      // Replace the auto-created cash-only portfolio with one holding so the
+      // /v1/me boundary actually exercises every Holding field (asset_id, qty,
+      // cost_basis, price_usd, value_usd) — the controller-only portfolio
+      // service tests cover the math; this guards the route mapping.
+      await ctx.db
+        .update(portfolios)
+        .set({
+          cashUsd: "1000.00000000",
+          holdings: { BTC: { qty: "0.50000000", cost_basis: "30000.00000000" } },
+        })
+        .where(eq(portfolios.userId, userId));
+
+      const ts = Math.floor(Date.now() / 1000);
+      await r.set("paper:price:BTC", JSON.stringify({ usd: 70000, prevUsd: 69000, ts }), "EX", 120);
+
       const res = await ctx.app.inject({
         method: "GET",
         url: "/v1/me",
@@ -44,14 +82,28 @@ describe("GET /v1/me", () => {
       });
       expect(res.statusCode).toBe(200);
       const body = res.json() as {
-        user: { id: string; handle: string | null; avatar: string | null };
-        portfolio: { cash_usd: string; holdings: unknown[]; total_value_usd: string };
+        portfolio: {
+          cash_usd: string;
+          total_value_usd: string;
+          holdings: Array<{
+            asset_id: string;
+            qty: string;
+            cost_basis: string;
+            price_usd: number | null;
+            value_usd: string | null;
+          }>;
+        };
       };
-      expect(body.user.handle).toBeNull();
-      expect(body.user.avatar).toBeNull();
-      expect(body.portfolio.cash_usd).toBe("10000.00000000");
-      expect(body.portfolio.holdings).toEqual([]);
-      expect(body.portfolio.total_value_usd).toBe("10000.00000000");
+      expect(body.portfolio.holdings).toHaveLength(1);
+      const btc = body.portfolio.holdings[0];
+      expect(btc?.asset_id).toBe("BTC");
+      expect(btc?.qty).toBe("0.50000000");
+      expect(btc?.cost_basis).toBe("30000.00000000");
+      expect(btc?.price_usd).toBe(70000);
+      // 0.5 × 70_000 = 35_000.00000000
+      expect(btc?.value_usd).toBe("35000.00000000");
+      // 1000 cash + 35000 BTC = 36000
+      expect(body.portfolio.total_value_usd).toBe("36000.00000000");
     });
   });
 });

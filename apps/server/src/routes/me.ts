@@ -1,5 +1,5 @@
 import { users } from "@/db/schema/index.js";
-import { getPortfolioWithValuation } from "@/services/portfolio.js";
+import { getPortfolioWithValuation, initializePortfolio } from "@/services/portfolio.js";
 import { eq } from "drizzle-orm";
 import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import { z } from "zod";
@@ -41,7 +41,6 @@ export const meRoutes: FastifyPluginAsyncZod = async (app) => {
         response: {
           200: MeResponse,
           404: z.object({ error: z.literal("user_not_found") }),
-          500: z.object({ error: z.literal("portfolio_missing") }),
         },
       },
     },
@@ -50,8 +49,16 @@ export const meRoutes: FastifyPluginAsyncZod = async (app) => {
       const [u] = await app.db.select().from(users).where(eq(users.id, userId));
       if (!u) return reply.code(404).send({ error: "user_not_found" as const });
 
-      const p = await getPortfolioWithValuation(app.db, app.config.REDIS_URL, userId);
-      if (!p) return reply.code(500).send({ error: "portfolio_missing" as const });
+      // Self-heal: portfolio rows are auto-created on device auth, but a token
+      // minted before that wiring shipped (or a row deleted out-of-band) could
+      // leave a user without one. `initializePortfolio` is idempotent, so we
+      // call it then re-fetch rather than 500-ing.
+      let p = await getPortfolioWithValuation(app.db, app.config.REDIS_URL, userId);
+      if (!p) {
+        await initializePortfolio(app.db, userId);
+        p = await getPortfolioWithValuation(app.db, app.config.REDIS_URL, userId);
+      }
+      if (!p) throw new Error("portfolio init failed for authenticated user");
 
       return {
         user: { id: u.id, handle: u.handle, avatar: u.avatar },
