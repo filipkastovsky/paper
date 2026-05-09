@@ -18,19 +18,26 @@ declare module "@tanstack/react-router" {
   }
 }
 
-async function start(): Promise<void> {
-  const user = await bootstrapAuth();
-  posthog.identify(user.id);
+const root = document.getElementById("root");
+if (!root) throw new Error("missing #root");
 
-  const root = document.getElementById("root");
-  if (!root) throw new Error("missing #root");
-  ReactDOM.createRoot(root).render(
-    <React.StrictMode>
-      <QueryClientProvider client={queryClient}>
-        <RouterProvider router={router} />
-      </QueryClientProvider>
-    </React.StrictMode>,
-  );
-}
+// Render synchronously — the welcome card is static brand copy, no need to
+// block the first paint on the auth roundtrip. `getStoredUser()` returns
+// `null` until bootstrap completes; user-specific bits hydrate when it does.
+ReactDOM.createRoot(root).render(
+  <React.StrictMode>
+    <QueryClientProvider client={queryClient}>
+      <RouterProvider router={router} />
+    </QueryClientProvider>
+  </React.StrictMode>,
+);
 
-void start();
+// Hydrate auth in the background; identify PostHog after it resolves so we
+// don't lose the first event from a brand-new device.
+bootstrapAuth()
+  .then((user) => {
+    posthog.identify(user.id);
+  })
+  .catch((err) => {
+    console.error("[paper] bootstrapAuth failed", err);
+  });
