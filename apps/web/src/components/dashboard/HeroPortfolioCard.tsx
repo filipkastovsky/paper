@@ -1,6 +1,7 @@
 import { BalanceNumeral } from "@/components/ui/balance-numeral";
 import { Card } from "@/components/ui/card";
 import { Eyebrow } from "@/components/ui/eyebrow";
+import { cn } from "@/lib/cn";
 import { parseCash } from "@/lib/currency";
 import { useGetV1Me } from "@paper/api-client";
 
@@ -8,6 +9,22 @@ export function HeroPortfolioCard() {
   const { data, isLoading } = useGetV1Me({ query: { staleTime: 15_000 } });
   const total = data ? parseCash(data.portfolio.total_value_usd) : 10000;
   const handle = data?.user.handle ?? null;
+  const pct = data?.portfolio.today_pct_change ?? null;
+
+  const pctClass =
+    pct == null
+      ? "text-paper/60"
+      : pct > 0
+        ? "text-mint"
+        : pct < 0
+          ? "text-peach"
+          : "text-paper/60";
+  const pctText =
+    pct == null
+      ? isLoading
+        ? "loading…"
+        : "— today"
+      : `${pct > 0 ? "+" : ""}${pct.toFixed(2)}% today`;
 
   return (
     <Card tone="ink" elevation="float" padding="lush" className="relative isolate text-paper">
@@ -24,8 +41,8 @@ export function HeroPortfolioCard() {
         <div className="mt-2">
           <BalanceNumeral value={total} size="lg" softDecimal className="block text-paper" />
         </div>
-        <Eyebrow rule className="mt-4 text-paper/60">
-          {isLoading ? "loading…" : "0.00% today"}
+        <Eyebrow rule className={cn("mt-4", pctClass)}>
+          {pctText}
         </Eyebrow>
       </div>
     </Card>
