@@ -10,7 +10,7 @@ export function AssetList() {
   const assets = data?.assets ?? [];
 
   return (
-    <Card tone="paper" elevation="pop" padding="cushy" className="w-full">
+    <Card tone="paper" elevation="pop" padding="cozy" className="w-full">
       <Eyebrow className="mb-4">all assets</Eyebrow>
       {isLoading && <div className="py-4 text-ink-soft text-sm">Loading prices…</div>}
       {!isLoading && assets.length === 0 && (
