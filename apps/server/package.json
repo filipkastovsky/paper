@@ -30,6 +30,7 @@
     "@opentelemetry/sdk-node": "^0.55.0",
     "@opentelemetry/semantic-conventions": "^1.28.0",
     "@paper/shared": "workspace:*",
+    "decimal.js": "^10.4.3",
     "drizzle-orm": "^0.38.3",
     "fastify": "^5.2.0",
     "fastify-metrics": "^12.1.0",
