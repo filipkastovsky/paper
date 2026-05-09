@@ -50,10 +50,14 @@ export const tradesRoutes: FastifyPluginAsyncZod = async (app) => {
       // Per spec §11.6: ≤20 trades/min/user. The default rate-limit plugin
       // keys on IP — override per-route to key on the JWT subject so a shared
       // NAT or proxy doesn't cross-throttle different users.
+      // hook: "preHandler" so the limiter runs AFTER `app.authenticate` populates
+      // `req.user`. The plugin's default `onRequest` hook fires before preHandler
+      // and would silently fall back to req.ip — defeating the per-user contract.
       config: {
         rateLimit: {
           max: 20,
           timeWindow: "1 minute",
+          hook: "preHandler",
           keyGenerator: (req) => req.user?.sub ?? req.ip,
         },
       },

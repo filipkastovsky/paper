@@ -224,6 +224,61 @@ describe("POST /v1/trades", () => {
       expect(blocked.statusCode).toBe(429);
     });
   });
+
+  it("rate limit is per-user, not per-IP — distinct JWTs share the simulated IP but get their own budget", async () => {
+    await withFreshRedis(async (r) => {
+      const ts = Math.floor(Date.now() / 1000);
+      await r.set(
+        "paper:price:BTC",
+        JSON.stringify({ usd: 50_000, prevUsd: 49_000, ts }),
+        "EX",
+        120,
+      );
+      const a = await deviceAuth("00000000-0000-0000-0000-00000000ba07");
+      const b = await deviceAuth("00000000-0000-0000-0000-00000000ba08");
+      // User A burns through their 20-trade quota.
+      for (let i = 0; i < 20; i++) {
+        const res = await ctx.app.inject({
+          method: "POST",
+          url: "/v1/trades",
+          headers: { authorization: `Bearer ${a.token}`, "content-type": "application/json" },
+          payload: {
+            asset_id: "BTC",
+            side: "buy",
+            usd_amount: "1.00",
+            idempotency_key: `k-multi-a-${i}`,
+          },
+        });
+        expect(res.statusCode).toBe(201);
+      }
+      // User A is now throttled.
+      const aBlocked = await ctx.app.inject({
+        method: "POST",
+        url: "/v1/trades",
+        headers: { authorization: `Bearer ${a.token}`, "content-type": "application/json" },
+        payload: {
+          asset_id: "BTC",
+          side: "buy",
+          usd_amount: "1.00",
+          idempotency_key: "k-multi-a-21",
+        },
+      });
+      expect(aBlocked.statusCode).toBe(429);
+      // User B (same IP, different JWT) must still trade — proves per-user keying.
+      const bOk = await ctx.app.inject({
+        method: "POST",
+        url: "/v1/trades",
+        headers: { authorization: `Bearer ${b.token}`, "content-type": "application/json" },
+        payload: {
+          asset_id: "BTC",
+          side: "buy",
+          usd_amount: "1.00",
+          idempotency_key: "k-multi-b-1",
+        },
+      });
+      expect(bOk.statusCode).toBe(201);
+    });
+  });
 });
 
 describe("GET /v1/trades", () => {
