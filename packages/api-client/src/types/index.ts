@@ -2,12 +2,16 @@ export type { AssetsPastelEnum, GetV1Assets200, GetV1AssetsQueryResponse, GetV1A
 export type { GetV1HandlesCheckQueryParams, GetV1HandlesCheck200ReasonEnum, GetV1HandlesCheck200, GetV1HandlesCheckQueryResponse, GetV1HandlesCheckQuery } from "./GetV1HandlesCheck.ts";
 export type { GetV1Health200StatusEnum, GetV1Health200, GetV1HealthQueryResponse, GetV1HealthQuery } from "./GetV1Health.ts";
 export type { GetV1Me200, GetV1Me404ErrorEnum, GetV1Me404, GetV1MeQueryResponse, GetV1MeQuery } from "./GetV1Me.ts";
+export type { GetV1TradesQueryParams, TradesSideEnum, GetV1Trades200, GetV1TradesQueryResponse, GetV1TradesQuery } from "./GetV1Trades.ts";
 export type { PatchV1Me200, PatchV1Me400ErrorEnum, PatchV1Me400, PatchV1Me404ErrorEnum, PatchV1Me404, PatchV1Me409ErrorEnum, PatchV1Me409, PatchV1MeMutationRequestAvatarEnum, PatchV1MeMutationRequest, PatchV1MeMutationResponse, PatchV1MeMutation } from "./PatchV1Me.ts";
 export type { PostV1AuthDevice200, PostV1AuthDeviceMutationRequest, PostV1AuthDeviceMutationResponse, PostV1AuthDeviceMutation } from "./PostV1AuthDevice.ts";
 export type { PostV1AuthRefresh200, PostV1AuthRefresh401ErrorEnum, PostV1AuthRefresh401, PostV1AuthRefreshMutationRequest, PostV1AuthRefreshMutationResponse, PostV1AuthRefreshMutation } from "./PostV1AuthRefresh.ts";
+export type { TradeSideEnum, PostV1Trades200, TradeSideEnum2, PostV1Trades201, PostV1Trades400, PostV1Trades422ErrorEnum, PostV1Trades422, PostV1Trades429, PostV1Trades503ErrorEnum, PostV1Trades503, PostV1TradesMutationRequestAssetIdEnum, PostV1TradesMutationRequestSideEnum, PostV1TradesMutationRequest, PostV1TradesMutationResponse, PostV1TradesMutation } from "./PostV1Trades.ts";
 export { assetsPastelEnum } from "./GetV1Assets.ts";
 export { getV1HandlesCheck200ReasonEnum } from "./GetV1HandlesCheck.ts";
 export { getV1Health200StatusEnum } from "./GetV1Health.ts";
 export { getV1Me404ErrorEnum } from "./GetV1Me.ts";
+export { tradesSideEnum } from "./GetV1Trades.ts";
 export { patchV1Me400ErrorEnum, patchV1Me404ErrorEnum, patchV1Me409ErrorEnum, patchV1MeMutationRequestAvatarEnum } from "./PatchV1Me.ts";
 export { postV1AuthRefresh401ErrorEnum } from "./PostV1AuthRefresh.ts";
+export { tradeSideEnum, tradeSideEnum2, postV1Trades422ErrorEnum, postV1Trades503ErrorEnum, postV1TradesMutationRequestAssetIdEnum, postV1TradesMutationRequestSideEnum } from "./PostV1Trades.ts";

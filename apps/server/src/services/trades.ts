@@ -29,7 +29,7 @@ export type ExecuteTradeError =
   | "invalid_amount";
 
 export type ExecuteTradeResult =
-  | { kind: "ok"; trade: Trade; isFirstTrade: boolean }
+  | { kind: "ok"; trade: Trade; isFirstTrade: boolean; wasIdempotentReplay: boolean }
   | { kind: "error"; code: ExecuteTradeError };
 
 const QTY_DP = 8;
@@ -182,7 +182,7 @@ export async function executeTrade(
     // First-trade detection: count(trades where user=X) == 1 post-insert. Cheap
     // because the index `trades_user_id_created_at_idx` covers it.
     const tradeCount = await countUserTrades(db, input.userId);
-    return { kind: "ok", trade: out, isFirstTrade: tradeCount === 1 };
+    return { kind: "ok", trade: out, isFirstTrade: tradeCount === 1, wasIdempotentReplay: false };
   } catch (err) {
     if (err instanceof TradeError) {
       return { kind: "error", code: err.code };
@@ -198,7 +198,7 @@ export async function executeTrade(
         // Should never happen — the unique violation guarantees a row exists.
         throw new Error("idempotency hit but row missing");
       }
-      return { kind: "ok", trade: existing, isFirstTrade: false };
+      return { kind: "ok", trade: existing, isFirstTrade: false, wasIdempotentReplay: true };
     }
     throw err;
   }
