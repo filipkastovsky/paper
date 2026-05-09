@@ -255,6 +255,320 @@
           }
         }
       }
+    },
+    "/v1/me": {
+      "get": {
+        "summary": "Current user + portfolio with valuation",
+        "tags": ["me"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "user": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "handle": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "avatar": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        }
+                      },
+                      "required": ["id", "handle", "avatar"],
+                      "additionalProperties": false
+                    },
+                    "portfolio": {
+                      "type": "object",
+                      "properties": {
+                        "cash_usd": {
+                          "type": "string"
+                        },
+                        "holdings": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "asset_id": {
+                                "type": "string"
+                              },
+                              "qty": {
+                                "type": "string"
+                              },
+                              "cost_basis": {
+                                "type": "string"
+                              },
+                              "price_usd": {
+                                "anyOf": [
+                                  {
+                                    "type": "number"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "value_usd": {
+                                "anyOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": ["asset_id", "qty", "cost_basis", "price_usd", "value_usd"],
+                            "additionalProperties": false
+                          }
+                        },
+                        "total_value_usd": {
+                          "type": "string"
+                        }
+                      },
+                      "required": ["cash_usd", "holdings", "total_value_usd"],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": ["user", "portfolio"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "enum": ["user_not_found"]
+                    }
+                  },
+                  "required": ["error"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "summary": "Update current user's handle and/or avatar",
+        "tags": ["me"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "handle": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 40
+                  },
+                  "avatar": {
+                    "type": "string",
+                    "enum": ["peach", "mint", "sky", "lilac"]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "user": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "handle": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "avatar": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        }
+                      },
+                      "required": ["id", "handle", "avatar"],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": ["user"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "enum": ["invalid_handle_format", "handle_reserved", "handle_taken"]
+                    }
+                  },
+                  "required": ["error"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "enum": ["user_not_found"]
+                    }
+                  },
+                  "required": ["error"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "enum": ["invalid_handle_format", "handle_reserved", "handle_taken"]
+                    }
+                  },
+                  "required": ["error"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/handles/check": {
+      "get": {
+        "summary": "Check whether a handle is available",
+        "tags": ["me"],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40
+            },
+            "in": "query",
+            "name": "handle",
+            "required": true
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "available": {
+                      "type": "boolean"
+                    },
+                    "reason": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": ["invalid_format", "reserved", "taken"]
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": ["available", "reason"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "servers": [

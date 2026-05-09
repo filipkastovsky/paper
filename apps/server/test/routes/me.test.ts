@@ -107,3 +107,168 @@ describe("GET /v1/me", () => {
     });
   });
 });
+
+describe("PATCH /v1/me", () => {
+  let ctx: TestServer;
+
+  beforeAll(async () => {
+    ctx = await makeTestServer();
+  });
+  afterEach(async () => {
+    await truncateAllTables(ctx.db);
+  });
+  afterAll(async () => {
+    await ctx.app.close();
+    await ctx.sql.end();
+    await closeRedis();
+  });
+
+  async function deviceAuth(uuid: string): Promise<string> {
+    const res = await ctx.app.inject({
+      method: "POST",
+      url: "/v1/auth/device",
+      payload: { device_uuid: uuid },
+    });
+    return (res.json() as { access_token: string }).access_token;
+  }
+
+  it("sets handle + avatar", async () => {
+    await withFreshRedis(async () => {
+      const token = await deviceAuth("00000000-0000-0000-0000-00000000d001");
+      const res = await ctx.app.inject({
+        method: "PATCH",
+        url: "/v1/me",
+        headers: { authorization: `Bearer ${token}`, "content-type": "application/json" },
+        payload: { handle: "alice", avatar: "peach" },
+      });
+      expect(res.statusCode).toBe(200);
+      const body = res.json() as { user: { handle: string; avatar: string } };
+      expect(body.user.handle).toBe("alice");
+      expect(body.user.avatar).toBe("peach");
+    });
+  });
+
+  it("normalises and rejects bad formats", async () => {
+    await withFreshRedis(async () => {
+      const token = await deviceAuth("00000000-0000-0000-0000-00000000d002");
+      const res = await ctx.app.inject({
+        method: "PATCH",
+        url: "/v1/me",
+        headers: { authorization: `Bearer ${token}`, "content-type": "application/json" },
+        payload: { handle: "BAD HANDLE" },
+      });
+      expect(res.statusCode).toBe(400);
+      const body = res.json() as { error: string };
+      expect(body.error).toBe("invalid_handle_format");
+    });
+  });
+
+  it("rejects reserved handles", async () => {
+    await withFreshRedis(async () => {
+      const token = await deviceAuth("00000000-0000-0000-0000-00000000d003");
+      const res = await ctx.app.inject({
+        method: "PATCH",
+        url: "/v1/me",
+        headers: { authorization: `Bearer ${token}`, "content-type": "application/json" },
+        payload: { handle: "admin" },
+      });
+      expect(res.statusCode).toBe(400);
+      expect((res.json() as { error: string }).error).toBe("handle_reserved");
+    });
+  });
+
+  it("rejects taken handles with 409", async () => {
+    await withFreshRedis(async () => {
+      const t1 = await deviceAuth("00000000-0000-0000-0000-00000000d004");
+      const t2 = await deviceAuth("00000000-0000-0000-0000-00000000d005");
+      const r1 = await ctx.app.inject({
+        method: "PATCH",
+        url: "/v1/me",
+        headers: { authorization: `Bearer ${t1}`, "content-type": "application/json" },
+        payload: { handle: "bob" },
+      });
+      expect(r1.statusCode).toBe(200);
+      const r2 = await ctx.app.inject({
+        method: "PATCH",
+        url: "/v1/me",
+        headers: { authorization: `Bearer ${t2}`, "content-type": "application/json" },
+        payload: { handle: "bob" },
+      });
+      expect(r2.statusCode).toBe(409);
+      expect((r2.json() as { error: string }).error).toBe("handle_taken");
+    });
+  });
+});
+
+describe("GET /v1/handles/check", () => {
+  let ctx: TestServer;
+  beforeAll(async () => {
+    ctx = await makeTestServer();
+  });
+  afterEach(async () => {
+    await truncateAllTables(ctx.db);
+  });
+  afterAll(async () => {
+    await ctx.app.close();
+    await ctx.sql.end();
+    await closeRedis();
+  });
+
+  async function deviceAuth(uuid: string): Promise<string> {
+    const res = await ctx.app.inject({
+      method: "POST",
+      url: "/v1/auth/device",
+      payload: { device_uuid: uuid },
+    });
+    return (res.json() as { access_token: string }).access_token;
+  }
+
+  it("returns available=true for an unused valid handle", async () => {
+    await withFreshRedis(async () => {
+      const token = await deviceAuth("00000000-0000-0000-0000-00000000e001");
+      const res = await ctx.app.inject({
+        method: "GET",
+        url: "/v1/handles/check?handle=carol",
+        headers: { authorization: `Bearer ${token}` },
+      });
+      expect(res.statusCode).toBe(200);
+      const body = res.json() as { available: boolean; reason: string | null };
+      expect(body.available).toBe(true);
+      expect(body.reason).toBeNull();
+    });
+  });
+
+  it("returns available=false with reason for invalid + reserved + taken", async () => {
+    await withFreshRedis(async () => {
+      const token = await deviceAuth("00000000-0000-0000-0000-00000000e002");
+      // reserve a handle by setting it on the user
+      await ctx.app.inject({
+        method: "PATCH",
+        url: "/v1/me",
+        headers: { authorization: `Bearer ${token}`, "content-type": "application/json" },
+        payload: { handle: "dora" },
+      });
+
+      const invalid = await ctx.app.inject({
+        method: "GET",
+        url: "/v1/handles/check?handle=BAD",
+        headers: { authorization: `Bearer ${token}` },
+      });
+      expect((invalid.json() as { reason: string }).reason).toBe("invalid_format");
+
+      const reserved = await ctx.app.inject({
+        method: "GET",
+        url: "/v1/handles/check?handle=admin",
+        headers: { authorization: `Bearer ${token}` },
+      });
+      expect((reserved.json() as { reason: string }).reason).toBe("reserved");
+
+      const taken = await ctx.app.inject({
+        method: "GET",
+        url: "/v1/handles/check?handle=dora",
+        headers: { authorization: `Bearer ${token}` },
+      });
+      expect((taken.json() as { reason: string }).reason).toBe("taken");
+    });
+  });
+});

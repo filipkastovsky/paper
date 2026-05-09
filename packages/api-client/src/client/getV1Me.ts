@@ -5,7 +5,7 @@
 
 import fetch from "../../http-client.ts";
 import type { RequestConfig, ResponseErrorConfig } from "../../http-client.ts";
-import type { GetV1MeQueryResponse, GetV1Me404, GetV1Me500 } from "../types/GetV1Me.ts";
+import type { GetV1MeQueryResponse, GetV1Me404 } from "../types/GetV1Me.ts";
 
 function getGetV1MeUrl() {
   const res = { method: 'GET', url: `/v1/me` as const }  
@@ -19,6 +19,6 @@ function getGetV1MeUrl() {
 export async function getV1Me(config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const { client: request = fetch, ...requestConfig } = config  
   
-  const res = await request<GetV1MeQueryResponse, ResponseErrorConfig<GetV1Me404 | GetV1Me500>, unknown>({ method : "GET", url : getGetV1MeUrl().url.toString(), ... requestConfig })  
+  const res = await request<GetV1MeQueryResponse, ResponseErrorConfig<GetV1Me404>, unknown>({ method : "GET", url : getGetV1MeUrl().url.toString(), ... requestConfig })  
   return res.data
 }

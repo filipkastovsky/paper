@@ -3,7 +3,7 @@
 * Do not edit manually.
 */
 
-import type { GetV1Me200, GetV1Me404, GetV1Me500, GetV1MeQueryResponse } from "../types/GetV1Me.ts";
+import type { GetV1Me200, GetV1Me404, GetV1MeQueryResponse } from "../types/GetV1Me.ts";
 import type { ToZod } from "@kubb/plugin-zod/utils/v4";
 import { z } from "zod/v4";
 
@@ -35,12 +35,5 @@ export const getV1Me200Schema = z.object({
 export const getV1Me404Schema = z.object({
     "error": z.enum(["user_not_found"])
     }) as unknown as ToZod<GetV1Me404>
-
-/**
- * @description Default Response
- */
-export const getV1Me500Schema = z.object({
-    "error": z.enum(["portfolio_missing"])
-    }) as unknown as ToZod<GetV1Me500>
 
 export const getV1MeQueryResponseSchema = getV1Me200Schema as unknown as ToZod<GetV1MeQueryResponse>

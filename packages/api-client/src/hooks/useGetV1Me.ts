@@ -5,7 +5,7 @@
 
 import fetch from "../../http-client.ts";
 import type { RequestConfig, ResponseErrorConfig } from "../../http-client.ts";
-import type { GetV1MeQueryResponse, GetV1Me404, GetV1Me500 } from "../types/GetV1Me.ts";
+import type { GetV1MeQueryResponse, GetV1Me404 } from "../types/GetV1Me.ts";
 import type { QueryKey, QueryClient, QueryObserverOptions, UseQueryResult } from "@tanstack/react-query";
 import { getV1Me } from "../client/getV1Me.ts";
 import { queryOptions, useQuery } from "@tanstack/react-query";
@@ -16,7 +16,7 @@ export type GetV1MeQueryKey = ReturnType<typeof getV1MeQueryKey>
 
 export function getV1MeQueryOptions(config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const queryKey = getV1MeQueryKey()
-  return queryOptions<GetV1MeQueryResponse, ResponseErrorConfig<GetV1Me404 | GetV1Me500>, GetV1MeQueryResponse, typeof queryKey>({
+  return queryOptions<GetV1MeQueryResponse, ResponseErrorConfig<GetV1Me404>, GetV1MeQueryResponse, typeof queryKey>({
  
    queryKey,
    queryFn: async ({ signal }) => {
@@ -32,7 +32,7 @@ export function getV1MeQueryOptions(config: Partial<RequestConfig> & { client?: 
  */
 export function useGetV1Me<TData = GetV1MeQueryResponse, TQueryData = GetV1MeQueryResponse, TQueryKey extends QueryKey = GetV1MeQueryKey>(options: 
 {
-  query?: Partial<QueryObserverOptions<GetV1MeQueryResponse, ResponseErrorConfig<GetV1Me404 | GetV1Me500>, TData, TQueryData, TQueryKey>> & { client?: QueryClient },
+  query?: Partial<QueryObserverOptions<GetV1MeQueryResponse, ResponseErrorConfig<GetV1Me404>, TData, TQueryData, TQueryKey>> & { client?: QueryClient },
   client?: Partial<RequestConfig> & { client?: typeof fetch }
 }
  = {}) {
@@ -44,7 +44,7 @@ export function useGetV1Me<TData = GetV1MeQueryResponse, TQueryData = GetV1MeQue
    ...getV1MeQueryOptions(config),
    queryKey,
    ...queryOptions
-  } as unknown as QueryObserverOptions, queryClient) as UseQueryResult<TData, ResponseErrorConfig<GetV1Me404 | GetV1Me500>> & { queryKey: TQueryKey }
+  } as unknown as QueryObserverOptions, queryClient) as UseQueryResult<TData, ResponseErrorConfig<GetV1Me404>> & { queryKey: TQueryKey }
 
   query.queryKey = queryKey as TQueryKey
 

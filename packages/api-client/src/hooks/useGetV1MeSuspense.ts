@@ -5,7 +5,7 @@
 
 import fetch from "../../http-client.ts";
 import type { RequestConfig, ResponseErrorConfig } from "../../http-client.ts";
-import type { GetV1MeQueryResponse, GetV1Me404, GetV1Me500 } from "../types/GetV1Me.ts";
+import type { GetV1MeQueryResponse, GetV1Me404 } from "../types/GetV1Me.ts";
 import type { QueryKey, QueryClient, UseSuspenseQueryOptions, UseSuspenseQueryResult } from "@tanstack/react-query";
 import { getV1Me } from "../client/getV1Me.ts";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
@@ -16,7 +16,7 @@ export type GetV1MeSuspenseQueryKey = ReturnType<typeof getV1MeSuspenseQueryKey>
 
 export function getV1MeSuspenseQueryOptions(config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const queryKey = getV1MeSuspenseQueryKey()
-  return queryOptions<GetV1MeQueryResponse, ResponseErrorConfig<GetV1Me404 | GetV1Me500>, GetV1MeQueryResponse, typeof queryKey>({
+  return queryOptions<GetV1MeQueryResponse, ResponseErrorConfig<GetV1Me404>, GetV1MeQueryResponse, typeof queryKey>({
  
    queryKey,
    queryFn: async ({ signal }) => {
@@ -32,7 +32,7 @@ export function getV1MeSuspenseQueryOptions(config: Partial<RequestConfig> & { c
  */
 export function useGetV1MeSuspense<TData = GetV1MeQueryResponse, TQueryKey extends QueryKey = GetV1MeSuspenseQueryKey>(options: 
 {
-  query?: Partial<UseSuspenseQueryOptions<GetV1MeQueryResponse, ResponseErrorConfig<GetV1Me404 | GetV1Me500>, TData, TQueryKey>> & { client?: QueryClient },
+  query?: Partial<UseSuspenseQueryOptions<GetV1MeQueryResponse, ResponseErrorConfig<GetV1Me404>, TData, TQueryKey>> & { client?: QueryClient },
   client?: Partial<RequestConfig> & { client?: typeof fetch }
 }
  = {}) {
@@ -44,7 +44,7 @@ export function useGetV1MeSuspense<TData = GetV1MeQueryResponse, TQueryKey exten
    ...getV1MeSuspenseQueryOptions(config),
    queryKey,
    ...queryOptions
-  } as unknown as UseSuspenseQueryOptions, queryClient) as UseSuspenseQueryResult<TData, ResponseErrorConfig<GetV1Me404 | GetV1Me500>> & { queryKey: TQueryKey }
+  } as unknown as UseSuspenseQueryOptions, queryClient) as UseSuspenseQueryResult<TData, ResponseErrorConfig<GetV1Me404>> & { queryKey: TQueryKey }
 
   query.queryKey = queryKey as TQueryKey
 

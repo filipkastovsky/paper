@@ -69,25 +69,9 @@ export type GetV1Me404 = {
     error: GetV1Me404ErrorEnum;
 };
 
-export const getV1Me500ErrorEnum = {
-    "portfolio_missing": "portfolio_missing"
-} as const;
-
-export type GetV1Me500ErrorEnum = (typeof getV1Me500ErrorEnum)[keyof typeof getV1Me500ErrorEnum];
-
-/**
- * @description Default Response
-*/
-export type GetV1Me500 = {
-    /**
-     * @type string
-    */
-    error: GetV1Me500ErrorEnum;
-};
-
 export type GetV1MeQueryResponse = GetV1Me200;
 
 export type GetV1MeQuery = {
     Response: GetV1Me200;
-    Errors: GetV1Me404 | GetV1Me500;
+    Errors: GetV1Me404;
 };
