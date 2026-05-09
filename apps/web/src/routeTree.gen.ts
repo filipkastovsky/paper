@@ -13,6 +13,7 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as OnboardingRouteRouteImport } from './routes/onboarding/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as OnboardingWelcomeRouteImport } from './routes/onboarding/welcome'
+import { Route as OnboardingLessonRouteImport } from './routes/onboarding/lesson'
 import { Route as OnboardingHandleRouteImport } from './routes/onboarding/handle'
 import { Route as OnboardingBalanceRouteImport } from './routes/onboarding/balance'
 
@@ -36,6 +37,11 @@ const OnboardingWelcomeRoute = OnboardingWelcomeRouteImport.update({
   path: '/welcome',
   getParentRoute: () => OnboardingRouteRoute,
 } as any)
+const OnboardingLessonRoute = OnboardingLessonRouteImport.update({
+  id: '/lesson',
+  path: '/lesson',
+  getParentRoute: () => OnboardingRouteRoute,
+} as any)
 const OnboardingHandleRoute = OnboardingHandleRouteImport.update({
   id: '/handle',
   path: '/handle',
@@ -53,6 +59,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRoute
   '/onboarding/balance': typeof OnboardingBalanceRoute
   '/onboarding/handle': typeof OnboardingHandleRoute
+  '/onboarding/lesson': typeof OnboardingLessonRoute
   '/onboarding/welcome': typeof OnboardingWelcomeRoute
 }
 export interface FileRoutesByTo {
@@ -61,6 +68,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
   '/onboarding/balance': typeof OnboardingBalanceRoute
   '/onboarding/handle': typeof OnboardingHandleRoute
+  '/onboarding/lesson': typeof OnboardingLessonRoute
   '/onboarding/welcome': typeof OnboardingWelcomeRoute
 }
 export interface FileRoutesById {
@@ -70,6 +78,7 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/onboarding/balance': typeof OnboardingBalanceRoute
   '/onboarding/handle': typeof OnboardingHandleRoute
+  '/onboarding/lesson': typeof OnboardingLessonRoute
   '/onboarding/welcome': typeof OnboardingWelcomeRoute
 }
 export interface FileRouteTypes {
@@ -80,6 +89,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/onboarding/balance'
     | '/onboarding/handle'
+    | '/onboarding/lesson'
     | '/onboarding/welcome'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -88,6 +98,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/onboarding/balance'
     | '/onboarding/handle'
+    | '/onboarding/lesson'
     | '/onboarding/welcome'
   id:
     | '__root__'
@@ -96,6 +107,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/onboarding/balance'
     | '/onboarding/handle'
+    | '/onboarding/lesson'
     | '/onboarding/welcome'
   fileRoutesById: FileRoutesById
 }
@@ -135,6 +147,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OnboardingWelcomeRouteImport
       parentRoute: typeof OnboardingRouteRoute
     }
+    '/onboarding/lesson': {
+      id: '/onboarding/lesson'
+      path: '/lesson'
+      fullPath: '/onboarding/lesson'
+      preLoaderRoute: typeof OnboardingLessonRouteImport
+      parentRoute: typeof OnboardingRouteRoute
+    }
     '/onboarding/handle': {
       id: '/onboarding/handle'
       path: '/handle'
@@ -155,12 +174,14 @@ declare module '@tanstack/react-router' {
 interface OnboardingRouteRouteChildren {
   OnboardingBalanceRoute: typeof OnboardingBalanceRoute
   OnboardingHandleRoute: typeof OnboardingHandleRoute
+  OnboardingLessonRoute: typeof OnboardingLessonRoute
   OnboardingWelcomeRoute: typeof OnboardingWelcomeRoute
 }
 
 const OnboardingRouteRouteChildren: OnboardingRouteRouteChildren = {
   OnboardingBalanceRoute: OnboardingBalanceRoute,
   OnboardingHandleRoute: OnboardingHandleRoute,
+  OnboardingLessonRoute: OnboardingLessonRoute,
   OnboardingWelcomeRoute: OnboardingWelcomeRoute,
 }
 
