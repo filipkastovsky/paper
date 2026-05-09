@@ -80,3 +80,14 @@
   /* Tabular figures everywhere we render currency-like numerals.
      Components opt in via .tabular-nums; default body stays proportional. */
 }
+
+/* Hide scrollbars on horizontal scrollers (e.g. TopMoversStrip).
+   Tailwind v4 doesn't ship `.scrollbar-none` OOTB. */
+@layer utilities {
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-none {
+    scrollbar-width: none;
+  }
+}
