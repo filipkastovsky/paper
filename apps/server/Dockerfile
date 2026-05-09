@@ -17,7 +17,7 @@ RUN pnpm install --frozen-lockfile --filter "@paper/server..." --filter "@paper/
 COPY packages/shared packages/shared
 COPY apps/server apps/server
 
-RUN pnpm --filter @paper/shared typecheck \
+RUN pnpm --filter @paper/shared build \
     && pnpm --filter @paper/server build
 
 # ----- Stage 2: runtime -----
@@ -34,7 +34,7 @@ RUN corepack enable && corepack prepare pnpm@10.30.3 --activate \
 
 COPY --from=build /repo/apps/server/dist apps/server/dist
 COPY --from=build /repo/apps/server/drizzle apps/server/drizzle
-COPY --from=build /repo/packages/shared/src packages/shared/src
+COPY --from=build /repo/packages/shared/dist packages/shared/dist
 
 USER node
 EXPOSE 3000
