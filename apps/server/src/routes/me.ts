@@ -1,7 +1,7 @@
 import { users } from "@/db/schema/index.js";
 import { normalizeHandle, validateHandleFormat } from "@/services/handles.js";
 import { getPortfolioWithValuation, initializePortfolio } from "@/services/portfolio.js";
-import { ASSET_PASTELS } from "@paper/shared";
+import { ASSET_PASTELS, type AssetPastel } from "@paper/shared";
 import { and, eq, ne } from "drizzle-orm";
 import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import { z } from "zod";
@@ -113,7 +113,7 @@ export const meRoutes: FastifyPluginAsyncZod = async (app) => {
       const userId = request.user.sub;
       const body = request.body;
 
-      const patch: { handle?: string; avatar?: string } = {};
+      const patch: { handle?: string; avatar?: AssetPastel } = {};
 
       if (body.handle !== undefined) {
         const normalized = normalizeHandle(body.handle);
@@ -140,11 +140,24 @@ export const meRoutes: FastifyPluginAsyncZod = async (app) => {
         patch.avatar = body.avatar;
       }
 
-      const [updated] = await app.db
-        .update(users)
-        .set(patch)
-        .where(eq(users.id, userId))
-        .returning();
+      // The pre-update SELECT closes the obvious case fast, but a concurrent
+      // PATCH can still slip in between SELECT and UPDATE. The unique index on
+      // users.handle then trips a Postgres unique_violation (SQLSTATE 23505),
+      // which must be remapped to the documented 409 instead of leaking a 500.
+      let updated: typeof users.$inferSelect | undefined;
+      try {
+        [updated] = await app.db.update(users).set(patch).where(eq(users.id, userId)).returning();
+      } catch (err) {
+        if (
+          err !== null &&
+          typeof err === "object" &&
+          "code" in err &&
+          (err as { code: string }).code === "23505"
+        ) {
+          return reply.code(409).send({ error: "handle_taken" as const });
+        }
+        throw err;
+      }
       if (!updated) {
         return reply.code(404).send({ error: "user_not_found" as const });
       }
