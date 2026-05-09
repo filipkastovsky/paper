@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TradeRouteImport } from './routes/trade'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as OnboardingRouteRouteImport } from './routes/onboarding/route'
 import { Route as IndexRouteImport } from './routes/index'
@@ -17,6 +18,11 @@ import { Route as OnboardingLessonRouteImport } from './routes/onboarding/lesson
 import { Route as OnboardingHandleRouteImport } from './routes/onboarding/handle'
 import { Route as OnboardingBalanceRouteImport } from './routes/onboarding/balance'
 
+const TradeRoute = TradeRouteImport.update({
+  id: '/trade',
+  path: '/trade',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -57,6 +63,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/onboarding': typeof OnboardingRouteRouteWithChildren
   '/dashboard': typeof DashboardRoute
+  '/trade': typeof TradeRoute
   '/onboarding/balance': typeof OnboardingBalanceRoute
   '/onboarding/handle': typeof OnboardingHandleRoute
   '/onboarding/lesson': typeof OnboardingLessonRoute
@@ -66,6 +73,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/onboarding': typeof OnboardingRouteRouteWithChildren
   '/dashboard': typeof DashboardRoute
+  '/trade': typeof TradeRoute
   '/onboarding/balance': typeof OnboardingBalanceRoute
   '/onboarding/handle': typeof OnboardingHandleRoute
   '/onboarding/lesson': typeof OnboardingLessonRoute
@@ -76,6 +84,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/onboarding': typeof OnboardingRouteRouteWithChildren
   '/dashboard': typeof DashboardRoute
+  '/trade': typeof TradeRoute
   '/onboarding/balance': typeof OnboardingBalanceRoute
   '/onboarding/handle': typeof OnboardingHandleRoute
   '/onboarding/lesson': typeof OnboardingLessonRoute
@@ -87,6 +96,7 @@ export interface FileRouteTypes {
     | '/'
     | '/onboarding'
     | '/dashboard'
+    | '/trade'
     | '/onboarding/balance'
     | '/onboarding/handle'
     | '/onboarding/lesson'
@@ -96,6 +106,7 @@ export interface FileRouteTypes {
     | '/'
     | '/onboarding'
     | '/dashboard'
+    | '/trade'
     | '/onboarding/balance'
     | '/onboarding/handle'
     | '/onboarding/lesson'
@@ -105,6 +116,7 @@ export interface FileRouteTypes {
     | '/'
     | '/onboarding'
     | '/dashboard'
+    | '/trade'
     | '/onboarding/balance'
     | '/onboarding/handle'
     | '/onboarding/lesson'
@@ -115,10 +127,18 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   OnboardingRouteRoute: typeof OnboardingRouteRouteWithChildren
   DashboardRoute: typeof DashboardRoute
+  TradeRoute: typeof TradeRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/trade': {
+      id: '/trade'
+      path: '/trade'
+      fullPath: '/trade'
+      preLoaderRoute: typeof TradeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/dashboard': {
       id: '/dashboard'
       path: '/dashboard'
@@ -193,6 +213,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   OnboardingRouteRoute: OnboardingRouteRouteWithChildren,
   DashboardRoute: DashboardRoute,
+  TradeRoute: TradeRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
