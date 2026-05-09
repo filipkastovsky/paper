@@ -2,6 +2,7 @@ import { makeDb } from "@/db/client.js";
 import { portfolios, trades, users } from "@/db/schema/index.js";
 import { closeRedis } from "@/services/redis.js";
 import { executeTrade, listTrades } from "@/services/trades.js";
+import { Decimal } from "decimal.js";
 import { eq } from "drizzle-orm";
 import { afterAll, afterEach, describe, expect, it } from "vitest";
 import { truncateAllTables } from "../helpers/db.js";
@@ -372,6 +373,94 @@ describe("listTrades", () => {
       });
       const list = await listTrades(handles.db, { userId: u2, limit: 50 });
       expect(list).toHaveLength(0);
+    });
+  });
+});
+
+describe("executeTrade — rounding consistency", () => {
+  const handles = makeDb(dbUrl, { max: 2 });
+  afterEach(async () => {
+    await truncateAllTables(handles.db);
+  });
+  afterAll(async () => {
+    await handles.sql.end();
+    await closeRedis();
+  });
+
+  // The user requests $100 of BTC at a price that doesn't divide evenly. The
+  // server truncates qty to 8dp, then derives the actual transaction value as
+  // qty * price. The trade row + cash movement must agree (no leak in either
+  // direction). Buy = cash falls by exactly qty * price, not by the requested
+  // $100; sell = cash rises by qty * price, never more.
+  it("buy at indivisible price leaves trade.usdAmount == qty * priceAtExecution", async () => {
+    await withFreshRedis(async (r) => {
+      const userId = await seedUser(handles.db);
+      // Price chosen so $100 / price has many trailing decimals beyond 8dp.
+      const ts = Math.floor(Date.now() / 1000);
+      await r.set(
+        "paper:price:BTC",
+        JSON.stringify({ usd: 70_000.12345678, prevUsd: 69_000, ts }),
+        "EX",
+        120,
+      );
+
+      const result = await executeTrade(handles.db, redisUrl, {
+        userId,
+        assetId: "BTC",
+        side: "buy",
+        usdAmount: "100.00000000",
+        idempotencyKey: "k-precision-buy",
+      });
+      expect(result.kind).toBe("ok");
+      if (result.kind !== "ok") return;
+
+      const usdDec = new Decimal(result.trade.usdAmount);
+      // The headline invariant: cash debited == trade.usdAmount, NOT the
+      // user-requested $100. (Pre-fix, cash dropped by 100 even though qty
+      // could only buy ~$99.999... worth, leaking the rounding scrap.)
+      expect(usdDec.lt(new Decimal("100"))).toBe(true);
+      const [p] = await handles.db.select().from(portfolios).where(eq(portfolios.userId, userId));
+      expect(new Decimal(p?.cashUsd ?? "0").toFixed(8)).toBe(
+        new Decimal("10000").minus(usdDec).toFixed(8),
+      );
+    });
+  });
+
+  it("sell at indivisible price credits qty * priceAtExecution, not the request", async () => {
+    await withFreshRedis(async (r) => {
+      const userId = await seedUser(handles.db);
+      const ts = Math.floor(Date.now() / 1000);
+      await r.set(
+        "paper:price:BTC",
+        JSON.stringify({ usd: 70_000.12345678, prevUsd: 69_000, ts }),
+        "EX",
+        120,
+      );
+      // Seed plenty of BTC.
+      await handles.db
+        .update(portfolios)
+        .set({
+          cashUsd: "0.00000000",
+          holdings: { BTC: { qty: "1.00000000", cost_basis: "60000.00000000" } },
+        })
+        .where(eq(portfolios.userId, userId));
+
+      const result = await executeTrade(handles.db, redisUrl, {
+        userId,
+        assetId: "BTC",
+        side: "sell",
+        usdAmount: "100.00000000",
+        idempotencyKey: "k-precision-sell",
+      });
+      expect(result.kind).toBe("ok");
+      if (result.kind !== "ok") return;
+
+      const usdDec = new Decimal(result.trade.usdAmount);
+      // Headline invariant: cash credited equals trade.usdAmount, NOT $100.
+      // The user surrendered slightly less than $100 worth of qty.
+      expect(usdDec.lt(new Decimal("100"))).toBe(true);
+      const [p] = await handles.db.select().from(portfolios).where(eq(portfolios.userId, userId));
+      expect(new Decimal(p?.cashUsd ?? "0").toFixed(8)).toBe(usdDec.toFixed(8));
     });
   });
 });

@@ -59,12 +59,20 @@ export async function executeTrade(
     return { kind: "error", code: "price_unavailable" };
   }
   const priceDec = new Decimal(cached.usd);
-  // 8-decimal qty per spec §8.2.
+  // 8-decimal qty per spec §8.2. ROUND_DOWN means the user never gets MORE qty
+  // than they paid for; the rounding scrap is absorbed by the trade row.
   const qtyDec = usdAmountDec.div(priceDec).toDecimalPlaces(QTY_DP, Decimal.ROUND_DOWN);
   if (qtyDec.lte(0)) {
     // Pathological tiny order: $0.00000001 / $50,000 rounds to 0.
     return { kind: "error", code: "invalid_amount" };
   }
+  // Both sides of the trade must agree: cash moved == qty * price. If we used the
+  // requested usdAmount on either side, the rounding scrap from `qtyDec` would
+  // leak (a sell would credit more cash than the qty surrendered, a buy would
+  // debit more than the qty acquired). Compute the actual transaction value
+  // ROUND_DOWN to the same 8dp the qty uses, and use it for both the trade row
+  // and the cash mutation.
+  const actualUsdDec = qtyDec.mul(priceDec).toDecimalPlaces(QTY_DP, Decimal.ROUND_DOWN);
 
   try {
     const out = await db.transaction(async (tx) => {
@@ -83,18 +91,19 @@ export async function executeTrade(
       let nextHoldings: HoldingsJson;
 
       if (input.side === "buy") {
-        if (cashDec.lt(usdAmountDec)) {
+        // Check against the actual debit, not the user-requested amount, so a
+        // user with exactly enough cash for the truncated trade can still buy.
+        if (cashDec.lt(actualUsdDec)) {
           // Bail with a sentinel — Drizzle rolls back on throw.
           throw new TradeError("insufficient_cash");
         }
-        nextCash = cashDec.minus(usdAmountDec);
+        nextCash = cashDec.minus(actualUsdDec);
         const prevQty = new Decimal(existing?.qty ?? "0");
         const prevCost = new Decimal(existing?.cost_basis ?? "0");
         const prevValue = prevQty.mul(prevCost);
-        const addValue = qtyDec.mul(priceDec);
         const newQty = prevQty.plus(qtyDec);
         // Weighted-average cost basis. If newQty is 0 (impossible on buy), fall back to price.
-        const newCost = newQty.gt(0) ? prevValue.plus(addValue).div(newQty) : priceDec;
+        const newCost = newQty.gt(0) ? prevValue.plus(actualUsdDec).div(newQty) : priceDec;
         nextHoldings = {
           ...holdings,
           [input.assetId]: {
@@ -107,7 +116,7 @@ export async function executeTrade(
         if (prevQty.lt(qtyDec)) {
           throw new TradeError("insufficient_qty");
         }
-        nextCash = cashDec.plus(usdAmountDec);
+        nextCash = cashDec.plus(actualUsdDec);
         const newQty = prevQty.minus(qtyDec);
         if (newQty.lte(0)) {
           // Drop the entry entirely so /v1/me + the dashboard hide closed positions.
@@ -134,7 +143,9 @@ export async function executeTrade(
             userId: input.userId,
             assetId: input.assetId,
             side: input.side,
-            usdAmount: usdAmountDec.toFixed(QTY_DP),
+            // Persist the EXECUTED amount (qty * price), not the user request.
+            // Keeps the row internally consistent: usdAmount === qty * priceAtExecution.
+            usdAmount: actualUsdDec.toFixed(QTY_DP),
             qty: qtyDec.toFixed(QTY_DP),
             priceAtExecution: priceDec.toFixed(QTY_DP),
             idempotencyKey: input.idempotencyKey,
