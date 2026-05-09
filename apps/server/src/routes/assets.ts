@@ -1,5 +1,5 @@
 import { getAllCachedPrices } from "@/services/prices.js";
-import { ASSETS, pastelForAsset } from "@paper/shared";
+import { ASSETS, ASSET_PASTELS, pastelForAsset } from "@paper/shared";
 import { Decimal } from "decimal.js";
 import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import { z } from "zod";
@@ -7,7 +7,7 @@ import { z } from "zod";
 const AssetItem = z.object({
   id: z.string(),
   name: z.string(),
-  pastel: z.enum(["peach", "mint", "sky", "lilac"]),
+  pastel: z.enum(ASSET_PASTELS),
   price_usd: z.number().nullable(),
   change_24h_pct: z.number().nullable(),
   cached_at: z.number().nullable(),
