@@ -74,6 +74,10 @@ export async function buildServer({ config, db }: BuildServerOptions): Promise<F
           ]
         : ["http://localhost:5173", "http://127.0.0.1:5173"],
     credentials: true,
+    // Without `methods`, @fastify/cors falls back to "GET,HEAD,POST" and the
+    // browser preflight rejects PATCH /v1/me + DELETE/PUT we'd add later.
+    // Echo the verbs we actually expose; keep this in sync with new routes.
+    methods: ["GET", "HEAD", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
   });
 
   await app.register(authPlugin, { config });
