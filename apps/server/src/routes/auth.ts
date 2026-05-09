@@ -6,6 +6,7 @@ import {
   mintAccessToken,
   mintRefreshToken,
 } from "@/lib/tokens.js";
+import { initializePortfolio } from "@/services/portfolio.js";
 import { and, eq, isNull } from "drizzle-orm";
 import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import { z } from "zod";
@@ -52,6 +53,8 @@ export const authRoutes: FastifyPluginAsyncZod = async (app) => {
         })
         .returning();
       if (!user) throw new Error("failed to upsert user");
+
+      await initializePortfolio(app.db, user.id);
 
       // mint tokens
       const accessToken = await mintAccessToken({

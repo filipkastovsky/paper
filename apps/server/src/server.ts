@@ -16,6 +16,7 @@ import { registerSwagger } from "./plugins/swagger.js";
 import { assetsRoutes } from "./routes/assets.js";
 import { authRoutes } from "./routes/auth.js";
 import { healthRoutes } from "./routes/health.js";
+import { meRoutes } from "./routes/me.js";
 
 const fastifyMetrics = fastifyMetricsPkg.default;
 
@@ -82,6 +83,7 @@ export async function buildServer({ config, db }: BuildServerOptions): Promise<F
   await app.register(healthRoutes);
   await app.register(authRoutes);
   await app.register(assetsRoutes);
+  await app.register(meRoutes);
 
   return app;
 }

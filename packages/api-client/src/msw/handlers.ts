@@ -5,7 +5,8 @@
 
 import { getV1AssetsHandler } from "./getV1AssetsHandler.ts";
 import { getV1HealthHandler } from "./getV1HealthHandler.ts";
+import { getV1MeHandler } from "./getV1MeHandler.ts";
 import { postV1AuthDeviceHandler } from "./postV1AuthDeviceHandler.ts";
 import { postV1AuthRefreshHandler } from "./postV1AuthRefreshHandler.ts";
 
-export const handlers = [getV1HealthHandler(),postV1AuthDeviceHandler(),postV1AuthRefreshHandler(),getV1AssetsHandler()] as const
+export const handlers = [getV1HealthHandler(),postV1AuthDeviceHandler(),postV1AuthRefreshHandler(),getV1AssetsHandler(),getV1MeHandler()] as const
