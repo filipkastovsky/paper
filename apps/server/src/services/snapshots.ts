@@ -13,28 +13,49 @@ export function todaySnapshotKey(now: Date = new Date()): string {
 
 // ─── ensureTodaySnapshot ─────────────────────────────────────────────────────
 
+export type EnsureSnapshotResult = {
+  /** `created` = inserted just now. `existed` = already had a row for today. `no_portfolio` = user has no portfolio (caller-contract violation). */
+  kind: "created" | "existed" | "no_portfolio";
+  date: string;
+  /** Backwards-compat: true iff we inserted just now. */
+  created: boolean;
+};
+
 /**
  * Idempotent insert of today's open snapshot for `userId`.
  * Uses composite PK `(user_id, snapshot_date)` with `onConflictDoNothing`,
  * so concurrent calls are safe — the DB constraint absorbs any race.
+ *
+ * If the user has no portfolio yet, returns `kind: "no_portfolio"` without
+ * inserting. We deliberately don't insert a $0 row in that case — a future
+ * "% today" derived from a $0 open would be nonsense (∞%). Every authenticated
+ * user has a portfolio created at device-auth time, so this is a caller-contract
+ * violation, not a normal flow.
  */
 export async function ensureTodaySnapshot(
   db: Db,
   redisUrl: string,
   userId: string,
-): Promise<{ created: boolean; date: string }> {
+): Promise<EnsureSnapshotResult> {
   const date = todaySnapshotKey();
 
   const portfolio = await getPortfolioWithValuation(db, redisUrl, userId);
-  const totalValueUsd = portfolio ? portfolio.total_value_usd : "0.00000000";
+  if (!portfolio) {
+    return { kind: "no_portfolio", date, created: false };
+  }
 
   const inserted = await db
     .insert(portfolioSnapshots)
-    .values({ userId, snapshotDate: date, totalValueUsd })
+    .values({ userId, snapshotDate: date, totalValueUsd: portfolio.total_value_usd })
     .onConflictDoNothing({ target: [portfolioSnapshots.userId, portfolioSnapshots.snapshotDate] })
     .returning({ userId: portfolioSnapshots.userId });
 
-  return { created: inserted.length === 1, date };
+  const wasCreated = inserted.length === 1;
+  return {
+    kind: wasCreated ? "created" : "existed",
+    date,
+    created: wasCreated,
+  };
 }
 
 // ─── runDailySnapshot ────────────────────────────────────────────────────────
@@ -58,8 +79,15 @@ export async function runDailySnapshot(db: Db, redisUrl: string): Promise<DailyS
 
   for (const user of allUsers) {
     try {
-      await ensureTodaySnapshot(db, redisUrl, user.id);
-      ok++;
+      const r = await ensureTodaySnapshot(db, redisUrl, user.id);
+      if (r.kind === "no_portfolio") {
+        console.warn(
+          JSON.stringify({ event: "snapshot_skip_no_portfolio", userId: user.id, date }),
+        );
+        failed++;
+      } else {
+        ok++;
+      }
     } catch (err) {
       console.warn(JSON.stringify({ event: "snapshot_failed", userId: user.id, err: String(err) }));
       failed++;
