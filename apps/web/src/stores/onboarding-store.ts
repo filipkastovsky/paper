@@ -1,3 +1,4 @@
+import type { AssetPastel } from "@paper/shared";
 import { create } from "zustand";
 
 export type Step = "welcome" | "handle" | "balance" | "lesson";
@@ -7,7 +8,7 @@ interface OnboardingState {
   /** Last server-confirmed handle (after PATCH /v1/me succeeds). */
   claimedHandle: string | null;
   /** Selected avatar; null until the user picks. */
-  avatar: "peach" | "mint" | "sky" | "lilac" | null;
+  avatar: AssetPastel | null;
   /** Marks true after step 3 (balance reveal acknowledged). */
   balanceAcknowledged: boolean;
 
