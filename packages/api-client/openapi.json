@@ -18,9 +18,7 @@
     "/v1/health": {
       "get": {
         "summary": "Liveness probe",
-        "tags": [
-          "meta"
-        ],
+        "tags": ["meta"],
         "responses": {
           "200": {
             "description": "Default Response",
@@ -31,14 +29,10 @@
                   "properties": {
                     "status": {
                       "type": "string",
-                      "enum": [
-                        "ok"
-                      ]
+                      "enum": ["ok"]
                     }
                   },
-                  "required": [
-                    "status"
-                  ],
+                  "required": ["status"],
                   "additionalProperties": false
                 }
               }
@@ -50,9 +44,7 @@
     "/v1/auth/device": {
       "post": {
         "summary": "Authenticate a device, creating a user on first call",
-        "tags": [
-          "auth"
-        ],
+        "tags": ["auth"],
         "requestBody": {
           "required": true,
           "content": {
@@ -66,9 +58,7 @@
                     "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})$"
                   }
                 },
-                "required": [
-                  "device_uuid"
-                ]
+                "required": ["device_uuid"]
               }
             }
           }
@@ -106,18 +96,11 @@
                           ]
                         }
                       },
-                      "required": [
-                        "id",
-                        "handle"
-                      ],
+                      "required": ["id", "handle"],
                       "additionalProperties": false
                     }
                   },
-                  "required": [
-                    "access_token",
-                    "refresh_token",
-                    "user"
-                  ],
+                  "required": ["access_token", "refresh_token", "user"],
                   "additionalProperties": false
                 }
               }
@@ -129,9 +112,7 @@
     "/v1/auth/refresh": {
       "post": {
         "summary": "Rotate a refresh token",
-        "tags": [
-          "auth"
-        ],
+        "tags": ["auth"],
         "requestBody": {
           "required": true,
           "content": {
@@ -144,9 +125,7 @@
                     "minLength": 20
                   }
                 },
-                "required": [
-                  "refresh_token"
-                ]
+                "required": ["refresh_token"]
               }
             }
           }
@@ -166,10 +145,7 @@
                       "type": "string"
                     }
                   },
-                  "required": [
-                    "access_token",
-                    "refresh_token"
-                  ],
+                  "required": ["access_token", "refresh_token"],
                   "additionalProperties": false
                 }
               }
@@ -184,14 +160,94 @@
                   "properties": {
                     "error": {
                       "type": "string",
-                      "enum": [
-                        "invalid_refresh_token"
-                      ]
+                      "enum": ["invalid_refresh_token"]
                     }
                   },
-                  "required": [
-                    "error"
-                  ],
+                  "required": ["error"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/assets": {
+      "get": {
+        "summary": "Asset roster with current prices",
+        "tags": ["assets"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "assets": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "pastel": {
+                            "type": "string",
+                            "enum": ["peach", "mint", "sky", "lilac"]
+                          },
+                          "price_usd": {
+                            "anyOf": [
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "change_24h_pct": {
+                            "anyOf": [
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "cached_at": {
+                            "anyOf": [
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "pastel",
+                          "price_usd",
+                          "change_24h_pct",
+                          "cached_at"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": ["assets"],
                   "additionalProperties": false
                 }
               }

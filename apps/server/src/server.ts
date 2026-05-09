@@ -13,6 +13,7 @@ import type { Db } from "./db/client.js";
 import { authPlugin } from "./plugins/auth.js";
 import { rateLimitPlugin } from "./plugins/rate-limit.js";
 import { registerSwagger } from "./plugins/swagger.js";
+import { assetsRoutes } from "./routes/assets.js";
 import { authRoutes } from "./routes/auth.js";
 import { healthRoutes } from "./routes/health.js";
 
@@ -80,6 +81,7 @@ export async function buildServer({ config, db }: BuildServerOptions): Promise<F
   await registerSwagger(app);
   await app.register(healthRoutes);
   await app.register(authRoutes);
+  await app.register(assetsRoutes);
 
   return app;
 }
