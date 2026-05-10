@@ -14,6 +14,7 @@ import { Route as LearnRouteImport } from './routes/learn'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as OnboardingRouteRouteImport } from './routes/onboarding/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as LearnIndexRouteImport } from './routes/learn.index'
 import { Route as OnboardingWelcomeRouteImport } from './routes/onboarding/welcome'
 import { Route as OnboardingLessonRouteImport } from './routes/onboarding/lesson'
 import { Route as OnboardingHandleRouteImport } from './routes/onboarding/handle'
@@ -44,6 +45,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const LearnIndexRoute = LearnIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => LearnRoute,
 } as any)
 const OnboardingWelcomeRoute = OnboardingWelcomeRouteImport.update({
   id: '/welcome',
@@ -82,18 +88,19 @@ export interface FileRoutesByFullPath {
   '/onboarding/handle': typeof OnboardingHandleRoute
   '/onboarding/lesson': typeof OnboardingLessonRoute
   '/onboarding/welcome': typeof OnboardingWelcomeRoute
+  '/learn/': typeof LearnIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/onboarding': typeof OnboardingRouteRouteWithChildren
   '/dashboard': typeof DashboardRoute
-  '/learn': typeof LearnRouteWithChildren
   '/trade': typeof TradeRoute
   '/learn/$lessonId': typeof LearnLessonIdRoute
   '/onboarding/balance': typeof OnboardingBalanceRoute
   '/onboarding/handle': typeof OnboardingHandleRoute
   '/onboarding/lesson': typeof OnboardingLessonRoute
   '/onboarding/welcome': typeof OnboardingWelcomeRoute
+  '/learn': typeof LearnIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -107,6 +114,7 @@ export interface FileRoutesById {
   '/onboarding/handle': typeof OnboardingHandleRoute
   '/onboarding/lesson': typeof OnboardingLessonRoute
   '/onboarding/welcome': typeof OnboardingWelcomeRoute
+  '/learn/': typeof LearnIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -121,18 +129,19 @@ export interface FileRouteTypes {
     | '/onboarding/handle'
     | '/onboarding/lesson'
     | '/onboarding/welcome'
+    | '/learn/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/onboarding'
     | '/dashboard'
-    | '/learn'
     | '/trade'
     | '/learn/$lessonId'
     | '/onboarding/balance'
     | '/onboarding/handle'
     | '/onboarding/lesson'
     | '/onboarding/welcome'
+    | '/learn'
   id:
     | '__root__'
     | '/'
@@ -145,6 +154,7 @@ export interface FileRouteTypes {
     | '/onboarding/handle'
     | '/onboarding/lesson'
     | '/onboarding/welcome'
+    | '/learn/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -191,6 +201,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/learn/': {
+      id: '/learn/'
+      path: '/'
+      fullPath: '/learn/'
+      preLoaderRoute: typeof LearnIndexRouteImport
+      parentRoute: typeof LearnRoute
     }
     '/onboarding/welcome': {
       id: '/onboarding/welcome'
@@ -250,10 +267,12 @@ const OnboardingRouteRouteWithChildren = OnboardingRouteRoute._addFileChildren(
 
 interface LearnRouteChildren {
   LearnLessonIdRoute: typeof LearnLessonIdRoute
+  LearnIndexRoute: typeof LearnIndexRoute
 }
 
 const LearnRouteChildren: LearnRouteChildren = {
   LearnLessonIdRoute: LearnLessonIdRoute,
+  LearnIndexRoute: LearnIndexRoute,
 }
 
 const LearnRouteWithChildren = LearnRoute._addFileChildren(LearnRouteChildren)
