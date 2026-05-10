@@ -14,6 +14,7 @@ export type RecordLessonCompleteResult =
       kind: "ok";
       progress: LessonProgress;
       isFirstLesson: boolean;
+      wasNewInsert: boolean;
       trackJustCompleted: TrackId | null;
     }
   | { kind: "error"; code: "unknown_lesson" | "invalid_score" };
@@ -95,7 +96,7 @@ export async function recordLessonComplete(
     }
   }
 
-  return { kind: "ok", progress: upserted, isFirstLesson, trackJustCompleted };
+  return { kind: "ok", progress: upserted, isFirstLesson, wasNewInsert, trackJustCompleted };
 }
 
 export async function listLessonProgress(db: Db, userId: string): Promise<LessonProgress[]> {
