@@ -18,7 +18,9 @@
     "/v1/health": {
       "get": {
         "summary": "Liveness probe",
-        "tags": ["meta"],
+        "tags": [
+          "meta"
+        ],
         "responses": {
           "200": {
             "description": "Default Response",
@@ -29,10 +31,14 @@
                   "properties": {
                     "status": {
                       "type": "string",
-                      "enum": ["ok"]
+                      "enum": [
+                        "ok"
+                      ]
                     }
                   },
-                  "required": ["status"],
+                  "required": [
+                    "status"
+                  ],
                   "additionalProperties": false
                 }
               }
@@ -44,7 +50,9 @@
     "/v1/auth/device": {
       "post": {
         "summary": "Authenticate a device, creating a user on first call",
-        "tags": ["auth"],
+        "tags": [
+          "auth"
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -58,7 +66,9 @@
                     "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})$"
                   }
                 },
-                "required": ["device_uuid"]
+                "required": [
+                  "device_uuid"
+                ]
               }
             }
           }
@@ -96,11 +106,18 @@
                           ]
                         }
                       },
-                      "required": ["id", "handle"],
+                      "required": [
+                        "id",
+                        "handle"
+                      ],
                       "additionalProperties": false
                     }
                   },
-                  "required": ["access_token", "refresh_token", "user"],
+                  "required": [
+                    "access_token",
+                    "refresh_token",
+                    "user"
+                  ],
                   "additionalProperties": false
                 }
               }
@@ -112,7 +129,9 @@
     "/v1/auth/refresh": {
       "post": {
         "summary": "Rotate a refresh token",
-        "tags": ["auth"],
+        "tags": [
+          "auth"
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -125,7 +144,9 @@
                     "minLength": 20
                   }
                 },
-                "required": ["refresh_token"]
+                "required": [
+                  "refresh_token"
+                ]
               }
             }
           }
@@ -145,7 +166,10 @@
                       "type": "string"
                     }
                   },
-                  "required": ["access_token", "refresh_token"],
+                  "required": [
+                    "access_token",
+                    "refresh_token"
+                  ],
                   "additionalProperties": false
                 }
               }
@@ -160,10 +184,14 @@
                   "properties": {
                     "error": {
                       "type": "string",
-                      "enum": ["invalid_refresh_token"]
+                      "enum": [
+                        "invalid_refresh_token"
+                      ]
                     }
                   },
-                  "required": ["error"],
+                  "required": [
+                    "error"
+                  ],
                   "additionalProperties": false
                 }
               }
@@ -175,7 +203,9 @@
     "/v1/assets": {
       "get": {
         "summary": "Asset roster with current prices",
-        "tags": ["assets"],
+        "tags": [
+          "assets"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -202,7 +232,12 @@
                           },
                           "pastel": {
                             "type": "string",
-                            "enum": ["peach", "mint", "sky", "lilac"]
+                            "enum": [
+                              "peach",
+                              "mint",
+                              "sky",
+                              "lilac"
+                            ]
                           },
                           "price_usd": {
                             "anyOf": [
@@ -247,7 +282,9 @@
                       }
                     }
                   },
-                  "required": ["assets"],
+                  "required": [
+                    "assets"
+                  ],
                   "additionalProperties": false
                 }
               }
@@ -259,7 +296,9 @@
     "/v1/me": {
       "get": {
         "summary": "Current user + portfolio with valuation",
-        "tags": ["me"],
+        "tags": [
+          "me"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -302,7 +341,11 @@
                           ]
                         }
                       },
-                      "required": ["id", "handle", "avatar"],
+                      "required": [
+                        "id",
+                        "handle",
+                        "avatar"
+                      ],
                       "additionalProperties": false
                     },
                     "portfolio": {
@@ -346,7 +389,13 @@
                                 ]
                               }
                             },
-                            "required": ["asset_id", "qty", "cost_basis", "price_usd", "value_usd"],
+                            "required": [
+                              "asset_id",
+                              "qty",
+                              "cost_basis",
+                              "price_usd",
+                              "value_usd"
+                            ],
                             "additionalProperties": false
                           }
                         },
@@ -364,11 +413,19 @@
                           ]
                         }
                       },
-                      "required": ["cash_usd", "holdings", "total_value_usd", "today_pct_change"],
+                      "required": [
+                        "cash_usd",
+                        "holdings",
+                        "total_value_usd",
+                        "today_pct_change"
+                      ],
                       "additionalProperties": false
                     }
                   },
-                  "required": ["user", "portfolio"],
+                  "required": [
+                    "user",
+                    "portfolio"
+                  ],
                   "additionalProperties": false
                 }
               }
@@ -383,10 +440,14 @@
                   "properties": {
                     "error": {
                       "type": "string",
-                      "enum": ["user_not_found"]
+                      "enum": [
+                        "user_not_found"
+                      ]
                     }
                   },
-                  "required": ["error"],
+                  "required": [
+                    "error"
+                  ],
                   "additionalProperties": false
                 }
               }
@@ -396,7 +457,9 @@
       },
       "patch": {
         "summary": "Update current user's handle and/or avatar",
-        "tags": ["me"],
+        "tags": [
+          "me"
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -411,7 +474,12 @@
                   },
                   "avatar": {
                     "type": "string",
-                    "enum": ["peach", "mint", "sky", "lilac"]
+                    "enum": [
+                      "peach",
+                      "mint",
+                      "sky",
+                      "lilac"
+                    ]
                   }
                 }
               }
@@ -460,11 +528,17 @@
                           ]
                         }
                       },
-                      "required": ["id", "handle", "avatar"],
+                      "required": [
+                        "id",
+                        "handle",
+                        "avatar"
+                      ],
                       "additionalProperties": false
                     }
                   },
-                  "required": ["user"],
+                  "required": [
+                    "user"
+                  ],
                   "additionalProperties": false
                 }
               }
@@ -479,10 +553,16 @@
                   "properties": {
                     "error": {
                       "type": "string",
-                      "enum": ["invalid_handle_format", "handle_reserved", "handle_taken"]
+                      "enum": [
+                        "invalid_handle_format",
+                        "handle_reserved",
+                        "handle_taken"
+                      ]
                     }
                   },
-                  "required": ["error"],
+                  "required": [
+                    "error"
+                  ],
                   "additionalProperties": false
                 }
               }
@@ -497,10 +577,14 @@
                   "properties": {
                     "error": {
                       "type": "string",
-                      "enum": ["user_not_found"]
+                      "enum": [
+                        "user_not_found"
+                      ]
                     }
                   },
-                  "required": ["error"],
+                  "required": [
+                    "error"
+                  ],
                   "additionalProperties": false
                 }
               }
@@ -515,10 +599,16 @@
                   "properties": {
                     "error": {
                       "type": "string",
-                      "enum": ["invalid_handle_format", "handle_reserved", "handle_taken"]
+                      "enum": [
+                        "invalid_handle_format",
+                        "handle_reserved",
+                        "handle_taken"
+                      ]
                     }
                   },
-                  "required": ["error"],
+                  "required": [
+                    "error"
+                  ],
                   "additionalProperties": false
                 }
               }
@@ -530,7 +620,9 @@
     "/v1/handles/check": {
       "get": {
         "summary": "Check whether a handle is available",
-        "tags": ["me"],
+        "tags": [
+          "me"
+        ],
         "parameters": [
           {
             "schema": {
@@ -563,7 +655,11 @@
                       "anyOf": [
                         {
                           "type": "string",
-                          "enum": ["invalid_format", "reserved", "taken"]
+                          "enum": [
+                            "invalid_format",
+                            "reserved",
+                            "taken"
+                          ]
                         },
                         {
                           "type": "null"
@@ -571,7 +667,10 @@
                       ]
                     }
                   },
-                  "required": ["available", "reason"],
+                  "required": [
+                    "available",
+                    "reason"
+                  ],
                   "additionalProperties": false
                 }
               }
@@ -583,7 +682,9 @@
     "/v1/trades": {
       "post": {
         "summary": "Execute one buy/sell at the cached price",
-        "tags": ["trades"],
+        "tags": [
+          "trades"
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -610,7 +711,10 @@
                   },
                   "side": {
                     "type": "string",
-                    "enum": ["buy", "sell"]
+                    "enum": [
+                      "buy",
+                      "sell"
+                    ]
                   },
                   "usd_amount": {
                     "type": "string",
@@ -622,7 +726,12 @@
                     "maxLength": 120
                   }
                 },
-                "required": ["asset_id", "side", "usd_amount", "idempotency_key"]
+                "required": [
+                  "asset_id",
+                  "side",
+                  "usd_amount",
+                  "idempotency_key"
+                ]
               }
             }
           }
@@ -653,7 +762,10 @@
                         },
                         "side": {
                           "type": "string",
-                          "enum": ["buy", "sell"]
+                          "enum": [
+                            "buy",
+                            "sell"
+                          ]
                         },
                         "usd_amount": {
                           "type": "string"
@@ -687,7 +799,10 @@
                       "type": "boolean"
                     }
                   },
-                  "required": ["trade", "is_first_trade"],
+                  "required": [
+                    "trade",
+                    "is_first_trade"
+                  ],
                   "additionalProperties": false
                 }
               }
@@ -713,7 +828,10 @@
                         },
                         "side": {
                           "type": "string",
-                          "enum": ["buy", "sell"]
+                          "enum": [
+                            "buy",
+                            "sell"
+                          ]
                         },
                         "usd_amount": {
                           "type": "string"
@@ -747,7 +865,10 @@
                       "type": "boolean"
                     }
                   },
-                  "required": ["trade", "is_first_trade"],
+                  "required": [
+                    "trade",
+                    "is_first_trade"
+                  ],
                   "additionalProperties": false
                 }
               }
@@ -778,7 +899,9 @@
                       ]
                     }
                   },
-                  "required": ["error"],
+                  "required": [
+                    "error"
+                  ],
                   "additionalProperties": false
                 }
               }
@@ -801,10 +924,14 @@
                   "properties": {
                     "error": {
                       "type": "string",
-                      "enum": ["price_unavailable"]
+                      "enum": [
+                        "price_unavailable"
+                      ]
                     }
                   },
-                  "required": ["error"],
+                  "required": [
+                    "error"
+                  ],
                   "additionalProperties": false
                 }
               }
@@ -814,7 +941,9 @@
       },
       "get": {
         "summary": "List the user's trades, newest first",
-        "tags": ["trades"],
+        "tags": [
+          "trades"
+        ],
         "parameters": [
           {
             "schema": {
@@ -856,7 +985,10 @@
                           },
                           "side": {
                             "type": "string",
-                            "enum": ["buy", "sell"]
+                            "enum": [
+                              "buy",
+                              "sell"
+                            ]
                           },
                           "usd_amount": {
                             "type": "string"
@@ -888,7 +1020,9 @@
                       }
                     }
                   },
-                  "required": ["trades"],
+                  "required": [
+                    "trades"
+                  ],
                   "additionalProperties": false
                 }
               }
