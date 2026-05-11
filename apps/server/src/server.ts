@@ -16,6 +16,7 @@ import { registerSwagger } from "./plugins/swagger.js";
 import { assetsRoutes } from "./routes/assets.js";
 import { authRoutes } from "./routes/auth.js";
 import { healthRoutes } from "./routes/health.js";
+import { learnRoutes } from "./routes/learn.js";
 import { meRoutes } from "./routes/me.js";
 import { tradesRoutes } from "./routes/trades.js";
 
@@ -90,6 +91,7 @@ export async function buildServer({ config, db }: BuildServerOptions): Promise<F
   await app.register(assetsRoutes);
   await app.register(meRoutes);
   await app.register(tradesRoutes);
+  await app.register(learnRoutes);
 
   return app;
 }

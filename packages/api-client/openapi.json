@@ -896,6 +896,253 @@
           }
         }
       }
+    },
+    "/v1/lessons/{id}/complete": {
+      "post": {
+        "summary": "Mark a lesson complete; idempotent on repeat",
+        "tags": ["learn"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "quiz_score": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 100
+                  }
+                },
+                "required": ["quiz_score"]
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "progress": {
+                      "type": "object",
+                      "properties": {
+                        "lesson_id": {
+                          "type": "string"
+                        },
+                        "quiz_score": {
+                          "type": "number"
+                        },
+                        "completed_at": {
+                          "type": "string"
+                        },
+                        "updated_at": {
+                          "type": "string"
+                        }
+                      },
+                      "required": ["lesson_id", "quiz_score", "completed_at", "updated_at"],
+                      "additionalProperties": false
+                    },
+                    "is_first_lesson": {
+                      "type": "boolean"
+                    },
+                    "track_just_completed": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": ["fundamentals", "markets", "safety"]
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": ["progress", "is_first_lesson", "track_just_completed"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "progress": {
+                      "type": "object",
+                      "properties": {
+                        "lesson_id": {
+                          "type": "string"
+                        },
+                        "quiz_score": {
+                          "type": "number"
+                        },
+                        "completed_at": {
+                          "type": "string"
+                        },
+                        "updated_at": {
+                          "type": "string"
+                        }
+                      },
+                      "required": ["lesson_id", "quiz_score", "completed_at", "updated_at"],
+                      "additionalProperties": false
+                    },
+                    "is_first_lesson": {
+                      "type": "boolean"
+                    },
+                    "track_just_completed": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": ["fundamentals", "markets", "safety"]
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": ["progress", "is_first_lesson", "track_just_completed"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "enum": ["lesson_not_found", "invalid_score"]
+                    }
+                  },
+                  "required": ["error"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/learn/state": {
+      "get": {
+        "summary": "Full curriculum state with per-user completion",
+        "tags": ["learn"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "tracks": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "lessons_total": {
+                            "type": "number"
+                          },
+                          "lessons_completed": {
+                            "type": "number"
+                          }
+                        },
+                        "required": ["id", "title", "lessons_total", "lessons_completed"],
+                        "additionalProperties": false
+                      }
+                    },
+                    "lessons": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "track_id": {
+                            "type": "string"
+                          },
+                          "completed_at": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "quiz_score": {
+                            "anyOf": [
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          }
+                        },
+                        "required": ["id", "track_id", "completed_at", "quiz_score"],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": ["tracks", "lessons"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "servers": [

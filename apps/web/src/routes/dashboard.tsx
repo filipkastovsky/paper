@@ -1,5 +1,6 @@
 import { AssetList } from "@/components/dashboard/AssetList";
 import { HeroPortfolioCard } from "@/components/dashboard/HeroPortfolioCard";
+import { LearnCTA } from "@/components/dashboard/LearnCTA";
 import { TopMoversStrip } from "@/components/dashboard/TopMoversStrip";
 import { Button } from "@/components/ui/button";
 import { Link, createFileRoute } from "@tanstack/react-router";
@@ -13,9 +14,15 @@ function Dashboard() {
     <main className="min-h-dvh bg-paper px-6 py-8">
       <div className="mx-auto max-w-md space-y-6">
         <HeroPortfolioCard />
-        <Button asChild trailing="→" fullWidth>
-          <Link to="/trade">Place a trade</Link>
-        </Button>
+        <div className="grid grid-cols-2 gap-3">
+          <Button asChild trailing="→" fullWidth>
+            <Link to="/trade">Place a trade</Link>
+          </Button>
+          <Button asChild variant="secondary" trailing="→" fullWidth>
+            <Link to="/learn">Learn</Link>
+          </Button>
+        </div>
+        <LearnCTA />
         <TopMoversStrip />
         <AssetList />
       </div>

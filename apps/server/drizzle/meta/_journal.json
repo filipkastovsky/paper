@@ -22,6 +22,13 @@
       "when": 1778362661468,
       "tag": "0002_tense_zombie",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1778396688619,
+      "tag": "0003_true_lifeguard",
+      "breakpoints": true
     }
   ]
 }
