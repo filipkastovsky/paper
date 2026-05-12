@@ -2,6 +2,7 @@ import { users } from "@/db/schema/index.js";
 import { normalizeHandle, validateHandleFormat } from "@/services/handles.js";
 import { getPortfolioWithValuation, initializePortfolio } from "@/services/portfolio.js";
 import { todayPctChange } from "@/services/snapshots.js";
+import { getStreak } from "@/services/streaks.js";
 import { ASSET_PASTELS, type AssetPastel } from "@paper/shared";
 import { and, eq, ne } from "drizzle-orm";
 import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
@@ -28,9 +29,16 @@ const MePortfolio = z.object({
   today_pct_change: z.number().nullable(),
 });
 
+const StreakData = z.object({
+  current_days: z.number().int(),
+  longest_days: z.number().int(),
+  perfect_days_count: z.number().int(),
+});
+
 const MeResponse = z.object({
   user: MeUser,
   portfolio: MePortfolio,
+  streak: StreakData.nullable(),
 });
 
 const PatchBody = z.object({
@@ -88,6 +96,8 @@ export const meRoutes: FastifyPluginAsyncZod = async (app) => {
         currentTotalUsd: p.total_value_usd,
       });
 
+      const streakRow = await getStreak(app.db, userId);
+
       return {
         user: { id: u.id, handle: u.handle, avatar: u.avatar },
         portfolio: {
@@ -96,6 +106,13 @@ export const meRoutes: FastifyPluginAsyncZod = async (app) => {
           total_value_usd: p.total_value_usd,
           today_pct_change: pct,
         },
+        streak: streakRow
+          ? {
+              current_days: streakRow.currentDays,
+              longest_days: streakRow.longestDays,
+              perfect_days_count: streakRow.perfectDaysCount,
+            }
+          : null,
       };
     },
   );

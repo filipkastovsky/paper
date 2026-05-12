@@ -1,4 +1,5 @@
 import { listLessonProgress, recordLessonComplete } from "@/services/lesson-progress.js";
+import { upsertStreak } from "@/services/streaks.js";
 import { LESSONS, TRACKS } from "@paper/shared";
 import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import { z } from "zod";
@@ -94,6 +95,9 @@ export const learnRoutes: FastifyPluginAsyncZod = async (app) => {
       // 201 on first-time insert; 200 on idempotent replay.
       // wasNewInsert comes directly from the service (pre-upsert check).
       const status = result.wasNewInsert ? 201 : 200;
+      void upsertStreak(app.db, request.user.sub).catch((err) => {
+        app.log.warn({ err }, "streak upsert failed after lesson complete");
+      });
       return reply.code(status).send({
         progress: {
           lesson_id: result.progress.lessonId,

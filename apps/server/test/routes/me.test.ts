@@ -139,6 +139,55 @@ describe("GET /v1/me", () => {
       expect(body.portfolio.today_pct_change).toBeCloseTo(11.1111, 4);
     });
   });
+
+  it("GET /v1/me returns streak: null when user has no qualifying actions", async () => {
+    const { token } = await deviceAuth("00000000-0000-0000-0000-000000000e01");
+    const res = await ctx.app.inject({
+      method: "GET",
+      url: "/v1/me",
+      headers: { authorization: `Bearer ${token}` },
+    });
+    expect(res.statusCode).toBe(200);
+    const body = res.json() as { streak: null | object };
+    expect(body.streak).toBeNull();
+  });
+
+  it("GET /v1/me returns streak.current_days after a qualifying trade", async () => {
+    await withFreshRedis(async (r) => {
+      const ts = Math.floor(Date.now() / 1000);
+      await r.set(
+        "paper:price:BTC",
+        JSON.stringify({ usd: 50_000, prevUsd: 49_000, ts }),
+        "EX",
+        120,
+      );
+      const { token } = await deviceAuth("00000000-0000-0000-0000-000000000e02");
+      // Execute a trade to trigger streak upsert
+      await ctx.app.inject({
+        method: "POST",
+        url: "/v1/trades",
+        headers: { authorization: `Bearer ${token}`, "content-type": "application/json" },
+        payload: {
+          asset_id: "BTC",
+          side: "buy",
+          usd_amount: "10.00",
+          idempotency_key: "k-streak-1",
+        },
+      });
+      // Brief pause to let fire-and-forget streak upsert settle
+      await new Promise((r) => setTimeout(r, 50));
+      const res = await ctx.app.inject({
+        method: "GET",
+        url: "/v1/me",
+        headers: { authorization: `Bearer ${token}` },
+      });
+      expect(res.statusCode).toBe(200);
+      const body = res.json() as { streak: { current_days: number; longest_days: number } | null };
+      expect(body.streak).not.toBeNull();
+      expect(body.streak?.current_days).toBe(1);
+      expect(body.streak?.longest_days).toBe(1);
+    });
+  });
 });
 
 describe("PATCH /v1/me", () => {
