@@ -27,7 +27,12 @@ export const getV1Me200Schema = z.object({
     })),
 "total_value_usd": z.string(),
 "today_pct_change": z.union([z.number(), z.null()])
-    })
+    }),
+"streak": z.union([z.object({
+    "current_days": z.int().min(-9007199254740991).max(9007199254740991),
+"longest_days": z.int().min(-9007199254740991).max(9007199254740991),
+"perfect_days_count": z.int().min(-9007199254740991).max(9007199254740991)
+    }), z.null()])
     }) as unknown as ToZod<GetV1Me200>
 
 /**
