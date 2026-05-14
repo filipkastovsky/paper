@@ -15,9 +15,11 @@ import { rateLimitPlugin } from "./plugins/rate-limit.js";
 import { registerSwagger } from "./plugins/swagger.js";
 import { assetsRoutes } from "./routes/assets.js";
 import { authRoutes } from "./routes/auth.js";
+import { dailyQuestionRoutes } from "./routes/daily-question.js";
 import { healthRoutes } from "./routes/health.js";
 import { learnRoutes } from "./routes/learn.js";
 import { meRoutes } from "./routes/me.js";
+import { predictionsRoutes } from "./routes/predictions.js";
 import { tradesRoutes } from "./routes/trades.js";
 
 const fastifyMetrics = fastifyMetricsPkg.default;
@@ -92,6 +94,8 @@ export async function buildServer({ config, db }: BuildServerOptions): Promise<F
   await app.register(meRoutes);
   await app.register(tradesRoutes);
   await app.register(learnRoutes);
+  await app.register(dailyQuestionRoutes);
+  await app.register(predictionsRoutes);
 
   return app;
 }
