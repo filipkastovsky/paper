@@ -15,12 +15,15 @@ function Dashboard() {
     <main className="min-h-dvh bg-paper px-6 py-8">
       <div className="mx-auto max-w-md space-y-6">
         <HeroPortfolioCard />
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-3 gap-3">
           <Button asChild trailing="→" fullWidth>
             <Link to="/trade">Place a trade</Link>
           </Button>
           <Button asChild variant="secondary" trailing="→" fullWidth>
             <Link to="/learn">Learn</Link>
+          </Button>
+          <Button asChild variant="secondary" trailing="→" fullWidth>
+            <Link to="/leaderboard">Leaderboard</Link>
           </Button>
         </div>
         <LearnCTA />
