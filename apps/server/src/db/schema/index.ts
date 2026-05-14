@@ -5,3 +5,6 @@ export * from "./trades.js";
 export * from "./portfolio-snapshots.js";
 export * from "./lesson-progress.js";
 export * from "./streaks.js";
+export * from "./daily-questions.js";
+export * from "./user-predictions.js";
+export * from "./prediction-points.js";
