@@ -366,9 +366,38 @@
                       },
                       "required": ["cash_usd", "holdings", "total_value_usd", "today_pct_change"],
                       "additionalProperties": false
+                    },
+                    "streak": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "current_days": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            "longest_days": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            "perfect_days_count": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            }
+                          },
+                          "required": ["current_days", "longest_days", "perfect_days_count"],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
                     }
                   },
-                  "required": ["user", "portfolio"],
+                  "required": ["user", "portfolio", "streak"],
                   "additionalProperties": false
                 }
               }

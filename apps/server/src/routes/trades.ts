@@ -1,3 +1,4 @@
+import { upsertStreak } from "@/services/streaks.js";
 import { executeTrade, listTrades } from "@/services/trades.js";
 import { ASSETS } from "@paper/shared";
 import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
@@ -122,6 +123,9 @@ export const tradesRoutes: FastifyPluginAsyncZod = async (app) => {
       // 200 on idempotent replay so clients can distinguish "just created" from
       // "returning an existing row". Plan 5 metrics dashboards key on this.
       const status = result.wasIdempotentReplay ? 200 : 201;
+      void upsertStreak(app.db, userId).catch((err) => {
+        app.log.warn({ err }, "streak upsert failed after trade");
+      });
       return reply.code(status).send({ trade: wire, is_first_trade: result.isFirstTrade });
     },
   );

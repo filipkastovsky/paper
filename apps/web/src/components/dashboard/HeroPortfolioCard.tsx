@@ -1,3 +1,4 @@
+import { StreakFlame } from "@/components/dashboard/StreakFlame";
 import { BalanceNumeral } from "@/components/ui/balance-numeral";
 import { Card } from "@/components/ui/card";
 import { Eyebrow } from "@/components/ui/eyebrow";
@@ -10,6 +11,7 @@ export function HeroPortfolioCard() {
   const total = data ? parseCash(data.portfolio.total_value_usd) : 10000;
   const handle = data?.user.handle ?? null;
   const pct = data?.portfolio.today_pct_change ?? null;
+  const streak = data?.streak ?? null;
 
   const pctClass =
     pct == null
@@ -37,7 +39,12 @@ export function HeroPortfolioCard() {
         className="-bottom-16 -left-12 pointer-events-none absolute h-48 w-48 rounded-full bg-mint opacity-35 blur-3xl"
       />
       <div className="relative">
-        <Eyebrow className="text-paper/55">{handle ? `@${handle}` : "your portfolio"}</Eyebrow>
+        <div className="flex items-start justify-between">
+          <Eyebrow className="text-paper/55">{handle ? `@${handle}` : "your portfolio"}</Eyebrow>
+          {streak && streak.current_days > 0 ? (
+            <StreakFlame currentDays={streak.current_days} longestDays={streak.longest_days} />
+          ) : null}
+        </div>
         <div className="mt-2">
           <BalanceNumeral value={total} size="lg" softDecimal className="block text-paper" />
         </div>

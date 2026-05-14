@@ -52,6 +52,26 @@ export type GetV1Me200 = {
         total_value_usd: string;
         today_pct_change: (number | null);
     };
+    streak: ({
+        /**
+         * @minLength -9007199254740991
+         * @maxLength 9007199254740991
+         * @type integer
+        */
+        current_days: number;
+        /**
+         * @minLength -9007199254740991
+         * @maxLength 9007199254740991
+         * @type integer
+        */
+        longest_days: number;
+        /**
+         * @minLength -9007199254740991
+         * @maxLength 9007199254740991
+         * @type integer
+        */
+        perfect_days_count: number;
+    } | null);
 };
 
 export const getV1Me404ErrorEnum = {
