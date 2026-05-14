@@ -43,6 +43,13 @@
       "when": 1778770322064,
       "tag": "0005_colorful_hercules",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1778776394144,
+      "tag": "0006_certain_overlord",
+      "breakpoints": true
     }
   ]
 }

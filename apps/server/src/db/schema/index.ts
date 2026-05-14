@@ -8,3 +8,4 @@ export * from "./streaks.js";
 export * from "./daily-questions.js";
 export * from "./user-predictions.js";
 export * from "./prediction-points.js";
+export * from "./leaderboard-snapshots.js";
