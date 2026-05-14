@@ -1,4 +1,5 @@
 export { getV1Assets200Schema, getV1AssetsQueryResponseSchema } from "./getV1AssetsSchema.ts";
+export { getV1DailyQuestion200Schema, getV1DailyQuestionQueryResponseSchema } from "./getV1DailyQuestionSchema.ts";
 export { getV1HandlesCheckQueryParamsSchema, getV1HandlesCheck200Schema, getV1HandlesCheckQueryResponseSchema } from "./getV1HandlesCheckSchema.ts";
 export { getV1Health200Schema, getV1HealthQueryResponseSchema } from "./getV1HealthSchema.ts";
 export { getV1LearnState200Schema, getV1LearnStateQueryResponseSchema } from "./getV1LearnStateSchema.ts";
@@ -8,4 +9,5 @@ export { patchV1Me200Schema, patchV1Me400Schema, patchV1Me404Schema, patchV1Me40
 export { postV1AuthDevice200Schema, postV1AuthDeviceMutationRequestSchema, postV1AuthDeviceMutationResponseSchema } from "./postV1AuthDeviceSchema.ts";
 export { postV1AuthRefresh200Schema, postV1AuthRefresh401Schema, postV1AuthRefreshMutationRequestSchema, postV1AuthRefreshMutationResponseSchema } from "./postV1AuthRefreshSchema.ts";
 export { postV1LessonsIdCompletePathParamsSchema, postV1LessonsIdComplete200Schema, postV1LessonsIdComplete201Schema, postV1LessonsIdComplete400Schema, postV1LessonsIdComplete404Schema, postV1LessonsIdCompleteMutationRequestSchema, postV1LessonsIdCompleteMutationResponseSchema } from "./postV1LessonsIdCompleteSchema.ts";
+export { postV1Predictions200Schema, postV1Predictions201Schema, postV1Predictions400Schema, postV1Predictions422Schema, postV1Predictions429Schema, postV1PredictionsMutationRequestSchema, postV1PredictionsMutationResponseSchema } from "./postV1PredictionsSchema.ts";
 export { postV1Trades200Schema, postV1Trades201Schema, postV1Trades400Schema, postV1Trades422Schema, postV1Trades429Schema, postV1Trades503Schema, postV1TradesMutationRequestSchema, postV1TradesMutationResponseSchema } from "./postV1TradesSchema.ts";

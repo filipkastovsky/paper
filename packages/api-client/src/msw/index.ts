@@ -1,4 +1,5 @@
 export { getV1AssetsHandler } from "./getV1AssetsHandler.ts";
+export { getV1DailyQuestionHandler } from "./getV1DailyQuestionHandler.ts";
 export { getV1HandlesCheckHandler } from "./getV1HandlesCheckHandler.ts";
 export { getV1HealthHandler } from "./getV1HealthHandler.ts";
 export { getV1LearnStateHandler } from "./getV1LearnStateHandler.ts";
@@ -9,4 +10,5 @@ export { patchV1MeHandler } from "./patchV1MeHandler.ts";
 export { postV1AuthDeviceHandler } from "./postV1AuthDeviceHandler.ts";
 export { postV1AuthRefreshHandler } from "./postV1AuthRefreshHandler.ts";
 export { postV1LessonsIdCompleteHandler } from "./postV1LessonsIdCompleteHandler.ts";
+export { postV1PredictionsHandler } from "./postV1PredictionsHandler.ts";
 export { postV1TradesHandler } from "./postV1TradesHandler.ts";
