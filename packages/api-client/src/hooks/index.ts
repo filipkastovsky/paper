@@ -6,6 +6,8 @@ export type { GetV1HandlesCheckQueryKey } from "./useGetV1HandlesCheck.ts";
 export type { GetV1HandlesCheckSuspenseQueryKey } from "./useGetV1HandlesCheckSuspense.ts";
 export type { GetV1HealthQueryKey } from "./useGetV1Health.ts";
 export type { GetV1HealthSuspenseQueryKey } from "./useGetV1HealthSuspense.ts";
+export type { GetV1LeaderboardQueryKey } from "./useGetV1Leaderboard.ts";
+export type { GetV1LeaderboardSuspenseQueryKey } from "./useGetV1LeaderboardSuspense.ts";
 export type { GetV1LearnStateQueryKey } from "./useGetV1LearnState.ts";
 export type { GetV1LearnStateSuspenseQueryKey } from "./useGetV1LearnStateSuspense.ts";
 export type { GetV1MeQueryKey } from "./useGetV1Me.ts";
@@ -26,6 +28,8 @@ export { getV1HandlesCheckQueryKey, getV1HandlesCheckQueryOptions, useGetV1Handl
 export { getV1HandlesCheckSuspenseQueryKey, getV1HandlesCheckSuspenseQueryOptions, useGetV1HandlesCheckSuspense } from "./useGetV1HandlesCheckSuspense.ts";
 export { getV1HealthQueryKey, getV1HealthQueryOptions, useGetV1Health } from "./useGetV1Health.ts";
 export { getV1HealthSuspenseQueryKey, getV1HealthSuspenseQueryOptions, useGetV1HealthSuspense } from "./useGetV1HealthSuspense.ts";
+export { getV1LeaderboardQueryKey, getV1LeaderboardQueryOptions, useGetV1Leaderboard } from "./useGetV1Leaderboard.ts";
+export { getV1LeaderboardSuspenseQueryKey, getV1LeaderboardSuspenseQueryOptions, useGetV1LeaderboardSuspense } from "./useGetV1LeaderboardSuspense.ts";
 export { getV1LearnStateQueryKey, getV1LearnStateQueryOptions, useGetV1LearnState } from "./useGetV1LearnState.ts";
 export { getV1LearnStateSuspenseQueryKey, getV1LearnStateSuspenseQueryOptions, useGetV1LearnStateSuspense } from "./useGetV1LearnStateSuspense.ts";
 export { getV1MeQueryKey, getV1MeQueryOptions, useGetV1Me } from "./useGetV1Me.ts";

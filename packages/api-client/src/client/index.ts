@@ -2,6 +2,7 @@ export { getV1Assets } from "./getV1Assets.ts";
 export { getV1DailyQuestion } from "./getV1DailyQuestion.ts";
 export { getV1HandlesCheck } from "./getV1HandlesCheck.ts";
 export { getV1Health } from "./getV1Health.ts";
+export { getV1Leaderboard } from "./getV1Leaderboard.ts";
 export { getV1LearnState } from "./getV1LearnState.ts";
 export { getV1Me } from "./getV1Me.ts";
 export { getV1Trades } from "./getV1Trades.ts";

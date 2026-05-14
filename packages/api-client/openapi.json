@@ -18,9 +18,7 @@
     "/v1/health": {
       "get": {
         "summary": "Liveness probe",
-        "tags": [
-          "meta"
-        ],
+        "tags": ["meta"],
         "responses": {
           "200": {
             "description": "Default Response",
@@ -31,14 +29,10 @@
                   "properties": {
                     "status": {
                       "type": "string",
-                      "enum": [
-                        "ok"
-                      ]
+                      "enum": ["ok"]
                     }
                   },
-                  "required": [
-                    "status"
-                  ],
+                  "required": ["status"],
                   "additionalProperties": false
                 }
               }
@@ -50,9 +44,7 @@
     "/v1/auth/device": {
       "post": {
         "summary": "Authenticate a device, creating a user on first call",
-        "tags": [
-          "auth"
-        ],
+        "tags": ["auth"],
         "requestBody": {
           "required": true,
           "content": {
@@ -66,9 +58,7 @@
                     "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})$"
                   }
                 },
-                "required": [
-                  "device_uuid"
-                ]
+                "required": ["device_uuid"]
               }
             }
           }
@@ -106,18 +96,11 @@
                           ]
                         }
                       },
-                      "required": [
-                        "id",
-                        "handle"
-                      ],
+                      "required": ["id", "handle"],
                       "additionalProperties": false
                     }
                   },
-                  "required": [
-                    "access_token",
-                    "refresh_token",
-                    "user"
-                  ],
+                  "required": ["access_token", "refresh_token", "user"],
                   "additionalProperties": false
                 }
               }
@@ -129,9 +112,7 @@
     "/v1/auth/refresh": {
       "post": {
         "summary": "Rotate a refresh token",
-        "tags": [
-          "auth"
-        ],
+        "tags": ["auth"],
         "requestBody": {
           "required": true,
           "content": {
@@ -144,9 +125,7 @@
                     "minLength": 20
                   }
                 },
-                "required": [
-                  "refresh_token"
-                ]
+                "required": ["refresh_token"]
               }
             }
           }
@@ -166,10 +145,7 @@
                       "type": "string"
                     }
                   },
-                  "required": [
-                    "access_token",
-                    "refresh_token"
-                  ],
+                  "required": ["access_token", "refresh_token"],
                   "additionalProperties": false
                 }
               }
@@ -184,14 +160,10 @@
                   "properties": {
                     "error": {
                       "type": "string",
-                      "enum": [
-                        "invalid_refresh_token"
-                      ]
+                      "enum": ["invalid_refresh_token"]
                     }
                   },
-                  "required": [
-                    "error"
-                  ],
+                  "required": ["error"],
                   "additionalProperties": false
                 }
               }
@@ -203,9 +175,7 @@
     "/v1/assets": {
       "get": {
         "summary": "Asset roster with current prices",
-        "tags": [
-          "assets"
-        ],
+        "tags": ["assets"],
         "security": [
           {
             "bearerAuth": []
@@ -232,12 +202,7 @@
                           },
                           "pastel": {
                             "type": "string",
-                            "enum": [
-                              "peach",
-                              "mint",
-                              "sky",
-                              "lilac"
-                            ]
+                            "enum": ["peach", "mint", "sky", "lilac"]
                           },
                           "price_usd": {
                             "anyOf": [
@@ -282,9 +247,7 @@
                       }
                     }
                   },
-                  "required": [
-                    "assets"
-                  ],
+                  "required": ["assets"],
                   "additionalProperties": false
                 }
               }
@@ -296,9 +259,7 @@
     "/v1/me": {
       "get": {
         "summary": "Current user + portfolio with valuation",
-        "tags": [
-          "me"
-        ],
+        "tags": ["me"],
         "security": [
           {
             "bearerAuth": []
@@ -341,11 +302,7 @@
                           ]
                         }
                       },
-                      "required": [
-                        "id",
-                        "handle",
-                        "avatar"
-                      ],
+                      "required": ["id", "handle", "avatar"],
                       "additionalProperties": false
                     },
                     "portfolio": {
@@ -389,13 +346,7 @@
                                 ]
                               }
                             },
-                            "required": [
-                              "asset_id",
-                              "qty",
-                              "cost_basis",
-                              "price_usd",
-                              "value_usd"
-                            ],
+                            "required": ["asset_id", "qty", "cost_basis", "price_usd", "value_usd"],
                             "additionalProperties": false
                           }
                         },
@@ -413,12 +364,7 @@
                           ]
                         }
                       },
-                      "required": [
-                        "cash_usd",
-                        "holdings",
-                        "total_value_usd",
-                        "today_pct_change"
-                      ],
+                      "required": ["cash_usd", "holdings", "total_value_usd", "today_pct_change"],
                       "additionalProperties": false
                     },
                     "streak": {
@@ -442,11 +388,7 @@
                               "maximum": 9007199254740991
                             }
                           },
-                          "required": [
-                            "current_days",
-                            "longest_days",
-                            "perfect_days_count"
-                          ],
+                          "required": ["current_days", "longest_days", "perfect_days_count"],
                           "additionalProperties": false
                         },
                         {
@@ -455,11 +397,7 @@
                       ]
                     }
                   },
-                  "required": [
-                    "user",
-                    "portfolio",
-                    "streak"
-                  ],
+                  "required": ["user", "portfolio", "streak"],
                   "additionalProperties": false
                 }
               }
@@ -474,14 +412,10 @@
                   "properties": {
                     "error": {
                       "type": "string",
-                      "enum": [
-                        "user_not_found"
-                      ]
+                      "enum": ["user_not_found"]
                     }
                   },
-                  "required": [
-                    "error"
-                  ],
+                  "required": ["error"],
                   "additionalProperties": false
                 }
               }
@@ -491,9 +425,7 @@
       },
       "patch": {
         "summary": "Update current user's handle and/or avatar",
-        "tags": [
-          "me"
-        ],
+        "tags": ["me"],
         "requestBody": {
           "required": true,
           "content": {
@@ -508,12 +440,7 @@
                   },
                   "avatar": {
                     "type": "string",
-                    "enum": [
-                      "peach",
-                      "mint",
-                      "sky",
-                      "lilac"
-                    ]
+                    "enum": ["peach", "mint", "sky", "lilac"]
                   }
                 }
               }
@@ -562,17 +489,11 @@
                           ]
                         }
                       },
-                      "required": [
-                        "id",
-                        "handle",
-                        "avatar"
-                      ],
+                      "required": ["id", "handle", "avatar"],
                       "additionalProperties": false
                     }
                   },
-                  "required": [
-                    "user"
-                  ],
+                  "required": ["user"],
                   "additionalProperties": false
                 }
               }
@@ -587,16 +508,10 @@
                   "properties": {
                     "error": {
                       "type": "string",
-                      "enum": [
-                        "invalid_handle_format",
-                        "handle_reserved",
-                        "handle_taken"
-                      ]
+                      "enum": ["invalid_handle_format", "handle_reserved", "handle_taken"]
                     }
                   },
-                  "required": [
-                    "error"
-                  ],
+                  "required": ["error"],
                   "additionalProperties": false
                 }
               }
@@ -611,14 +526,10 @@
                   "properties": {
                     "error": {
                       "type": "string",
-                      "enum": [
-                        "user_not_found"
-                      ]
+                      "enum": ["user_not_found"]
                     }
                   },
-                  "required": [
-                    "error"
-                  ],
+                  "required": ["error"],
                   "additionalProperties": false
                 }
               }
@@ -633,16 +544,10 @@
                   "properties": {
                     "error": {
                       "type": "string",
-                      "enum": [
-                        "invalid_handle_format",
-                        "handle_reserved",
-                        "handle_taken"
-                      ]
+                      "enum": ["invalid_handle_format", "handle_reserved", "handle_taken"]
                     }
                   },
-                  "required": [
-                    "error"
-                  ],
+                  "required": ["error"],
                   "additionalProperties": false
                 }
               }
@@ -654,9 +559,7 @@
     "/v1/handles/check": {
       "get": {
         "summary": "Check whether a handle is available",
-        "tags": [
-          "me"
-        ],
+        "tags": ["me"],
         "parameters": [
           {
             "schema": {
@@ -689,11 +592,7 @@
                       "anyOf": [
                         {
                           "type": "string",
-                          "enum": [
-                            "invalid_format",
-                            "reserved",
-                            "taken"
-                          ]
+                          "enum": ["invalid_format", "reserved", "taken"]
                         },
                         {
                           "type": "null"
@@ -701,10 +600,7 @@
                       ]
                     }
                   },
-                  "required": [
-                    "available",
-                    "reason"
-                  ],
+                  "required": ["available", "reason"],
                   "additionalProperties": false
                 }
               }
@@ -716,9 +612,7 @@
     "/v1/trades": {
       "post": {
         "summary": "Execute one buy/sell at the cached price",
-        "tags": [
-          "trades"
-        ],
+        "tags": ["trades"],
         "requestBody": {
           "required": true,
           "content": {
@@ -745,10 +639,7 @@
                   },
                   "side": {
                     "type": "string",
-                    "enum": [
-                      "buy",
-                      "sell"
-                    ]
+                    "enum": ["buy", "sell"]
                   },
                   "usd_amount": {
                     "type": "string",
@@ -760,12 +651,7 @@
                     "maxLength": 120
                   }
                 },
-                "required": [
-                  "asset_id",
-                  "side",
-                  "usd_amount",
-                  "idempotency_key"
-                ]
+                "required": ["asset_id", "side", "usd_amount", "idempotency_key"]
               }
             }
           }
@@ -796,10 +682,7 @@
                         },
                         "side": {
                           "type": "string",
-                          "enum": [
-                            "buy",
-                            "sell"
-                          ]
+                          "enum": ["buy", "sell"]
                         },
                         "usd_amount": {
                           "type": "string"
@@ -833,10 +716,7 @@
                       "type": "boolean"
                     }
                   },
-                  "required": [
-                    "trade",
-                    "is_first_trade"
-                  ],
+                  "required": ["trade", "is_first_trade"],
                   "additionalProperties": false
                 }
               }
@@ -862,10 +742,7 @@
                         },
                         "side": {
                           "type": "string",
-                          "enum": [
-                            "buy",
-                            "sell"
-                          ]
+                          "enum": ["buy", "sell"]
                         },
                         "usd_amount": {
                           "type": "string"
@@ -899,10 +776,7 @@
                       "type": "boolean"
                     }
                   },
-                  "required": [
-                    "trade",
-                    "is_first_trade"
-                  ],
+                  "required": ["trade", "is_first_trade"],
                   "additionalProperties": false
                 }
               }
@@ -933,9 +807,7 @@
                       ]
                     }
                   },
-                  "required": [
-                    "error"
-                  ],
+                  "required": ["error"],
                   "additionalProperties": false
                 }
               }
@@ -958,14 +830,10 @@
                   "properties": {
                     "error": {
                       "type": "string",
-                      "enum": [
-                        "price_unavailable"
-                      ]
+                      "enum": ["price_unavailable"]
                     }
                   },
-                  "required": [
-                    "error"
-                  ],
+                  "required": ["error"],
                   "additionalProperties": false
                 }
               }
@@ -975,9 +843,7 @@
       },
       "get": {
         "summary": "List the user's trades, newest first",
-        "tags": [
-          "trades"
-        ],
+        "tags": ["trades"],
         "parameters": [
           {
             "schema": {
@@ -1019,10 +885,7 @@
                           },
                           "side": {
                             "type": "string",
-                            "enum": [
-                              "buy",
-                              "sell"
-                            ]
+                            "enum": ["buy", "sell"]
                           },
                           "usd_amount": {
                             "type": "string"
@@ -1054,9 +917,7 @@
                       }
                     }
                   },
-                  "required": [
-                    "trades"
-                  ],
+                  "required": ["trades"],
                   "additionalProperties": false
                 }
               }
@@ -1068,9 +929,7 @@
     "/v1/lessons/{id}/complete": {
       "post": {
         "summary": "Mark a lesson complete; idempotent on repeat",
-        "tags": [
-          "learn"
-        ],
+        "tags": ["learn"],
         "requestBody": {
           "required": true,
           "content": {
@@ -1084,9 +943,7 @@
                     "maximum": 100
                   }
                 },
-                "required": [
-                  "quiz_score"
-                ]
+                "required": ["quiz_score"]
               }
             }
           }
@@ -1131,12 +988,7 @@
                           "type": "string"
                         }
                       },
-                      "required": [
-                        "lesson_id",
-                        "quiz_score",
-                        "completed_at",
-                        "updated_at"
-                      ],
+                      "required": ["lesson_id", "quiz_score", "completed_at", "updated_at"],
                       "additionalProperties": false
                     },
                     "is_first_lesson": {
@@ -1146,11 +998,7 @@
                       "anyOf": [
                         {
                           "type": "string",
-                          "enum": [
-                            "fundamentals",
-                            "markets",
-                            "safety"
-                          ]
+                          "enum": ["fundamentals", "markets", "safety"]
                         },
                         {
                           "type": "null"
@@ -1158,11 +1006,7 @@
                       ]
                     }
                   },
-                  "required": [
-                    "progress",
-                    "is_first_lesson",
-                    "track_just_completed"
-                  ],
+                  "required": ["progress", "is_first_lesson", "track_just_completed"],
                   "additionalProperties": false
                 }
               }
@@ -1191,12 +1035,7 @@
                           "type": "string"
                         }
                       },
-                      "required": [
-                        "lesson_id",
-                        "quiz_score",
-                        "completed_at",
-                        "updated_at"
-                      ],
+                      "required": ["lesson_id", "quiz_score", "completed_at", "updated_at"],
                       "additionalProperties": false
                     },
                     "is_first_lesson": {
@@ -1206,11 +1045,7 @@
                       "anyOf": [
                         {
                           "type": "string",
-                          "enum": [
-                            "fundamentals",
-                            "markets",
-                            "safety"
-                          ]
+                          "enum": ["fundamentals", "markets", "safety"]
                         },
                         {
                           "type": "null"
@@ -1218,11 +1053,7 @@
                       ]
                     }
                   },
-                  "required": [
-                    "progress",
-                    "is_first_lesson",
-                    "track_just_completed"
-                  ],
+                  "required": ["progress", "is_first_lesson", "track_just_completed"],
                   "additionalProperties": false
                 }
               }
@@ -1245,15 +1076,10 @@
                   "properties": {
                     "error": {
                       "type": "string",
-                      "enum": [
-                        "lesson_not_found",
-                        "invalid_score"
-                      ]
+                      "enum": ["lesson_not_found", "invalid_score"]
                     }
                   },
-                  "required": [
-                    "error"
-                  ],
+                  "required": ["error"],
                   "additionalProperties": false
                 }
               }
@@ -1265,9 +1091,7 @@
     "/v1/learn/state": {
       "get": {
         "summary": "Full curriculum state with per-user completion",
-        "tags": [
-          "learn"
-        ],
+        "tags": ["learn"],
         "security": [
           {
             "bearerAuth": []
@@ -1299,12 +1123,7 @@
                             "type": "number"
                           }
                         },
-                        "required": [
-                          "id",
-                          "title",
-                          "lessons_total",
-                          "lessons_completed"
-                        ],
+                        "required": ["id", "title", "lessons_total", "lessons_completed"],
                         "additionalProperties": false
                       }
                     },
@@ -1340,20 +1159,12 @@
                             ]
                           }
                         },
-                        "required": [
-                          "id",
-                          "track_id",
-                          "completed_at",
-                          "quiz_score"
-                        ],
+                        "required": ["id", "track_id", "completed_at", "quiz_score"],
                         "additionalProperties": false
                       }
                     }
                   },
-                  "required": [
-                    "tracks",
-                    "lessons"
-                  ],
+                  "required": ["tracks", "lessons"],
                   "additionalProperties": false
                 }
               }
@@ -1365,9 +1176,7 @@
     "/v1/daily-question": {
       "get": {
         "summary": "Get today's market question + the user's prediction (if any)",
-        "tags": [
-          "daily-question"
-        ],
+        "tags": ["daily-question"],
         "security": [
           {
             "bearerAuth": []
@@ -1401,11 +1210,7 @@
                               "anyOf": [
                                 {
                                   "type": "string",
-                                  "enum": [
-                                    "up",
-                                    "down",
-                                    "tie"
-                                  ]
+                                  "enum": ["up", "down", "tie"]
                                 },
                                 {
                                   "type": "null"
@@ -1448,22 +1253,14 @@
                           "properties": {
                             "direction": {
                               "type": "string",
-                              "enum": [
-                                "up",
-                                "down"
-                              ]
+                              "enum": ["up", "down"]
                             },
                             "stake": {
                               "type": "number"
                             },
                             "status": {
                               "type": "string",
-                              "enum": [
-                                "pending",
-                                "correct",
-                                "wrong",
-                                "tie"
-                              ]
+                              "enum": ["pending", "correct", "wrong", "tie"]
                             },
                             "payout": {
                               "anyOf": [
@@ -1476,12 +1273,7 @@
                               ]
                             }
                           },
-                          "required": [
-                            "direction",
-                            "stake",
-                            "status",
-                            "payout"
-                          ],
+                          "required": ["direction", "stake", "status", "payout"],
                           "additionalProperties": false
                         },
                         {
@@ -1495,11 +1287,7 @@
                       "maximum": 9007199254740991
                     }
                   },
-                  "required": [
-                    "question",
-                    "my_prediction",
-                    "points_balance"
-                  ],
+                  "required": ["question", "my_prediction", "points_balance"],
                   "additionalProperties": false
                 }
               }
@@ -1511,9 +1299,7 @@
     "/v1/predictions": {
       "post": {
         "summary": "Submit a direction prediction for today's daily question",
-        "tags": [
-          "predictions"
-        ],
+        "tags": ["predictions"],
         "requestBody": {
           "required": true,
           "content": {
@@ -1528,10 +1314,7 @@
                   },
                   "direction": {
                     "type": "string",
-                    "enum": [
-                      "up",
-                      "down"
-                    ]
+                    "enum": ["up", "down"]
                   },
                   "stake": {
                     "type": "integer",
@@ -1544,12 +1327,7 @@
                     "maxLength": 120
                   }
                 },
-                "required": [
-                  "daily_question_id",
-                  "direction",
-                  "stake",
-                  "idempotency_key"
-                ]
+                "required": ["daily_question_id", "direction", "stake", "idempotency_key"]
               }
             }
           }
@@ -1598,14 +1376,7 @@
                           "type": "string"
                         }
                       },
-                      "required": [
-                        "id",
-                        "direction",
-                        "stake",
-                        "status",
-                        "payout",
-                        "created_at"
-                      ],
+                      "required": ["id", "direction", "stake", "status", "payout", "created_at"],
                       "additionalProperties": false
                     },
                     "points_balance": {
@@ -1614,10 +1385,7 @@
                       "maximum": 9007199254740991
                     }
                   },
-                  "required": [
-                    "prediction",
-                    "points_balance"
-                  ],
+                  "required": ["prediction", "points_balance"],
                   "additionalProperties": false
                 }
               }
@@ -1661,14 +1429,7 @@
                           "type": "string"
                         }
                       },
-                      "required": [
-                        "id",
-                        "direction",
-                        "stake",
-                        "status",
-                        "payout",
-                        "created_at"
-                      ],
+                      "required": ["id", "direction", "stake", "status", "payout", "created_at"],
                       "additionalProperties": false
                     },
                     "points_balance": {
@@ -1677,10 +1438,7 @@
                       "maximum": 9007199254740991
                     }
                   },
-                  "required": [
-                    "prediction",
-                    "points_balance"
-                  ],
+                  "required": ["prediction", "points_balance"],
                   "additionalProperties": false
                 }
               }
@@ -1712,9 +1470,7 @@
                       ]
                     }
                   },
-                  "required": [
-                    "error"
-                  ],
+                  "required": ["error"],
                   "additionalProperties": false
                 }
               }
@@ -1725,6 +1481,123 @@
             "content": {
               "application/json": {
                 "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/leaderboard": {
+      "get": {
+        "summary": "Get the global weekly leaderboard (top N + caller's rank)",
+        "tags": ["leaderboard"],
+        "parameters": [
+          {
+            "schema": {
+              "default": 50,
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200
+            },
+            "in": "query",
+            "name": "limit",
+            "required": false
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "week_starting_date": {
+                      "type": "string"
+                    },
+                    "entries": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "rank": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          },
+                          "user_id": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "handle": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "composite_score": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          }
+                        },
+                        "required": ["rank", "user_id", "handle", "composite_score"],
+                        "additionalProperties": false
+                      }
+                    },
+                    "my_entry": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "rank": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            "user_id": {
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            },
+                            "handle": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "composite_score": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            }
+                          },
+                          "required": ["rank", "user_id", "handle", "composite_score"],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": ["week_starting_date", "entries", "my_entry"],
+                  "additionalProperties": false
+                }
               }
             }
           }

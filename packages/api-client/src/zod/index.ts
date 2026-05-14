@@ -2,6 +2,7 @@ export { getV1Assets200Schema, getV1AssetsQueryResponseSchema } from "./getV1Ass
 export { getV1DailyQuestion200Schema, getV1DailyQuestionQueryResponseSchema } from "./getV1DailyQuestionSchema.ts";
 export { getV1HandlesCheckQueryParamsSchema, getV1HandlesCheck200Schema, getV1HandlesCheckQueryResponseSchema } from "./getV1HandlesCheckSchema.ts";
 export { getV1Health200Schema, getV1HealthQueryResponseSchema } from "./getV1HealthSchema.ts";
+export { getV1LeaderboardQueryParamsSchema, getV1Leaderboard200Schema, getV1LeaderboardQueryResponseSchema } from "./getV1LeaderboardSchema.ts";
 export { getV1LearnState200Schema, getV1LearnStateQueryResponseSchema } from "./getV1LearnStateSchema.ts";
 export { getV1Me200Schema, getV1Me404Schema, getV1MeQueryResponseSchema } from "./getV1MeSchema.ts";
 export { getV1TradesQueryParamsSchema, getV1Trades200Schema, getV1TradesQueryResponseSchema } from "./getV1TradesSchema.ts";

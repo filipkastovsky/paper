@@ -2,6 +2,7 @@ export { getV1AssetsHandler } from "./getV1AssetsHandler.ts";
 export { getV1DailyQuestionHandler } from "./getV1DailyQuestionHandler.ts";
 export { getV1HandlesCheckHandler } from "./getV1HandlesCheckHandler.ts";
 export { getV1HealthHandler } from "./getV1HealthHandler.ts";
+export { getV1LeaderboardHandler } from "./getV1LeaderboardHandler.ts";
 export { getV1LearnStateHandler } from "./getV1LearnStateHandler.ts";
 export { getV1MeHandler } from "./getV1MeHandler.ts";
 export { getV1TradesHandler } from "./getV1TradesHandler.ts";

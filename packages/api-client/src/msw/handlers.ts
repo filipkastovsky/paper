@@ -7,6 +7,7 @@ import { getV1AssetsHandler } from "./getV1AssetsHandler.ts";
 import { getV1DailyQuestionHandler } from "./getV1DailyQuestionHandler.ts";
 import { getV1HandlesCheckHandler } from "./getV1HandlesCheckHandler.ts";
 import { getV1HealthHandler } from "./getV1HealthHandler.ts";
+import { getV1LeaderboardHandler } from "./getV1LeaderboardHandler.ts";
 import { getV1LearnStateHandler } from "./getV1LearnStateHandler.ts";
 import { getV1MeHandler } from "./getV1MeHandler.ts";
 import { getV1TradesHandler } from "./getV1TradesHandler.ts";
@@ -17,4 +18,4 @@ import { postV1LessonsIdCompleteHandler } from "./postV1LessonsIdCompleteHandler
 import { postV1PredictionsHandler } from "./postV1PredictionsHandler.ts";
 import { postV1TradesHandler } from "./postV1TradesHandler.ts";
 
-export const handlers = [getV1HealthHandler(),postV1AuthDeviceHandler(),postV1AuthRefreshHandler(),getV1AssetsHandler(),getV1MeHandler(),patchV1MeHandler(),getV1HandlesCheckHandler(),postV1TradesHandler(),getV1TradesHandler(),postV1LessonsIdCompleteHandler(),getV1LearnStateHandler(),getV1DailyQuestionHandler(),postV1PredictionsHandler()] as const
+export const handlers = [getV1HealthHandler(),postV1AuthDeviceHandler(),postV1AuthRefreshHandler(),getV1AssetsHandler(),getV1MeHandler(),patchV1MeHandler(),getV1HandlesCheckHandler(),postV1TradesHandler(),getV1TradesHandler(),postV1LessonsIdCompleteHandler(),getV1LearnStateHandler(),getV1DailyQuestionHandler(),postV1PredictionsHandler(),getV1LeaderboardHandler()] as const

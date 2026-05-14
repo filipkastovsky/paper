@@ -2,6 +2,7 @@ export type { AssetsPastelEnum, GetV1Assets200, GetV1AssetsQueryResponse, GetV1A
 export type { QuestionDirectionResolvedEnum, MyPredictionDirectionEnum, MyPredictionStatusEnum, GetV1DailyQuestion200, GetV1DailyQuestionQueryResponse, GetV1DailyQuestionQuery } from "./GetV1DailyQuestion.ts";
 export type { GetV1HandlesCheckQueryParams, GetV1HandlesCheck200ReasonEnum, GetV1HandlesCheck200, GetV1HandlesCheckQueryResponse, GetV1HandlesCheckQuery } from "./GetV1HandlesCheck.ts";
 export type { GetV1Health200StatusEnum, GetV1Health200, GetV1HealthQueryResponse, GetV1HealthQuery } from "./GetV1Health.ts";
+export type { GetV1LeaderboardQueryParams, GetV1Leaderboard200, GetV1LeaderboardQueryResponse, GetV1LeaderboardQuery } from "./GetV1Leaderboard.ts";
 export type { GetV1LearnState200, GetV1LearnStateQueryResponse, GetV1LearnStateQuery } from "./GetV1LearnState.ts";
 export type { GetV1Me200, GetV1Me404ErrorEnum, GetV1Me404, GetV1MeQueryResponse, GetV1MeQuery } from "./GetV1Me.ts";
 export type { GetV1TradesQueryParams, TradesSideEnum, GetV1Trades200, GetV1TradesQueryResponse, GetV1TradesQuery } from "./GetV1Trades.ts";
