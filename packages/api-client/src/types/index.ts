@@ -5,12 +5,15 @@ export type { GetV1Health200StatusEnum, GetV1Health200, GetV1HealthQueryResponse
 export type { GetV1LeaderboardQueryParams, GetV1Leaderboard200, GetV1LeaderboardQueryResponse, GetV1LeaderboardQuery } from "./GetV1Leaderboard.ts";
 export type { GetV1LearnState200, GetV1LearnStateQueryResponse, GetV1LearnStateQuery } from "./GetV1LearnState.ts";
 export type { GetV1Me200, GetV1Me404ErrorEnum, GetV1Me404, GetV1MeQueryResponse, GetV1MeQuery } from "./GetV1Me.ts";
+export type { GetV1PushVapidKey200, GetV1PushVapidKeyQueryResponse, GetV1PushVapidKeyQuery } from "./GetV1PushVapidKey.ts";
 export type { GetV1TradesQueryParams, TradesSideEnum, GetV1Trades200, GetV1TradesQueryResponse, GetV1TradesQuery } from "./GetV1Trades.ts";
 export type { PatchV1Me200, PatchV1Me400ErrorEnum, PatchV1Me400, PatchV1Me404ErrorEnum, PatchV1Me404, PatchV1Me409ErrorEnum, PatchV1Me409, PatchV1MeMutationRequestAvatarEnum, PatchV1MeMutationRequest, PatchV1MeMutationResponse, PatchV1MeMutation } from "./PatchV1Me.ts";
 export type { PostV1AuthDevice200, PostV1AuthDeviceMutationRequest, PostV1AuthDeviceMutationResponse, PostV1AuthDeviceMutation } from "./PostV1AuthDevice.ts";
 export type { PostV1AuthRefresh200, PostV1AuthRefresh401ErrorEnum, PostV1AuthRefresh401, PostV1AuthRefreshMutationRequest, PostV1AuthRefreshMutationResponse, PostV1AuthRefreshMutation } from "./PostV1AuthRefresh.ts";
 export type { PostV1LessonsIdCompletePathParams, PostV1LessonsIdComplete200TrackJustCompletedEnum, PostV1LessonsIdComplete200, PostV1LessonsIdComplete201TrackJustCompletedEnum, PostV1LessonsIdComplete201, PostV1LessonsIdComplete400, PostV1LessonsIdComplete404ErrorEnum, PostV1LessonsIdComplete404, PostV1LessonsIdCompleteMutationRequest, PostV1LessonsIdCompleteMutationResponse, PostV1LessonsIdCompleteMutation } from "./PostV1LessonsIdComplete.ts";
 export type { PostV1Predictions200, PostV1Predictions201, PostV1Predictions400, PostV1Predictions422ErrorEnum, PostV1Predictions422, PostV1Predictions429, PostV1PredictionsMutationRequestDirectionEnum, PostV1PredictionsMutationRequest, PostV1PredictionsMutationResponse, PostV1PredictionsMutation } from "./PostV1Predictions.ts";
+export type { PostV1PushSubscribe204, PostV1PushSubscribeMutationRequest, PostV1PushSubscribeMutationResponse, PostV1PushSubscribeMutation } from "./PostV1PushSubscribe.ts";
+export type { PostV1PushUnsubscribe204, PostV1PushUnsubscribeMutationRequest, PostV1PushUnsubscribeMutationResponse, PostV1PushUnsubscribeMutation } from "./PostV1PushUnsubscribe.ts";
 export type { TradeSideEnum, PostV1Trades200, TradeSideEnum2, PostV1Trades201, PostV1Trades400, PostV1Trades422ErrorEnum, PostV1Trades422, PostV1Trades429, PostV1Trades503ErrorEnum, PostV1Trades503, PostV1TradesMutationRequestAssetIdEnum, PostV1TradesMutationRequestSideEnum, PostV1TradesMutationRequest, PostV1TradesMutationResponse, PostV1TradesMutation } from "./PostV1Trades.ts";
 export { assetsPastelEnum } from "./GetV1Assets.ts";
 export { questionDirectionResolvedEnum, myPredictionDirectionEnum, myPredictionStatusEnum } from "./GetV1DailyQuestion.ts";
