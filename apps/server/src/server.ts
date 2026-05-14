@@ -17,6 +17,7 @@ import { assetsRoutes } from "./routes/assets.js";
 import { authRoutes } from "./routes/auth.js";
 import { dailyQuestionRoutes } from "./routes/daily-question.js";
 import { healthRoutes } from "./routes/health.js";
+import { leaderboardRoutes } from "./routes/leaderboard.js";
 import { learnRoutes } from "./routes/learn.js";
 import { meRoutes } from "./routes/me.js";
 import { predictionsRoutes } from "./routes/predictions.js";
@@ -96,6 +97,7 @@ export async function buildServer({ config, db }: BuildServerOptions): Promise<F
   await app.register(learnRoutes);
   await app.register(dailyQuestionRoutes);
   await app.register(predictionsRoutes);
+  await app.register(leaderboardRoutes);
 
   return app;
 }
