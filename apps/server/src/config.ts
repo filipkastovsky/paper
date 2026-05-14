@@ -6,6 +6,8 @@ const ConfigSchema = z.object({
   PORT: z.coerce.number().int().positive().default(3000),
   DATABASE_URL: z.string().url(),
   REDIS_URL: z.string().url(),
+  VAPID_PUBLIC_KEY: z.string().min(1),
+  VAPID_PRIVATE_KEY: z.string().min(1),
   JWT_SECRET: z.string().min(32, "JWT_SECRET must be at least 32 chars"),
   LOG_LEVEL: z.enum(["fatal", "error", "warn", "info", "debug", "trace", "silent"]).default("info"),
   OTEL_EXPORTER_OTLP_ENDPOINT: z.string().url().optional(),
