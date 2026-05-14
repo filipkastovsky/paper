@@ -1,4 +1,5 @@
 import { AssetList } from "@/components/dashboard/AssetList";
+import { DailyQuestionCard } from "@/components/dashboard/DailyQuestionCard";
 import { HeroPortfolioCard } from "@/components/dashboard/HeroPortfolioCard";
 import { LearnCTA } from "@/components/dashboard/LearnCTA";
 import { TopMoversStrip } from "@/components/dashboard/TopMoversStrip";
@@ -23,6 +24,7 @@ function Dashboard() {
           </Button>
         </div>
         <LearnCTA />
+        <DailyQuestionCard />
         <TopMoversStrip />
         <AssetList />
       </div>
