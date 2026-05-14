@@ -2,6 +2,7 @@ import { AssetList } from "@/components/dashboard/AssetList";
 import { DailyQuestionCard } from "@/components/dashboard/DailyQuestionCard";
 import { HeroPortfolioCard } from "@/components/dashboard/HeroPortfolioCard";
 import { LearnCTA } from "@/components/dashboard/LearnCTA";
+import { PushOptIn } from "@/components/dashboard/PushOptIn";
 import { TopMoversStrip } from "@/components/dashboard/TopMoversStrip";
 import { Button } from "@/components/ui/button";
 import { Link, createFileRoute } from "@tanstack/react-router";
@@ -26,6 +27,7 @@ function Dashboard() {
             <Link to="/leaderboard">Leaderboard</Link>
           </Button>
         </div>
+        <PushOptIn />
         <LearnCTA />
         <DailyQuestionCard />
         <TopMoversStrip />
