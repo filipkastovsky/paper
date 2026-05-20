@@ -420,6 +420,8 @@ If this allocation isn't sustainable, the founder-as-creator thesis falls apart 
 
 ## Appendix A — Design system (from PRD, unchanged)
 
+> **Superseded 2026-04-23.** The canonical design system is now **Marshmallow**, documented in `docs/design/design-system.md` with portable tokens in `docs/design/tokens.css`. Reference showcase at `tmp/design-explorations/01-marshmallow/index.html`. The palette and type choices below are retained for historical context — **do not implement from this appendix**. In particular, Plus Jakarta Sans and Space Grotesk are replaced by Bricolage Grotesque + Hanken Grotesk, and the cool-grey `#F8FAFC` background is replaced by a warm cream `oklch(98% 0.008 85)`.
+
 ### Color palette
 
 - **Primary:** `#0F172A` — main buttons, primary interactions

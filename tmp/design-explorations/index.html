@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Design Language Explorations — Neo-Fintech Minimalist Exchange</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,700;12..96,800&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --ink:       oklch(20% 0.025 265);
+    --ink-soft:  oklch(35% 0.02 265);
+    --muted:     oklch(55% 0.015 265);
+    --line:      oklch(90% 0.01 265);
+    --paper:     oklch(98% 0.006 85);
+    --surface:   oklch(99% 0.003 85);
+
+    --accent-a:  oklch(82% 0.095 155); /* mint */
+    --accent-b:  oklch(84% 0.09 35);   /* peach */
+    --accent-c:  oklch(86% 0.08 230);  /* sky */
+    --accent-d:  oklch(85% 0.09 300);  /* lilac */
+
+    --display: 'Bricolage Grotesque', ui-sans-serif, system-ui, sans-serif;
+    --body:    'Hanken Grotesk', ui-sans-serif, system-ui, sans-serif;
+
+    --step-0: clamp(0.95rem, 0.9rem + 0.2vw, 1.05rem);
+    --step-1: clamp(1.1rem, 1rem + 0.4vw, 1.3rem);
+    --step-2: clamp(1.4rem, 1.2rem + 0.8vw, 1.8rem);
+    --step-3: clamp(2rem, 1.6rem + 1.6vw, 3rem);
+    --step-4: clamp(3rem, 2rem + 3.5vw, 5.5rem);
+
+    --radius-sm: 14px;
+    --radius-md: 22px;
+    --radius-lg: 32px;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: var(--body);
+    color: var(--ink);
+    background: var(--paper);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    font-feature-settings: "ss01", "cv11";
+    line-height: 1.5;
+  }
+
+  .wrap { max-width: 1120px; padding: clamp(2rem, 4vw, 4rem) 1.5rem 6rem; margin: 0 auto; }
+
+  header.hero {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    padding-block: clamp(3rem, 8vw, 7rem);
+  }
+  .eyebrow {
+    font-family: var(--display);
+    font-weight: 500;
+    font-size: 0.82rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .eyebrow::before {
+    content: ""; width: 28px; height: 1px; background: currentColor;
+  }
+  h1.title {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: var(--step-4);
+    line-height: 0.95;
+    letter-spacing: -0.035em;
+    margin: 0;
+    max-width: 18ch;
+  }
+  h1.title em {
+    font-style: italic;
+    font-weight: 500;
+    color: var(--ink-soft);
+  }
+  .lede {
+    font-size: var(--step-1);
+    line-height: 1.45;
+    color: var(--ink-soft);
+    max-width: 58ch;
+    margin: 0;
+  }
+
+  .meta {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1.5rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--line);
+  }
+  .meta dt {
+    font-family: var(--display);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-bottom: 0.35rem;
+  }
+  .meta dd {
+    margin: 0;
+    font-size: var(--step-0);
+    color: var(--ink);
+  }
+
+  h2.section {
+    font-family: var(--display);
+    font-size: var(--step-3);
+    letter-spacing: -0.025em;
+    line-height: 1;
+    margin: 6rem 0 2.5rem;
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+  }
+  h2.section .num {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: 420px;
+    padding: 2rem;
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+    overflow: hidden;
+    border: 1px solid var(--line);
+    transition: transform 400ms cubic-bezier(.2,.9,.2,1), box-shadow 400ms;
+    text-decoration: none;
+    color: inherit;
+  }
+  .card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 32px 60px -20px oklch(30% 0.05 265 / 0.12);
+  }
+  .card .swatch-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 1.5rem;
+  }
+  .card .sw {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .card-1 { background: linear-gradient(170deg, oklch(97% 0.018 85) 0%, oklch(93% 0.035 35) 100%); }
+  .card-2 { background: oklch(96% 0.015 85); }
+  .card-3 { background: oklch(94% 0.025 75); position: relative; }
+  .card-3::before {
+    content: "";
+    position: absolute; inset: 0;
+    background-image: radial-gradient(oklch(40% 0.02 75 / 0.1) 0.5px, transparent 0.5px);
+    background-size: 3px 3px;
+    pointer-events: none;
+    opacity: 0.6;
+  }
+
+  .card h3 {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: var(--step-2);
+    letter-spacing: -0.02em;
+    line-height: 1;
+    margin: 0 0 0.5rem;
+  }
+  .card .sub {
+    font-size: 0.9rem;
+    color: var(--muted);
+    font-family: var(--display);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+  .card p {
+    font-size: var(--step-0);
+    line-height: 1.55;
+    color: var(--ink-soft);
+    margin: 0 0 1.5rem;
+    max-width: 34ch;
+  }
+  .card .tags {
+    margin-top: auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+  .card .tag {
+    font-size: 0.74rem;
+    font-family: var(--display);
+    letter-spacing: 0.04em;
+    padding: 0.35rem 0.7rem;
+    background: oklch(100% 0 0 / 0.5);
+    border-radius: 999px;
+    color: var(--ink-soft);
+    border: 1px solid oklch(30% 0 0 / 0.08);
+  }
+
+  .card .enter {
+    position: absolute;
+    top: 1.5rem; right: 1.5rem;
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: var(--ink);
+    color: var(--paper);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem;
+    transition: transform 300ms cubic-bezier(.2,.9,.2,1);
+  }
+  .card:hover .enter { transform: rotate(-45deg); }
+
+  .context-rail {
+    margin-top: 5rem;
+    padding: 2.5rem;
+    background: oklch(96% 0.01 265);
+    border-radius: var(--radius-lg);
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  @media (min-width: 720px) {
+    .context-rail { grid-template-columns: 1fr 1fr; }
+  }
+  .context-rail h3 {
+    font-family: var(--display);
+    font-size: var(--step-1);
+    margin: 0 0 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .context-rail p {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: var(--step-0);
+    line-height: 1.6;
+  }
+  .context-rail ul { margin: 0; padding-left: 1.2rem; color: var(--ink-soft); line-height: 1.7; font-size: var(--step-0); }
+
+  footer {
+    margin-top: 5rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: 0.85rem;
+    color: var(--muted);
+    font-family: var(--display);
+    letter-spacing: 0.04em;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <span class="eyebrow">v0 · design-language explorations</span>
+    <h1 class="title">Three ways to look <em>screenshot-worthy.</em></h1>
+    <p class="lede">
+      The spec calls for a beautiful, beginner-friendly paper-trading app — the Duolingo of crypto.
+      This folder contains three distinct design-language drafts that all satisfy the brief but lead the
+      brand toward different emotional territories. Pick one. Merge two. Reject all three.
+      The point is to feel the range before committing.
+    </p>
+
+    <dl class="meta">
+      <div><dt>Product</dt><dd>Paper-trading + crypto education PWA</dd></div>
+      <div><dt>Audience</dt><dd>Crypto beginners from TikTok</dd></div>
+      <div><dt>Mode</dt><dd>Mobile-only · Light mode · Portrait</dd></div>
+      <div><dt>Drafted</dt><dd>2026-04-23</dd></div>
+    </dl>
+  </header>
+
+  <h2 class="section"><span class="num">01 — 03</span> Directions</h2>
+
+  <div class="grid">
+
+    <a class="card card-1" href="./01-marshmallow/index.html">
+      <div class="enter">↗</div>
+      <div class="swatch-row">
+        <div class="sw" style="background:oklch(82% 0.095 155)"></div>
+        <div class="sw" style="background:oklch(84% 0.09 35)"></div>
+        <div class="sw" style="background:oklch(86% 0.08 230)"></div>
+        <div class="sw" style="background:oklch(85% 0.09 300)"></div>
+      </div>
+      <p class="sub">Direction 01 · Chosen</p>
+      <h3>Marshmallow</h3>
+      <p>
+        Pastel-plump. Soft-3D buttons you want to poke. The warmest, friendliest read of the spec —
+        Duolingo energy taken seriously. Now canonical: tokens at <code>docs/design/tokens.css</code>.
+      </p>
+      <div class="tags">
+        <span class="tag">Bricolage Grotesque</span>
+        <span class="tag">Hanken Grotesk</span>
+        <span class="tag">4-way pastel</span>
+        <span class="tag" style="background: oklch(82% 0.095 155); border-color: transparent;">+10 flows</span>
+      </div>
+    </a>
+
+    <a class="card card-2" href="./02-editorial/index.html">
+      <div class="enter">↗</div>
+      <div class="swatch-row">
+        <div class="sw" style="background:oklch(96% 0.012 85); border:1px solid oklch(85% 0.01 85)"></div>
+        <div class="sw" style="background:oklch(60% 0.15 25)"></div>
+        <div class="sw" style="background:oklch(22% 0.02 250)"></div>
+        <div class="sw" style="background:oklch(75% 0.04 150)"></div>
+      </div>
+      <p class="sub">Direction 02</p>
+      <h3>Editorial</h3>
+      <p>
+        Serif-led, magazine-quiet. Generous whitespace, one sharp terracotta accent, ink-on-paper.
+        The opposite of "finance app" — reads like a design-journal column about money.
+      </p>
+      <div class="tags">
+        <span class="tag">Gloock</span>
+        <span class="tag">Schibsted Grotesk</span>
+        <span class="tag">Single-accent</span>
+      </div>
+    </a>
+
+    <a class="card card-3" href="./03-riso/index.html">
+      <div class="enter">↗</div>
+      <div class="swatch-row">
+        <div class="sw" style="background:oklch(96% 0.022 80)"></div>
+        <div class="sw" style="background:oklch(68% 0.26 5)"></div>
+        <div class="sw" style="background:oklch(42% 0.2 250)"></div>
+        <div class="sw" style="background:oklch(15% 0.01 270)"></div>
+      </div>
+      <p class="sub">Direction 03</p>
+      <h3>Riso Print</h3>
+      <p>
+        Two-ink zine print. Fluorescent pink and deep blue on manila cream, slight grain and
+        misregistration. The most viral-bait direction — instantly recognizable in a TikTok grid.
+      </p>
+      <div class="tags">
+        <span class="tag">Boldonse</span>
+        <span class="tag">Atkinson Hyperlegible</span>
+        <span class="tag">Departure Mono</span>
+      </div>
+    </a>
+
+  </div>
+
+  <div class="context-rail">
+    <div>
+      <h3>What each direction is optimising for</h3>
+      <p>
+        Every direction builds the same four screens — onboarding $10K reveal, dashboard, trade
+        confirm+success, and a share card — so you can compare how the same product <em>feels</em> under
+        different brand clothing.
+      </p>
+    </div>
+    <div>
+      <h3>What to notice</h3>
+      <ul>
+        <li>How balance numbers are typeset — they're the product's hero typography.</li>
+        <li>The loss color. Spec says no alarm-red; each direction answers differently.</li>
+        <li>How the share card reads when cropped to a 9:16 frame on mute.</li>
+      </ul>
+    </div>
+  </div>
+
+  <footer>
+    <span>Neo-Fintech Minimalist Exchange — design studies</span>
+    <span>~F.K. · 2026</span>
+  </footer>
+
+</div>
+</body>
+</html>

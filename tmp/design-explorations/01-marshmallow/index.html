@@ -1,0 +1,1414 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Marshmallow — Design Direction 01</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    /* Ink */
+    --ink:        oklch(22% 0.022 275);
+    --ink-soft:   oklch(40% 0.018 275);
+    --muted:      oklch(58% 0.012 275);
+    --line:       oklch(90% 0.008 275);
+
+    /* Surfaces — warm cream, slight yellow tilt */
+    --paper:      oklch(98% 0.008 85);
+    --surface:    oklch(100% 0 0);
+    --surface-2:  oklch(96% 0.012 85);
+
+    /* Four pastel brand hues */
+    --mint:       oklch(84% 0.095 160);
+    --mint-deep:  oklch(68% 0.14 160);
+    --peach:      oklch(86% 0.085 35);
+    --peach-deep: oklch(72% 0.14 35);
+    --sky:        oklch(87% 0.075 230);
+    --sky-deep:   oklch(68% 0.14 230);
+    --lilac:      oklch(86% 0.085 300);
+    --lilac-deep: oklch(68% 0.14 300);
+
+    /* Semantic */
+    --up:         oklch(62% 0.17 155);
+    --down:       oklch(68% 0.17 28);  /* coral, not red */
+
+    /* Type */
+    --display: 'Bricolage Grotesque', ui-sans-serif, system-ui, sans-serif;
+    --body:    'Hanken Grotesk', ui-sans-serif, system-ui, sans-serif;
+
+    --step-0: clamp(0.95rem, 0.9rem + 0.2vw, 1.05rem);
+    --step-1: clamp(1.1rem, 1rem + 0.4vw, 1.3rem);
+    --step-2: clamp(1.4rem, 1.2rem + 0.8vw, 1.85rem);
+    --step-3: clamp(2rem, 1.6rem + 1.6vw, 3rem);
+    --step-4: clamp(3rem, 2rem + 3.5vw, 5.5rem);
+
+    /* Radii — plump */
+    --r-xs: 10px;
+    --r-sm: 16px;
+    --r-md: 24px;
+    --r-lg: 32px;
+    --r-xl: 44px;
+    --r-pill: 9999px;
+
+    /* Shadows — soft, coloured */
+    --shadow-float: 0 18px 40px -18px oklch(50% 0.05 275 / 0.25);
+    --shadow-pop:   0 10px 24px -8px oklch(50% 0.05 275 / 0.22);
+    --shadow-inset: inset 0 -3px 0 0 oklch(30% 0.05 275 / 0.1);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: var(--body);
+    color: var(--ink);
+    background: var(--paper);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    line-height: 1.5;
+    font-feature-settings: "ss01", "cv11";
+  }
+
+  .wrap { max-width: 1280px; margin: 0 auto; padding: clamp(2rem, 5vw, 5rem) 1.5rem 6rem; }
+
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding-bottom: 2rem; border-bottom: 1px solid var(--line);
+    margin-bottom: clamp(3rem, 6vw, 5rem);
+  }
+  .back {
+    font-family: var(--display);
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-decoration: none;
+    color: var(--ink-soft);
+    display: inline-flex; gap: 0.5rem; align-items: center;
+    padding: 0.5rem 0.9rem;
+    border-radius: var(--r-pill);
+    background: var(--surface-2);
+    transition: background 200ms;
+  }
+  .back:hover { background: var(--mint); color: var(--ink); }
+  .dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--peach); display: inline-block;
+  }
+
+  /* Hero */
+  header.hero {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    padding-block: clamp(2rem, 5vw, 4rem);
+  }
+  .eyebrow {
+    font-family: var(--display);
+    font-weight: 500;
+    font-size: 0.82rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    display: inline-flex; gap: 0.6rem; align-items: center;
+  }
+  .eyebrow::before { content: ""; width: 28px; height: 1px; background: currentColor; }
+
+  h1.title {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: var(--step-4);
+    line-height: 0.92;
+    letter-spacing: -0.04em;
+    margin: 0;
+    max-width: 14ch;
+  }
+  h1.title em {
+    font-style: italic;
+    font-weight: 500;
+    color: var(--peach-deep);
+  }
+
+  .lede {
+    font-size: var(--step-1);
+    line-height: 1.45;
+    color: var(--ink-soft);
+    max-width: 58ch;
+    margin: 0;
+  }
+
+  .philosophy {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 2rem;
+    margin-top: 2.5rem;
+    padding-top: 2.5rem;
+    border-top: 1px solid var(--line);
+  }
+  .philosophy h4 {
+    font-family: var(--display);
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0 0 0.6rem;
+  }
+  .philosophy p {
+    margin: 0;
+    font-size: var(--step-0);
+    line-height: 1.6;
+    color: var(--ink-soft);
+  }
+
+  /* Section titles */
+  h2.section-title {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: var(--step-3);
+    letter-spacing: -0.025em;
+    line-height: 1;
+    margin: clamp(4rem, 8vw, 7rem) 0 clamp(1.5rem, 3vw, 2.5rem);
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+  }
+  h2.section-title .num {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    font-variant-numeric: tabular-nums;
+  }
+  .section-lead {
+    font-size: var(--step-0);
+    color: var(--ink-soft);
+    max-width: 60ch;
+    line-height: 1.6;
+    margin: 0 0 2.5rem;
+  }
+
+  /* Palette */
+  .palette {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 1rem;
+  }
+  .swatch {
+    aspect-ratio: 4/5;
+    border-radius: var(--r-md);
+    padding: 1.2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+  }
+  .swatch .name {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 1.05rem;
+    letter-spacing: -0.01em;
+  }
+  .swatch .code {
+    font-family: ui-monospace, monospace;
+    font-size: 0.75rem;
+    opacity: 0.7;
+    letter-spacing: 0.02em;
+  }
+
+  /* Type scale */
+  .typescale {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+    padding: 2rem;
+    background: var(--surface-2);
+    border-radius: var(--r-lg);
+  }
+  .typescale > div { display: flex; align-items: baseline; gap: 1.5rem; border-bottom: 1px dashed var(--line); padding-bottom: 1rem; }
+  .typescale > div:last-child { border-bottom: 0; padding-bottom: 0; }
+  .typescale .label {
+    min-width: 180px;
+    font-family: var(--display);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+  }
+  .typescale .sample { font-family: var(--display); letter-spacing: -0.03em; line-height: 1; }
+  .t-hero    { font-size: clamp(3rem, 6vw, 5rem); font-weight: 700; }
+  .t-display { font-size: clamp(2rem, 4vw, 3rem); font-weight: 700; }
+  .t-title   { font-size: clamp(1.4rem, 2.5vw, 1.85rem); font-weight: 600; }
+  .t-body    { font-family: var(--body); font-size: 1rem; line-height: 1.5; font-weight: 500; }
+  .t-num     {
+    font-family: var(--display);
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "ss01", "ss02";
+    letter-spacing: -0.04em;
+    font-size: clamp(2.5rem, 5vw, 4rem);
+  }
+
+  /* Device frames */
+  .devices {
+    display: grid;
+    gap: 2.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    align-items: start;
+  }
+  .device-col {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+  .device-caption {
+    font-family: var(--display);
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+  }
+  .device-title {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: var(--step-2);
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+    margin: 0;
+  }
+  .device-note {
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+    margin: 0;
+    line-height: 1.5;
+    max-width: 34ch;
+  }
+
+  .phone {
+    width: 100%;
+    max-width: 380px;
+    aspect-ratio: 9 / 19.5;
+    border-radius: 52px;
+    background: var(--ink);
+    padding: 10px;
+    box-shadow: 0 40px 80px -30px oklch(30% 0.04 275 / 0.4), 0 10px 24px -12px oklch(30% 0.04 275 / 0.2);
+    position: relative;
+    margin: 0 auto;
+  }
+  .phone-screen {
+    width: 100%; height: 100%;
+    border-radius: 44px;
+    background: var(--paper);
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+  .phone::before {
+    content: "";
+    position: absolute;
+    top: 18px; left: 50%; transform: translateX(-50%);
+    width: 110px; height: 30px;
+    background: var(--ink);
+    border-radius: 999px;
+    z-index: 10;
+  }
+
+  /* Screen shared chrome */
+  .status-bar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 16px 28px 0;
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: 14px;
+    height: 44px;
+    color: var(--ink);
+    flex-shrink: 0;
+  }
+  .status-icons { display: flex; gap: 6px; align-items: center; }
+  .status-icons svg { width: 16px; height: 12px; }
+
+  .nav-bar {
+    position: absolute;
+    bottom: 22px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% - 48px);
+    background: var(--surface);
+    border-radius: var(--r-pill);
+    padding: 8px;
+    box-shadow: var(--shadow-float);
+    display: flex;
+    justify-content: space-between;
+    gap: 2px;
+    z-index: 5;
+  }
+  .nav-item {
+    flex: 1;
+    padding: 10px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    font-size: 10px;
+    font-family: var(--display);
+    font-weight: 600;
+    color: var(--muted);
+    border-radius: var(--r-pill);
+    letter-spacing: 0.03em;
+  }
+  .nav-item.active {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .nav-item svg { width: 18px; height: 18px; stroke-width: 2; }
+
+  /* SCREEN 1 — Onboarding $10K reveal */
+  .s-onboard {
+    flex: 1; display: flex; flex-direction: column;
+    padding: 12px 24px 110px;
+    background:
+      radial-gradient(circle at 20% 15%, var(--peach) 0%, transparent 55%),
+      radial-gradient(circle at 85% 40%, var(--sky) 0%, transparent 55%),
+      radial-gradient(circle at 30% 90%, var(--mint) 0%, transparent 60%),
+      var(--paper);
+  }
+  .s-onboard .step {
+    font-family: var(--display);
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 48px;
+    margin-top: 12px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .s-onboard .step-dots { display: flex; gap: 4px; }
+  .s-onboard .step-dot { width: 20px; height: 3px; border-radius: 2px; background: oklch(40% 0.02 275 / 0.15); }
+  .s-onboard .step-dot.done { background: var(--ink); }
+  .s-onboard .label {
+    font-family: var(--display);
+    font-weight: 500;
+    font-size: 14px;
+    color: var(--ink-soft);
+    text-align: center;
+    margin-bottom: 4px;
+  }
+  .s-onboard .balance {
+    font-family: var(--display);
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.06em;
+    font-size: 78px;
+    text-align: center;
+    line-height: 1;
+    color: var(--ink);
+    margin: 0;
+    position: relative;
+  }
+  .s-onboard .balance .dollar {
+    font-size: 40px;
+    font-weight: 500;
+    vertical-align: top;
+    position: relative;
+    top: 8px;
+    margin-right: 2px;
+    color: var(--ink-soft);
+  }
+  .s-onboard .unit {
+    font-family: var(--display);
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    text-align: center;
+    margin-top: 8px;
+  }
+  .s-onboard .message {
+    font-family: var(--body);
+    font-size: 15px;
+    line-height: 1.45;
+    color: var(--ink-soft);
+    text-align: center;
+    margin: 32px 8px 0;
+    max-width: 28ch;
+    margin-left: auto; margin-right: auto;
+  }
+  .s-onboard .cta {
+    margin-top: auto;
+    margin-bottom: 16px;
+    background: var(--ink);
+    color: var(--paper);
+    border: none;
+    border-radius: var(--r-pill);
+    padding: 18px 24px;
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    box-shadow: var(--shadow-inset);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .s-onboard .cta .arrow {
+    width: 32px; height: 32px;
+    background: var(--paper);
+    color: var(--ink);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .s-onboard .confetti {
+    position: absolute; top: 96px; left: 28px;
+    font-family: var(--display);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--mint-deep);
+    transform: rotate(-8deg);
+    padding: 6px 12px;
+    background: var(--surface);
+    border-radius: var(--r-pill);
+    box-shadow: var(--shadow-pop);
+  }
+
+  /* SCREEN 2 — Dashboard */
+  .s-dash {
+    flex: 1; display: flex; flex-direction: column;
+    padding: 0 0 96px;
+    overflow-y: auto;
+    background: var(--paper);
+  }
+  .s-dash .dash-header {
+    padding: 8px 24px 20px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .s-dash .handle {
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--ink-soft);
+  }
+  .s-dash .avatar {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: var(--lilac);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--display); font-weight: 700; color: var(--ink); font-size: 13px;
+  }
+  .s-dash .streak {
+    display: flex; align-items: center; gap: 4px;
+    padding: 5px 10px;
+    background: var(--peach);
+    border-radius: var(--r-pill);
+    font-family: var(--display); font-weight: 700; font-size: 13px;
+  }
+  .s-dash .hero-card {
+    margin: 0 20px 16px;
+    padding: 22px;
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: var(--r-lg);
+    position: relative;
+    overflow: hidden;
+  }
+  .s-dash .hero-card::before {
+    content: "";
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 140px; height: 140px;
+    background: var(--peach);
+    border-radius: 50%;
+    opacity: 0.35;
+  }
+  .s-dash .hero-card::after {
+    content: "";
+    position: absolute;
+    top: 30px; right: -20px;
+    width: 80px; height: 80px;
+    background: var(--mint);
+    border-radius: 50%;
+    opacity: 0.45;
+  }
+  .s-dash .hero-label {
+    font-family: var(--display);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: oklch(100% 0 0 / 0.55);
+    position: relative;
+    z-index: 2;
+  }
+  .s-dash .hero-balance {
+    font-family: var(--display);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    font-size: 38px;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    margin-top: 6px;
+    position: relative;
+    z-index: 2;
+  }
+  .s-dash .hero-change {
+    margin-top: 10px;
+    font-family: var(--display);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--mint);
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .s-dash .chip {
+    background: oklch(100% 0 0 / 0.12);
+    padding: 3px 8px;
+    border-radius: 999px;
+    color: oklch(100% 0 0 / 0.75);
+    font-weight: 500;
+    font-size: 11px;
+  }
+
+  .s-dash .question-card {
+    margin: 0 20px 16px;
+    padding: 16px 18px;
+    background: var(--lilac);
+    border-radius: var(--r-md);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .s-dash .question-icon {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    background: var(--ink);
+    color: var(--paper);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--display); font-weight: 700; font-size: 18px;
+    flex-shrink: 0;
+  }
+  .s-dash .question-body .qlabel {
+    font-family: var(--display);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+  .s-dash .question-body .qtext {
+    font-family: var(--display);
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+  .s-dash .question-body small {
+    font-size: 11px;
+    color: var(--ink-soft);
+    font-weight: 500;
+  }
+
+  .s-dash .section-label {
+    padding: 12px 24px 10px;
+    font-family: var(--display);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .s-dash .movers {
+    display: flex;
+    gap: 10px;
+    padding: 0 20px;
+    overflow-x: auto;
+    margin-bottom: 14px;
+    scrollbar-width: none;
+  }
+  .s-dash .movers::-webkit-scrollbar { display: none; }
+  .s-dash .mover {
+    flex-shrink: 0;
+    width: 110px;
+    padding: 12px;
+    background: var(--surface);
+    border-radius: var(--r-sm);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .s-dash .mover-icon {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--display); font-weight: 800; font-size: 12px;
+    color: var(--ink);
+    margin-bottom: 2px;
+  }
+  .s-dash .mover-sym { font-family: var(--display); font-weight: 700; font-size: 13px; }
+  .s-dash .mover-price { font-family: var(--display); font-variant-numeric: tabular-nums; font-size: 12px; color: var(--ink-soft); font-weight: 500; }
+  .s-dash .mover-change {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+  }
+  .up { color: var(--up); }
+  .down { color: var(--down); }
+
+  .s-dash .assets {
+    padding: 0 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .s-dash .asset-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: var(--surface);
+    border-radius: var(--r-sm);
+  }
+  .s-dash .asset-icon {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--display); font-weight: 800; font-size: 13px;
+    flex-shrink: 0;
+    color: var(--ink);
+  }
+  .s-dash .asset-meta { flex: 1; }
+  .s-dash .asset-name { font-family: var(--display); font-weight: 700; font-size: 14px; letter-spacing: -0.01em; }
+  .s-dash .asset-qty { font-size: 11px; color: var(--muted); font-weight: 500; }
+  .s-dash .asset-value {
+    font-family: var(--display);
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+    font-size: 14px;
+    text-align: right;
+    letter-spacing: -0.01em;
+  }
+  .s-dash .asset-change {
+    font-family: var(--display);
+    font-variant-numeric: tabular-nums;
+    font-size: 11px;
+    text-align: right;
+    font-weight: 600;
+  }
+
+  /* SCREEN 3 — Trade confirm */
+  .s-trade {
+    flex: 1; display: flex; flex-direction: column;
+    padding: 0 0 110px;
+    background: var(--paper);
+    position: relative;
+  }
+  .s-trade .trade-header {
+    padding: 8px 24px 12px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .s-trade .close {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--surface-2);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--display); font-weight: 600;
+    color: var(--ink);
+  }
+  .s-trade .asset-hero {
+    padding: 8px 24px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .s-trade .asset-hero-icon {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    background: var(--peach);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--display); font-weight: 800; font-size: 18px;
+    color: var(--ink);
+  }
+  .s-trade .asset-hero h3 { margin: 0; font-family: var(--display); font-weight: 700; font-size: 18px; letter-spacing: -0.02em; }
+  .s-trade .asset-hero .price { font-family: var(--display); font-variant-numeric: tabular-nums; font-size: 13px; color: var(--ink-soft); font-weight: 600; }
+
+  .s-trade .buy-sell {
+    margin: 0 20px 20px;
+    padding: 4px;
+    background: var(--surface-2);
+    border-radius: var(--r-pill);
+    display: flex;
+  }
+  .s-trade .bs-opt {
+    flex: 1; padding: 10px;
+    text-align: center;
+    font-family: var(--display); font-weight: 700; font-size: 13px;
+    border-radius: var(--r-pill);
+    color: var(--ink-soft);
+  }
+  .s-trade .bs-opt.active { background: var(--surface); color: var(--ink); box-shadow: var(--shadow-pop); }
+
+  .s-trade .amount-card {
+    margin: 0 20px 16px;
+    padding: 28px 20px 24px;
+    background: var(--surface);
+    border-radius: var(--r-lg);
+    text-align: center;
+  }
+  .s-trade .amount-label {
+    font-family: var(--display);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .s-trade .amount {
+    font-family: var(--display);
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.05em;
+    font-size: 60px;
+    line-height: 1;
+    margin: 8px 0;
+  }
+  .s-trade .amount .dollar { font-size: 32px; vertical-align: top; position: relative; top: 8px; color: var(--ink-soft); font-weight: 500; }
+  .s-trade .amount-sub {
+    font-family: var(--display); font-variant-numeric: tabular-nums;
+    font-size: 12px;
+    color: var(--ink-soft);
+    font-weight: 500;
+  }
+  .s-trade .quick-chips {
+    display: flex;
+    gap: 6px;
+    margin-top: 14px;
+    justify-content: center;
+  }
+  .s-trade .chip-amt {
+    padding: 7px 12px;
+    background: var(--surface-2);
+    border-radius: var(--r-pill);
+    font-family: var(--display); font-weight: 600; font-size: 12px;
+    color: var(--ink);
+  }
+  .s-trade .chip-amt.active { background: var(--mint); }
+
+  .s-trade .summary {
+    margin: 0 20px 12px;
+    padding: 12px 16px;
+    background: var(--surface-2);
+    border-radius: var(--r-md);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .s-trade .summary-row {
+    display: flex; justify-content: space-between;
+    font-family: var(--display);
+    font-size: 12px;
+    font-weight: 500;
+  }
+  .s-trade .summary-row span:first-child { color: var(--ink-soft); }
+  .s-trade .summary-row span:last-child { font-weight: 700; font-variant-numeric: tabular-nums; }
+
+  .s-trade .buy-cta {
+    position: absolute;
+    bottom: 96px; left: 20px; right: 20px;
+    background: var(--ink);
+    color: var(--paper);
+    border: none;
+    border-radius: var(--r-pill);
+    padding: 18px;
+    font-family: var(--display); font-weight: 700; font-size: 15px;
+    letter-spacing: 0.02em;
+    box-shadow: var(--shadow-inset);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .s-trade .buy-cta .arrow {
+    width: 32px; height: 32px;
+    background: var(--peach);
+    color: var(--ink);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* SCREEN 4 — Share card moment */
+  .s-share {
+    flex: 1; display: flex; flex-direction: column;
+    padding: 0 0 110px;
+    background:
+      radial-gradient(circle at 50% 0%, var(--peach) 0%, transparent 55%),
+      radial-gradient(circle at 100% 100%, var(--sky) 0%, transparent 50%),
+      var(--paper);
+    align-items: center;
+    justify-content: flex-start;
+    text-align: center;
+    overflow: hidden;
+  }
+  .s-share .top {
+    padding: 12px 24px 0;
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+  }
+  .s-share .close-s {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--surface); display: flex; align-items: center; justify-content: center; font-family: var(--display); font-weight: 600;
+    box-shadow: var(--shadow-pop);
+  }
+  .s-share .hero-emoji {
+    font-size: 68px;
+    margin-top: 24px;
+    line-height: 1;
+  }
+  .s-share h2 {
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: 36px;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    margin: 20px 24px 6px;
+  }
+  .s-share .milestone-number {
+    font-family: var(--display);
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    font-size: 110px;
+    letter-spacing: -0.08em;
+    line-height: 1;
+    color: var(--peach-deep);
+    margin: 8px 0 4px;
+  }
+  .s-share .milestone-label {
+    font-family: var(--display);
+    font-size: 13px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 12px;
+  }
+  .s-share p.share-body {
+    font-family: var(--body);
+    font-size: 14px;
+    color: var(--ink-soft);
+    line-height: 1.5;
+    margin: 10px 32px 0;
+    max-width: 26ch;
+  }
+  .s-share .share-card-preview {
+    margin: 24px 20px 0;
+    width: calc(100% - 40px);
+    aspect-ratio: 9/16;
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: var(--r-md);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 20px 40px -12px oklch(30% 0.05 275 / 0.35);
+  }
+  .s-share .share-card-preview::before {
+    content: "";
+    position: absolute;
+    top: 10%; left: -30%;
+    width: 80%; height: 70%;
+    background: var(--peach);
+    border-radius: 50%;
+    opacity: 0.5;
+    filter: blur(8px);
+  }
+  .s-share .share-card-preview::after {
+    content: "";
+    position: absolute;
+    bottom: -20%; right: -25%;
+    width: 70%; height: 60%;
+    background: var(--mint);
+    border-radius: 50%;
+    opacity: 0.4;
+    filter: blur(6px);
+  }
+  .s-share .sc-top {
+    font-family: var(--display);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: oklch(100% 0 0 / 0.7);
+    text-align: left;
+    position: relative;
+    z-index: 2;
+  }
+  .s-share .sc-hero {
+    position: relative;
+    z-index: 2;
+  }
+  .s-share .sc-num {
+    font-family: var(--display);
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.06em;
+    font-size: 64px;
+    line-height: 1;
+  }
+  .s-share .sc-hero small {
+    font-family: var(--display);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    opacity: 0.75;
+    display: block;
+    margin-top: 6px;
+  }
+  .s-share .sc-footer {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--display);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: oklch(100% 0 0 / 0.7);
+    position: relative;
+    z-index: 2;
+  }
+  .s-share .share-buttons {
+    position: absolute;
+    bottom: 96px;
+    left: 20px; right: 20px;
+    display: flex;
+    gap: 10px;
+  }
+  .s-share .btn-share {
+    flex: 1;
+    padding: 14px;
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: var(--r-pill);
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 13px;
+    text-align: center;
+  }
+  .s-share .btn-secondary {
+    flex: 0 0 auto;
+    padding: 14px 16px;
+    background: var(--surface);
+    border-radius: var(--r-pill);
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 13px;
+    box-shadow: var(--shadow-pop);
+  }
+
+  /* Footer */
+  footer.bot {
+    margin-top: 6rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: 0.85rem;
+    color: var(--muted);
+    font-family: var(--display);
+    letter-spacing: 0.04em;
+  }
+
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <a class="back" href="../index.html"><span>←</span> All directions</a>
+    <span class="eyebrow"><span class="dot"></span> Direction 01 of 03</span>
+  </div>
+
+  <header class="hero">
+    <span class="eyebrow">Marshmallow</span>
+    <h1 class="title">Soft enough to <em>poke.</em></h1>
+    <p class="lede">
+      The friendliest read of the spec. Four-way pastel palette, plump radii, shadows with colour in
+      them, and display numerals you want to frame on a wall. This is the Duolingo-for-crypto promise
+      delivered at face value — refined, but never serious. The brand says <em>you're safe here, have
+      a snack.</em>
+    </p>
+
+    <div class="philosophy">
+      <div>
+        <h4>What this direction is for</h4>
+        <p>Users who are nervous about money and need the interface to signal warmth before anything else. Maximum screenshot appeal on a TikTok grid.</p>
+      </div>
+      <div>
+        <h4>Key move</h4>
+        <p>Balance numerals are the hero. Oversized, tabular, slightly italic. They do 70% of the personality work — the rest of the UI can stay quiet.</p>
+      </div>
+      <div>
+        <h4>Loss color</h4>
+        <p>Coral at 28° hue, not red. Softens the sting of a paper-trade that went wrong without faking a win.</p>
+      </div>
+    </div>
+  </header>
+
+  <h2 class="section-title"><span class="num">A</span> Palette</h2>
+  <p class="section-lead">
+    Cream paper tinted warm. Four equally-weighted pastel hues rotating across feature surfaces so no
+    single colour "owns" a category — avoid the Robinhood-red-means-down trap. Deeper chroma reserved
+    for numerals in celebratory moments.
+  </p>
+  <div class="palette">
+    <div class="swatch" style="background:var(--paper); border:1px solid var(--line)">
+      <span class="name">Paper</span>
+      <span class="code">oklch(98% 0.008 85)</span>
+    </div>
+    <div class="swatch" style="background:var(--surface); border:1px solid var(--line)">
+      <span class="name">Surface</span>
+      <span class="code">oklch(100% 0 0)</span>
+    </div>
+    <div class="swatch" style="background:var(--ink); color: var(--paper)">
+      <span class="name">Ink</span>
+      <span class="code">oklch(22% 0.022 275)</span>
+    </div>
+    <div class="swatch" style="background:var(--mint)">
+      <span class="name">Mint</span>
+      <span class="code">oklch(84% 0.095 160)</span>
+    </div>
+    <div class="swatch" style="background:var(--peach)">
+      <span class="name">Peach</span>
+      <span class="code">oklch(86% 0.085 35)</span>
+    </div>
+    <div class="swatch" style="background:var(--sky)">
+      <span class="name">Sky</span>
+      <span class="code">oklch(87% 0.075 230)</span>
+    </div>
+    <div class="swatch" style="background:var(--lilac)">
+      <span class="name">Lilac</span>
+      <span class="code">oklch(86% 0.085 300)</span>
+    </div>
+    <div class="swatch" style="background:var(--up); color: oklch(98% 0 0)">
+      <span class="name">Up</span>
+      <span class="code">oklch(62% 0.17 155)</span>
+    </div>
+    <div class="swatch" style="background:var(--down); color: oklch(98% 0 0)">
+      <span class="name">Down</span>
+      <span class="code">oklch(68% 0.17 28)</span>
+    </div>
+  </div>
+
+  <h2 class="section-title"><span class="num">B</span> Typography</h2>
+  <p class="section-lead">
+    <strong>Bricolage Grotesque</strong> handles display and UI labels — variable, warm, with subtle
+    humanist cuts in the terminals. <strong>Hanken Grotesk</strong> for long-form body. Numerals use
+    tabular figures and ss01 so every digit carries the same weight.
+  </p>
+  <div class="typescale">
+    <div><span class="label">Hero numerals · 78px · Bricolage 800</span><span class="sample t-num">$10,000.00</span></div>
+    <div><span class="label">Display title · ~80px · Bricolage 700</span><span class="sample t-hero">Good morning,&nbsp;Filip.</span></div>
+    <div><span class="label">Section · ~42px · Bricolage 700</span><span class="sample t-display">What is Bitcoin?</span></div>
+    <div><span class="label">Card title · ~24px · Bricolage 600</span><span class="sample t-title">Daily market question</span></div>
+    <div><span class="label">Body · 16px · Hanken 500</span><span class="sample t-body">Every day we ask one question. Answering keeps your streak alive — even if you get it wrong.</span></div>
+  </div>
+
+  <h2 class="section-title"><span class="num">C</span> Screens</h2>
+  <p class="section-lead">
+    Four load-bearing moments for the retention + virality loops: onboarding's $10K reveal, the daily
+    dashboard, a trade confirmation, and a streak-milestone share card. Each one has to survive being
+    cropped to a phone screenshot on mute.
+  </p>
+
+  <div class="devices">
+
+    <!-- SCREEN 1 -->
+    <div class="device-col">
+      <div class="device-caption">
+        <span>01</span>
+        <span>Onboarding · step 3/4</span>
+      </div>
+      <h3 class="device-title">The $10,000 reveal</h3>
+      <p class="device-note">This is the first "wait, actually I want this" moment in the funnel. The
+        balance becomes typography — centered, enormous, tabular.</p>
+      <div class="phone">
+        <div class="phone-screen">
+          <div class="status-bar">
+            <span>9:41</span>
+            <div class="status-icons">
+              <svg viewBox="0 0 20 12" fill="currentColor"><rect x="0" y="4" width="3" height="8" rx="1"/><rect x="5" y="2" width="3" height="10" rx="1"/><rect x="10" y="0" width="3" height="12" rx="1"/></svg>
+              <svg viewBox="0 0 22 12" fill="currentColor"><rect x="0" y="0" width="20" height="10" rx="2" opacity="0.3"/><rect x="2" y="2" width="13" height="6" rx="1"/></svg>
+            </div>
+          </div>
+          <div class="s-onboard">
+            <div class="step">
+              <span>Step 3 of 4</span>
+              <span class="step-dots"><span class="step-dot done"></span><span class="step-dot done"></span><span class="step-dot done"></span><span class="step-dot"></span></span>
+            </div>
+            <div class="confetti">Starting balance</div>
+            <div class="label">Here's your practice cash</div>
+            <div class="balance"><span class="dollar">$</span>10,000</div>
+            <div class="unit">· Paper money · No real funds ·</div>
+            <p class="message">Spend it how you want. Lose it, win it, share it. It resets anytime in Settings.</p>
+            <button class="cta">
+              <span>Let's place your first trade</span>
+              <span class="arrow">→</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCREEN 2 -->
+    <div class="device-col">
+      <div class="device-caption">
+        <span>02</span>
+        <span>Dashboard · daily return</span>
+      </div>
+      <h3 class="device-title">Dashboard</h3>
+      <p class="device-note">Hero portfolio card in ink with peach + mint blur blobs for brand warmth.
+        Daily question is the pinned lilac tile. Top movers strip below.</p>
+      <div class="phone">
+        <div class="phone-screen">
+          <div class="status-bar">
+            <span>9:41</span>
+            <div class="status-icons">
+              <svg viewBox="0 0 20 12" fill="currentColor"><rect x="0" y="4" width="3" height="8" rx="1"/><rect x="5" y="2" width="3" height="10" rx="1"/><rect x="10" y="0" width="3" height="12" rx="1"/></svg>
+              <svg viewBox="0 0 22 12" fill="currentColor"><rect x="0" y="0" width="20" height="10" rx="2" opacity="0.3"/><rect x="2" y="2" width="13" height="6" rx="1"/></svg>
+            </div>
+          </div>
+          <div class="s-dash">
+            <div class="dash-header">
+              <div class="handle">@filip.k</div>
+              <div class="streak">🔥 7</div>
+            </div>
+            <div class="hero-card">
+              <div class="hero-label">Total portfolio</div>
+              <div class="hero-balance">$10,482.14</div>
+              <div class="hero-change">
+                <span>▲ $482.14</span>
+                <span class="chip">+4.82% today</span>
+              </div>
+            </div>
+            <div class="question-card">
+              <div class="question-icon">?</div>
+              <div class="question-body">
+                <div class="qlabel">Daily market question · 2h left</div>
+                <div class="qtext">Will BTC close up or down today?</div>
+                <small>Stake 100–500 Prediction Points</small>
+              </div>
+            </div>
+            <div class="section-label">
+              <span>Top movers</span>
+              <span>↗</span>
+            </div>
+            <div class="movers">
+              <div class="mover">
+                <div class="mover-icon" style="background:var(--peach)">B</div>
+                <div class="mover-sym">BTC</div>
+                <div class="mover-price">$67,402</div>
+                <div class="mover-change up">+2.4%</div>
+              </div>
+              <div class="mover">
+                <div class="mover-icon" style="background:var(--sky)">E</div>
+                <div class="mover-sym">ETH</div>
+                <div class="mover-price">$3,284</div>
+                <div class="mover-change up">+3.1%</div>
+              </div>
+              <div class="mover">
+                <div class="mover-icon" style="background:var(--lilac)">S</div>
+                <div class="mover-sym">SOL</div>
+                <div class="mover-price">$158.22</div>
+                <div class="mover-change down">−1.6%</div>
+              </div>
+              <div class="mover">
+                <div class="mover-icon" style="background:var(--mint)">A</div>
+                <div class="mover-sym">AVAX</div>
+                <div class="mover-price">$37.10</div>
+                <div class="mover-change up">+5.8%</div>
+              </div>
+            </div>
+            <div class="section-label"><span>Holdings</span><span></span></div>
+            <div class="assets">
+              <div class="asset-row">
+                <div class="asset-icon" style="background:var(--peach)">B</div>
+                <div class="asset-meta">
+                  <div class="asset-name">Bitcoin</div>
+                  <div class="asset-qty">0.0420 BTC</div>
+                </div>
+                <div>
+                  <div class="asset-value">$2,830.88</div>
+                  <div class="asset-change up">+3.1%</div>
+                </div>
+              </div>
+              <div class="asset-row">
+                <div class="asset-icon" style="background:var(--sky)">E</div>
+                <div class="asset-meta">
+                  <div class="asset-name">Ethereum</div>
+                  <div class="asset-qty">0.85 ETH</div>
+                </div>
+                <div>
+                  <div class="asset-value">$2,791.40</div>
+                  <div class="asset-change up">+1.9%</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <nav class="nav-bar">
+            <div class="nav-item active">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+              <span>Home</span>
+            </div>
+            <div class="nav-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 7L3 7M21 12L3 12M21 17L3 17"/></svg>
+              <span>Trade</span>
+            </div>
+            <div class="nav-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v16h16"/><circle cx="9" cy="11" r="1"/><circle cx="15" cy="8" r="1"/></svg>
+              <span>Learn</span>
+            </div>
+            <div class="nav-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M7 21V10M12 21V4M17 21v-7"/></svg>
+              <span>Ranks</span>
+            </div>
+            <div class="nav-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
+              <span>You</span>
+            </div>
+          </nav>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCREEN 3 -->
+    <div class="device-col">
+      <div class="device-caption">
+        <span>03</span>
+        <span>Trade · confirmation</span>
+      </div>
+      <h3 class="device-title">Savor the moment</h3>
+      <p class="device-note">Confirmation sheet before execution — one tap to confirm. Amount as hero
+        numeral. Quick-amount chips, live quote, deliberate "Buy" button.</p>
+      <div class="phone">
+        <div class="phone-screen">
+          <div class="status-bar">
+            <span>9:41</span>
+            <div class="status-icons">
+              <svg viewBox="0 0 20 12" fill="currentColor"><rect x="0" y="4" width="3" height="8" rx="1"/><rect x="5" y="2" width="3" height="10" rx="1"/><rect x="10" y="0" width="3" height="12" rx="1"/></svg>
+              <svg viewBox="0 0 22 12" fill="currentColor"><rect x="0" y="0" width="20" height="10" rx="2" opacity="0.3"/><rect x="2" y="2" width="13" height="6" rx="1"/></svg>
+            </div>
+          </div>
+          <div class="s-trade">
+            <div class="trade-header">
+              <div class="close">←</div>
+              <div class="close">⋯</div>
+            </div>
+            <div class="asset-hero">
+              <div class="asset-hero-icon">B</div>
+              <div>
+                <h3>Bitcoin</h3>
+                <div class="price">$67,402.18  <span class="up" style="font-weight:700">+2.4%</span></div>
+              </div>
+            </div>
+            <div class="buy-sell">
+              <div class="bs-opt active">Buy</div>
+              <div class="bs-opt">Sell</div>
+            </div>
+            <div class="amount-card">
+              <div class="amount-label">You're buying</div>
+              <div class="amount"><span class="dollar">$</span>100</div>
+              <div class="amount-sub">≈ 0.00148 BTC</div>
+              <div class="quick-chips">
+                <span class="chip-amt">$25</span>
+                <span class="chip-amt">$50</span>
+                <span class="chip-amt active">$100</span>
+                <span class="chip-amt">$250</span>
+                <span class="chip-amt">Max</span>
+              </div>
+            </div>
+            <div class="summary">
+              <div class="summary-row"><span>Price</span><span>$67,402.18</span></div>
+              <div class="summary-row"><span>Fee</span><span>$0.00</span></div>
+              <div class="summary-row"><span>Cash left after</span><span>$7,382.52</span></div>
+            </div>
+            <button class="buy-cta">
+              <span>Confirm · Buy $100 BTC</span>
+              <span class="arrow">→</span>
+            </button>
+          </div>
+          <nav class="nav-bar">
+            <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><span>Home</span></div>
+            <div class="nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 7L3 7M21 12L3 12M21 17L3 17"/></svg><span>Trade</span></div>
+            <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v16h16"/><circle cx="9" cy="11" r="1"/><circle cx="15" cy="8" r="1"/></svg><span>Learn</span></div>
+            <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M7 21V10M12 21V4M17 21v-7"/></svg><span>Ranks</span></div>
+            <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg><span>You</span></div>
+          </nav>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCREEN 4 -->
+    <div class="device-col">
+      <div class="device-caption">
+        <span>04</span>
+        <span>Share · 30-day streak</span>
+      </div>
+      <h3 class="device-title">Streak milestone</h3>
+      <p class="device-note">A share-card moment. The top half celebrates in-app; the bottom shows
+        the 9:16 card that will be exported as PNG and posted to TikTok.</p>
+      <div class="phone">
+        <div class="phone-screen">
+          <div class="status-bar">
+            <span>9:41</span>
+            <div class="status-icons">
+              <svg viewBox="0 0 20 12" fill="currentColor"><rect x="0" y="4" width="3" height="8" rx="1"/><rect x="5" y="2" width="3" height="10" rx="1"/><rect x="10" y="0" width="3" height="12" rx="1"/></svg>
+              <svg viewBox="0 0 22 12" fill="currentColor"><rect x="0" y="0" width="20" height="10" rx="2" opacity="0.3"/><rect x="2" y="2" width="13" height="6" rx="1"/></svg>
+            </div>
+          </div>
+          <div class="s-share">
+            <div class="top"><div class="close-s">×</div></div>
+            <div class="hero-emoji">🔥</div>
+            <h2>Thirty days.</h2>
+            <div class="milestone-number">30</div>
+            <div class="milestone-label">Day streak · unlocked</div>
+            <p class="share-body">You've shown up every day for a month. Share the card, keep the flame.</p>
+            <div class="share-card-preview">
+              <div class="sc-top">@filip.k · paper-trading · streak</div>
+              <div class="sc-hero">
+                <div class="sc-num">30 days.</div>
+                <small>Not once did I miss.</small>
+              </div>
+              <div class="sc-footer">
+                <span>$CryptoPaper</span>
+                <span>→ get the app</span>
+              </div>
+            </div>
+            <div class="share-buttons">
+              <div class="btn-share">Share card →</div>
+              <div class="btn-secondary">Save</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer class="bot">
+    <span>Marshmallow · direction 01 / 03</span>
+    <span style="display:flex; gap:0.75rem;">
+      <a class="back" href="./flows.html">Extended flows · 10 screens →</a>
+      <a class="back" href="../02-editorial/index.html">Next: Editorial →</a>
+    </span>
+  </footer>
+
+</div>
+</body>
+</html>

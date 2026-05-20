@@ -24,3 +24,6 @@ apps/server/dist/
 
 # tooling
 .pnpm-store/
+
+# TypeScript build info
+*.tsbuildinfo

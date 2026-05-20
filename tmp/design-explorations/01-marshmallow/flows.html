@@ -1,0 +1,2140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Marshmallow — Extended flows</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<!-- Canonical Marshmallow tokens. This page is now driven by the same tokens the v0 client will consume. -->
+<link rel="stylesheet" href="../../../docs/design/tokens.css" />
+<style>
+  /* ============================================================
+     Page chrome (gallery only — not part of the product surface)
+     ============================================================ */
+  .wrap { max-width: 1280px; margin: 0 auto; padding: clamp(2rem, 5vw, 5rem) 1.5rem 6rem; }
+
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding-bottom: 2rem; border-bottom: 1px solid var(--line);
+    margin-bottom: clamp(3rem, 6vw, 5rem);
+  }
+  .back {
+    font-family: var(--font-display);
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-decoration: none;
+    color: var(--ink-soft);
+    display: inline-flex; gap: 0.5rem; align-items: center;
+    padding: 0.5rem 0.9rem;
+    border-radius: var(--r-pill);
+    background: var(--surface-2);
+    transition: background 200ms;
+  }
+  .back:hover { background: var(--mint); color: var(--ink); }
+  .pill {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    padding: 0.4rem 0.8rem;
+    background: var(--surface-2);
+    border-radius: var(--r-pill);
+    font-family: var(--font-display); font-weight: 600;
+    font-size: 0.78rem; letter-spacing: 0.06em;
+    color: var(--ink-soft);
+  }
+  .pill .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--peach); }
+
+  header.hero {
+    display: grid; grid-template-columns: 1fr; gap: 1.5rem;
+    padding-block: clamp(2rem, 5vw, 4rem);
+  }
+  .eyebrow {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 0.82rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    display: inline-flex; gap: 0.6rem; align-items: center;
+  }
+  .eyebrow::before { content: ""; width: 28px; height: 1px; background: currentColor; }
+  h1.title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: var(--step-4);
+    line-height: 0.92;
+    letter-spacing: -0.04em;
+    margin: 0;
+    max-width: 16ch;
+  }
+  h1.title em { font-style: italic; font-weight: 500; color: var(--peach-deep); }
+  .lede {
+    font-size: var(--step-1); line-height: 1.45; color: var(--ink-soft);
+    max-width: 60ch; margin: 0;
+  }
+  .toc {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--line);
+    display: flex; flex-wrap: wrap; gap: 0.5rem;
+  }
+  .toc a {
+    padding: 0.5rem 0.85rem;
+    background: var(--surface-2);
+    border-radius: var(--r-pill);
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 0.82rem;
+    text-decoration: none;
+    color: var(--ink-soft);
+    transition: background 200ms, color 200ms;
+  }
+  .toc a:hover { background: var(--ink); color: var(--paper); }
+
+  h2.section-title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: var(--step-3);
+    letter-spacing: -0.025em;
+    line-height: 1;
+    margin: clamp(4rem, 8vw, 6rem) 0 0.5rem;
+    display: flex; align-items: baseline; gap: 1rem;
+    scroll-margin-top: 2rem;
+  }
+  h2.section-title .num {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    font-variant-numeric: tabular-nums;
+  }
+  .section-lead {
+    font-size: var(--step-0); color: var(--ink-soft);
+    max-width: 64ch; line-height: 1.6;
+    margin: 0 0 2.5rem;
+  }
+
+  .devices {
+    display: grid;
+    gap: 2.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    align-items: start;
+  }
+  .device-col { display: flex; flex-direction: column; align-items: stretch; gap: 1rem; }
+  .device-caption {
+    font-family: var(--font-display);
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: flex; justify-content: space-between;
+  }
+  .device-title {
+    font-family: var(--font-display); font-weight: 700;
+    font-size: var(--step-2); letter-spacing: -0.02em;
+    line-height: 1.05; margin: 0;
+  }
+  .device-note {
+    font-size: 0.92rem; color: var(--ink-soft);
+    margin: 0; line-height: 1.55; max-width: 38ch;
+  }
+
+  /* ============================================================
+     Phone frame (shared across all screens)
+     ============================================================ */
+  .phone {
+    width: 100%; max-width: 380px;
+    aspect-ratio: 9 / 19.5;
+    border-radius: 52px;
+    background: var(--ink);
+    padding: 10px;
+    box-shadow: var(--shadow-phone);
+    position: relative;
+    margin: 0 auto;
+  }
+  .phone-screen {
+    width: 100%; height: 100%;
+    border-radius: 44px;
+    background: var(--paper);
+    overflow: hidden;
+    position: relative;
+    display: flex; flex-direction: column;
+  }
+  .phone::before {
+    content: "";
+    position: absolute;
+    top: 18px; left: 50%; transform: translateX(-50%);
+    width: 110px; height: 30px;
+    background: var(--ink);
+    border-radius: 999px;
+    z-index: 10;
+  }
+
+  .status-bar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 16px 28px 0;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 14px;
+    height: 44px;
+    color: var(--ink);
+    flex-shrink: 0;
+    position: relative;
+    z-index: 4;
+  }
+  .status-icons { display: flex; gap: 6px; align-items: center; }
+  .status-icons svg { width: 16px; height: 12px; }
+
+  /* ============================================================
+     Bottom nav (reused)
+     ============================================================ */
+  .nav-bar {
+    position: absolute;
+    bottom: 22px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% - 48px);
+    background: var(--surface);
+    border-radius: var(--r-pill);
+    padding: 8px;
+    box-shadow: var(--shadow-float);
+    display: flex; justify-content: space-between; gap: 2px;
+    z-index: 5;
+  }
+  .nav-item {
+    flex: 1; padding: 10px 0;
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+    font-size: 10px;
+    font-family: var(--font-display);
+    font-weight: 600;
+    color: var(--muted);
+    border-radius: var(--r-pill);
+    letter-spacing: 0.03em;
+  }
+  .nav-item.active { background: var(--ink); color: var(--paper); }
+  .nav-item svg { width: 18px; height: 18px; stroke-width: 2; }
+
+  /* Shared screen utilities */
+  .cta {
+    background: var(--ink);
+    color: var(--paper);
+    border: none;
+    border-radius: var(--r-pill);
+    padding: 18px 24px;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    box-shadow: var(--shadow-inset);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .cta .arrow {
+    width: 32px; height: 32px;
+    background: var(--peach);
+    color: var(--ink);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+  }
+  .cta-secondary {
+    background: var(--surface-2);
+    color: var(--ink);
+    border: none;
+    border-radius: var(--r-pill);
+    padding: 14px 20px;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 14px;
+    text-align: center;
+  }
+
+  /* ============================================================
+     SCREEN 01 — Welcome (onboarding 1/4)
+     ============================================================ */
+  .s-welcome {
+    flex: 1; display: flex; flex-direction: column;
+    padding: 12px 24px 28px;
+    background:
+      radial-gradient(circle at 20% 10%, var(--peach) 0%, transparent 55%),
+      radial-gradient(circle at 80% 35%, var(--mint) 0%, transparent 55%),
+      radial-gradient(circle at 30% 85%, var(--lilac) 0%, transparent 60%),
+      radial-gradient(circle at 90% 95%, var(--sky) 0%, transparent 50%),
+      var(--paper);
+  }
+  .s-welcome .brand {
+    margin-top: 12px;
+    font-family: var(--font-display);
+    font-size: 13px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--ink-soft);
+    font-weight: 600;
+  }
+  .s-welcome .hero-stack {
+    margin-top: auto; margin-bottom: 24px;
+  }
+  .s-welcome .h-eyebrow {
+    font-family: var(--font-display); font-weight: 600;
+    font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 10px;
+  }
+  .s-welcome h1 {
+    font-family: var(--font-display);
+    font-weight: 700; font-size: 50px;
+    line-height: 0.92; letter-spacing: -0.03em;
+    margin: 0 0 16px;
+    max-width: 11ch;
+  }
+  .s-welcome h1 em {
+    font-style: italic; font-weight: 500; color: var(--peach-deep);
+  }
+  .s-welcome .body-msg {
+    font-family: var(--font-body);
+    font-size: 15px; line-height: 1.5;
+    color: var(--ink-soft);
+    max-width: 30ch;
+  }
+  .s-welcome .legal {
+    margin: 18px 0 12px;
+    font-family: var(--font-display);
+    font-size: 11px;
+    color: var(--muted);
+    text-align: center;
+    line-height: 1.5;
+    max-width: 28ch;
+    margin-left: auto; margin-right: auto;
+    font-weight: 500;
+  }
+
+  /* ============================================================
+     SCREEN 02 — Handle pick (onboarding 2/4)
+     ============================================================ */
+  .s-handle {
+    flex: 1; display: flex; flex-direction: column;
+    padding: 12px 24px 28px;
+    position: relative;
+  }
+  .s-handle .dots {
+    display: flex; gap: 4px;
+    margin-top: 8px; margin-bottom: 36px;
+  }
+  .s-handle .dots span {
+    flex: 1; height: 3px;
+    background: oklch(40% 0.02 275 / 0.15);
+    border-radius: 2px;
+  }
+  .s-handle .dots span.done { background: var(--ink); }
+  .s-handle h2 {
+    font-family: var(--font-display);
+    font-weight: 700; font-size: 30px;
+    line-height: 1; letter-spacing: -0.025em;
+    margin: 0 0 8px;
+  }
+  .s-handle h2 em { font-style: italic; color: var(--lilac-deep); font-weight: 500; }
+  .s-handle .desc {
+    font-family: var(--font-body);
+    font-size: 14px; color: var(--ink-soft);
+    line-height: 1.5; max-width: 30ch;
+    margin: 0 0 28px;
+  }
+  .s-handle .input-shell {
+    background: var(--surface);
+    border-radius: var(--r-md);
+    padding: 16px 18px;
+    display: flex; align-items: center;
+    gap: 6px;
+    border: 2px solid var(--ink);
+  }
+  .s-handle .input-shell .at {
+    font-family: var(--font-display);
+    font-weight: 600;
+    color: var(--muted);
+    font-size: 22px;
+  }
+  .s-handle .input-shell .field {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 22px;
+    color: var(--ink);
+    flex: 1;
+    letter-spacing: -0.01em;
+  }
+  .s-handle .input-shell .check {
+    width: 28px; height: 28px;
+    background: var(--mint);
+    color: var(--ink);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 800;
+  }
+  .s-handle .availability {
+    margin-top: 10px;
+    font-family: var(--font-display);
+    font-size: 12px; font-weight: 600;
+    color: var(--mint-deep);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .s-handle .availability::before {
+    content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--mint-deep);
+  }
+  .s-handle .suggestions-label {
+    margin-top: 28px;
+    font-family: var(--font-display);
+    font-weight: 600; font-size: 11px;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--muted);
+  }
+  .s-handle .suggestions {
+    margin-top: 10px;
+    display: flex; flex-wrap: wrap; gap: 6px;
+  }
+  .s-handle .sg {
+    padding: 7px 12px;
+    background: var(--surface-2);
+    border-radius: var(--r-pill);
+    font-family: var(--font-display);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .s-handle .sg.active { background: var(--lilac); }
+  .s-handle .cta-fixed {
+    position: absolute;
+    bottom: 28px; left: 24px; right: 24px;
+  }
+
+  /* ============================================================
+     SCREEN 03 — First lesson nudge (onboarding 4/4)
+     ============================================================ */
+  .s-firstlesson {
+    flex: 1; display: flex; flex-direction: column;
+    padding: 12px 24px 28px;
+    background:
+      radial-gradient(circle at 100% 10%, var(--mint) 0%, transparent 55%),
+      var(--paper);
+    position: relative;
+  }
+  .s-firstlesson .dots-row {
+    display: flex; gap: 4px;
+    margin-top: 8px; margin-bottom: 28px;
+  }
+  .s-firstlesson .dots-row span {
+    flex: 1; height: 3px;
+    background: oklch(40% 0.02 275 / 0.15);
+    border-radius: 2px;
+  }
+  .s-firstlesson .dots-row span.done { background: var(--ink); }
+  .s-firstlesson .lesson-eyebrow {
+    font-family: var(--font-display); font-weight: 600;
+    font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--mint-deep);
+  }
+  .s-firstlesson h2 {
+    font-family: var(--font-display);
+    font-weight: 700; font-size: 32px;
+    line-height: 0.95; letter-spacing: -0.025em;
+    margin: 6px 0 14px;
+    max-width: 11ch;
+  }
+  .s-firstlesson .lesson-card {
+    margin-top: 12px;
+    background: var(--surface);
+    border-radius: var(--r-lg);
+    padding: 22px;
+    box-shadow: var(--shadow-pop);
+    position: relative;
+    overflow: hidden;
+  }
+  .s-firstlesson .lesson-card::before {
+    content: ""; position: absolute;
+    top: -30px; right: -20px;
+    width: 120px; height: 120px;
+    background: var(--peach);
+    border-radius: 50%;
+    opacity: 0.55;
+  }
+  .s-firstlesson .lesson-card .lt-mini {
+    font-family: var(--font-display); font-weight: 600;
+    font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--ink-soft);
+    position: relative; z-index: 1;
+  }
+  .s-firstlesson .lesson-card .lt-title {
+    font-family: var(--font-display);
+    font-weight: 700; font-size: 22px;
+    letter-spacing: -0.02em;
+    margin: 6px 0 14px;
+    position: relative; z-index: 1;
+  }
+  .s-firstlesson .lesson-card .lt-meta {
+    display: flex; gap: 8px;
+    margin-bottom: 14px;
+    position: relative; z-index: 1;
+  }
+  .s-firstlesson .lesson-card .lt-meta span {
+    font-family: var(--font-display);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 10px;
+    background: var(--surface-2);
+    border-radius: var(--r-pill);
+    color: var(--ink-soft);
+  }
+  .s-firstlesson .lesson-card .lt-body {
+    font-family: var(--font-body);
+    font-size: 13px; line-height: 1.55;
+    color: var(--ink-soft);
+    position: relative; z-index: 1;
+  }
+  .s-firstlesson .skip {
+    position: absolute;
+    bottom: 92px; left: 0; right: 0;
+    text-align: center;
+    font-family: var(--font-display);
+    font-weight: 600; font-size: 13px;
+    color: var(--muted);
+  }
+  .s-firstlesson .cta-fixed {
+    position: absolute;
+    bottom: 28px; left: 24px; right: 24px;
+  }
+
+  /* ============================================================
+     SCREEN 04 — Learn home (track overview)
+     ============================================================ */
+  .s-learn {
+    flex: 1; display: flex; flex-direction: column;
+    padding: 8px 0 92px;
+    overflow-y: auto;
+  }
+  .s-learn .l-header {
+    padding: 8px 24px 18px;
+  }
+  .s-learn .l-header h2 {
+    font-family: var(--font-display);
+    font-weight: 700; font-size: 28px;
+    letter-spacing: -0.025em;
+    margin: 0 0 6px;
+  }
+  .s-learn .l-header p {
+    margin: 0;
+    font-family: var(--font-body);
+    font-size: 13px; color: var(--ink-soft); line-height: 1.4;
+    max-width: 30ch;
+  }
+  .s-learn .track {
+    margin: 0 20px 14px;
+    border-radius: var(--r-lg);
+    padding: 18px;
+    position: relative;
+    overflow: hidden;
+  }
+  .s-learn .track-1 { background: var(--peach); }
+  .s-learn .track-2 { background: var(--sky); }
+  .s-learn .track-3 { background: var(--lilac); }
+  .s-learn .track .badge {
+    font-family: var(--font-display); font-weight: 600;
+    font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+  .s-learn .track h3 {
+    font-family: var(--font-display);
+    font-weight: 700; font-size: 22px;
+    letter-spacing: -0.02em;
+    margin: 4px 0 4px;
+  }
+  .s-learn .track .tline {
+    font-family: var(--font-body);
+    font-size: 12px; line-height: 1.4;
+    color: var(--ink-soft);
+    margin-bottom: 14px;
+    max-width: 28ch;
+  }
+  .s-learn .track .progress-row {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 10px;
+  }
+  .s-learn .track .pbar {
+    flex: 1; height: 8px;
+    background: oklch(100% 0 0 / 0.45);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .s-learn .track .pbar i {
+    display: block; height: 100%;
+    background: var(--ink);
+    border-radius: 999px;
+  }
+  .s-learn .track .pcount {
+    font-family: var(--font-display);
+    font-weight: 700; font-size: 12px;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+  }
+  .s-learn .track.locked {
+    background: var(--surface-2);
+    color: var(--ink-soft);
+  }
+  .s-learn .track.locked h3 { color: var(--ink-soft); }
+  .s-learn .track.locked::after {
+    content: "🔒";
+    position: absolute;
+    top: 18px; right: 18px;
+    font-size: 18px;
+    opacity: 0.5;
+  }
+  .s-learn .next-up {
+    margin: 16px 20px 0;
+    padding: 14px 16px;
+    background: var(--ink); color: var(--paper);
+    border-radius: var(--r-md);
+    display: flex; align-items: center; gap: 12px;
+  }
+  .s-learn .next-up .nu-num {
+    font-family: var(--font-display);
+    font-weight: 800; font-size: 22px;
+    letter-spacing: -0.03em;
+    width: 38px; height: 38px;
+    background: var(--peach); color: var(--ink);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .s-learn .next-up .nu-meta { flex: 1; }
+  .s-learn .next-up .nu-eyebrow {
+    font-family: var(--font-display); font-weight: 600;
+    font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase;
+    opacity: 0.7;
+  }
+  .s-learn .next-up .nu-title {
+    font-family: var(--font-display); font-weight: 700;
+    font-size: 14px; letter-spacing: -0.01em;
+  }
+  .s-learn .next-up .arr {
+    width: 28px; height: 28px;
+    background: var(--paper); color: var(--ink);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800;
+  }
+
+  /* ============================================================
+     SCREEN 05 — Lesson interior
+     ============================================================ */
+  .s-lesson {
+    flex: 1; display: flex; flex-direction: column;
+    padding: 0 0 28px;
+    overflow-y: auto;
+  }
+  .s-lesson .ls-top {
+    padding: 8px 24px 12px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .s-lesson .ls-close {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--surface-2);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-display); font-weight: 700;
+  }
+  .s-lesson .ls-progress {
+    flex: 1; margin: 0 12px;
+    height: 5px; background: var(--surface-2); border-radius: 999px;
+  }
+  .s-lesson .ls-progress i {
+    display: block; height: 100%;
+    width: 33%;
+    background: var(--ink);
+    border-radius: 999px;
+  }
+  .s-lesson .ls-counter {
+    font-family: var(--font-display); font-weight: 600;
+    font-size: 12px; color: var(--ink-soft);
+    font-variant-numeric: tabular-nums;
+  }
+  .s-lesson .hero-block {
+    margin: 8px 20px 20px;
+    aspect-ratio: 4/3;
+    background: var(--peach);
+    border-radius: var(--r-lg);
+    position: relative;
+    overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .s-lesson .hero-block::before {
+    content: ""; position: absolute;
+    top: -25%; left: -10%;
+    width: 70%; height: 80%;
+    background: var(--mint);
+    border-radius: 50%;
+    opacity: 0.55;
+    filter: blur(4px);
+  }
+  .s-lesson .hero-block::after {
+    content: ""; position: absolute;
+    bottom: -25%; right: -15%;
+    width: 65%; height: 70%;
+    background: var(--lilac);
+    border-radius: 50%;
+    opacity: 0.55;
+    filter: blur(4px);
+  }
+  .s-lesson .hero-block .glyph {
+    position: relative;
+    z-index: 2;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 96px;
+    color: var(--ink);
+    letter-spacing: -0.04em;
+  }
+  .s-lesson .ls-eyebrow {
+    padding: 0 24px;
+    font-family: var(--font-display); font-weight: 600;
+    font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--peach-deep);
+    margin-bottom: 6px;
+  }
+  .s-lesson h2 {
+    margin: 0 24px 10px;
+    font-family: var(--font-display);
+    font-weight: 700; font-size: 28px;
+    line-height: 1.05; letter-spacing: -0.025em;
+  }
+  .s-lesson .body {
+    margin: 0 24px 14px;
+    font-family: var(--font-body);
+    font-size: 15px; line-height: 1.55;
+    color: var(--ink);
+  }
+  .s-lesson .body strong { background: var(--mint); padding: 1px 4px; border-radius: 4px; font-weight: 700; }
+  .s-lesson .pull {
+    margin: 8px 24px 16px;
+    padding: 14px 16px;
+    background: var(--surface-2);
+    border-radius: var(--r-md);
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 1.4;
+    color: var(--ink);
+    font-style: italic;
+  }
+  .s-lesson .pull strong {
+    display: block;
+    font-style: normal;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--peach-deep);
+    margin-bottom: 4px;
+  }
+  .s-lesson .ls-cta {
+    margin: 12px 24px 0;
+  }
+
+  /* ============================================================
+     SCREEN 06 — Quiz step
+     ============================================================ */
+  .s-quiz {
+    flex: 1; display: flex; flex-direction: column;
+    padding: 0 0 28px;
+    background:
+      radial-gradient(circle at 100% 0%, var(--lilac) 0%, transparent 60%),
+      var(--paper);
+    position: relative;
+  }
+  .s-quiz .ls-top {
+    padding: 8px 24px 12px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .s-quiz .ls-close {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--surface-2);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-display); font-weight: 700;
+  }
+  .s-quiz .ls-progress {
+    flex: 1; margin: 0 12px;
+    height: 5px; background: var(--surface-2); border-radius: 999px;
+  }
+  .s-quiz .ls-progress i {
+    display: block; height: 100%; width: 80%;
+    background: var(--ink); border-radius: 999px;
+  }
+  .s-quiz .ls-counter {
+    font-family: var(--font-display); font-weight: 600;
+    font-size: 12px; color: var(--ink-soft);
+    font-variant-numeric: tabular-nums;
+  }
+  .s-quiz .qh-eyebrow {
+    margin: 32px 24px 8px;
+    font-family: var(--font-display); font-weight: 600;
+    font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--lilac-deep);
+  }
+  .s-quiz h2 {
+    margin: 0 24px 22px;
+    font-family: var(--font-display);
+    font-weight: 700; font-size: 28px;
+    line-height: 1.1; letter-spacing: -0.02em;
+    max-width: 14ch;
+  }
+  .s-quiz .options {
+    margin: 0 24px;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .s-quiz .opt {
+    padding: 16px 18px;
+    background: var(--surface);
+    border-radius: var(--r-md);
+    border: 2px solid var(--line);
+    display: flex; align-items: center; gap: 14px;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--ink);
+    transition: border-color 200ms;
+  }
+  .s-quiz .opt .badge {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--surface-2);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-display); font-weight: 700;
+    font-size: 13px;
+    color: var(--ink);
+    flex-shrink: 0;
+  }
+  .s-quiz .opt.correct {
+    background: var(--mint);
+    border-color: var(--ink);
+  }
+  .s-quiz .opt.correct .badge {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .s-quiz .feedback {
+    position: absolute;
+    bottom: 28px; left: 24px; right: 24px;
+    background: var(--ink); color: var(--paper);
+    border-radius: var(--r-lg);
+    padding: 18px;
+    box-shadow: var(--shadow-float);
+  }
+  .s-quiz .feedback .fb-row {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 8px;
+  }
+  .s-quiz .feedback .fb-icon {
+    width: 32px; height: 32px;
+    background: var(--mint); color: var(--ink);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-family: var(--font-display);
+  }
+  .s-quiz .feedback .fb-title {
+    font-family: var(--font-display);
+    font-weight: 700; font-size: 16px;
+    letter-spacing: -0.01em;
+  }
+  .s-quiz .feedback .fb-desc {
+    font-family: var(--font-body);
+    font-size: 13px; line-height: 1.4;
+    color: oklch(100% 0 0 / 0.7);
+    margin-bottom: 14px;
+  }
+  .s-quiz .feedback .next {
+    width: 100%; padding: 12px;
+    background: var(--paper); color: var(--ink);
+    border-radius: var(--r-pill); border: none;
+    font-family: var(--font-display);
+    font-weight: 700; font-size: 14px;
+    display: flex; justify-content: center; align-items: center; gap: 8px;
+  }
+
+  /* ============================================================
+     SCREEN 07 — Daily Question modal
+     ============================================================ */
+  .s-dq {
+    flex: 1; display: flex; flex-direction: column;
+    padding: 0 0 28px;
+    background: oklch(22% 0.022 275 / 0.55);
+    backdrop-filter: blur(2px);
+    position: relative;
+  }
+  .s-dq .sheet {
+    margin-top: auto;
+    background: var(--paper);
+    border-top-left-radius: var(--r-xl);
+    border-top-right-radius: var(--r-xl);
+    padding: 18px 24px 28px;
+    position: relative;
+  }
+  .s-dq .grab {
+    width: 44px; height: 4px;
+    background: var(--line);
+    border-radius: 999px;
+    margin: 0 auto 16px;
+  }
+  .s-dq .dq-eyebrow {
+    font-family: var(--font-display); font-weight: 600;
+    font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--lilac-deep);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .s-dq .dq-eyebrow .timer {
+    margin-left: auto;
+    padding: 3px 8px;
+    background: var(--lilac);
+    border-radius: var(--r-pill);
+    font-size: 10px;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+  }
+  .s-dq h2 {
+    margin: 12px 0 10px;
+    font-family: var(--font-display);
+    font-weight: 700; font-size: 28px;
+    line-height: 1.05; letter-spacing: -0.02em;
+    max-width: 14ch;
+  }
+  .s-dq .reward {
+    font-family: var(--font-body);
+    font-size: 13px; color: var(--ink-soft);
+    line-height: 1.45;
+    margin-bottom: 20px;
+  }
+  .s-dq .reward strong { color: var(--ink); font-weight: 700; }
+  .s-dq .stake-block {
+    background: var(--surface-2);
+    border-radius: var(--r-md);
+    padding: 14px;
+    margin-bottom: 18px;
+  }
+  .s-dq .stake-row {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 10px;
+  }
+  .s-dq .stake-label {
+    font-family: var(--font-display);
+    font-weight: 600; font-size: 11px;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--muted);
+  }
+  .s-dq .stake-value {
+    font-family: var(--font-display);
+    font-weight: 800; font-size: 22px;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+  }
+  .s-dq .stake-value small {
+    font-size: 11px; font-weight: 600; color: var(--ink-soft);
+    letter-spacing: 0;
+    margin-left: 4px;
+  }
+  .s-dq .slider {
+    height: 6px; background: var(--surface);
+    border-radius: 999px;
+    position: relative;
+  }
+  .s-dq .slider .fill {
+    position: absolute; top: 0; left: 0;
+    width: 50%; height: 100%;
+    background: var(--ink);
+    border-radius: 999px;
+  }
+  .s-dq .slider .knob {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 22px; height: 22px;
+    background: var(--paper);
+    border: 3px solid var(--ink);
+    border-radius: 50%;
+    box-shadow: var(--shadow-pop);
+  }
+  .s-dq .stake-marks {
+    display: flex; justify-content: space-between;
+    margin-top: 6px;
+    font-family: var(--font-display);
+    font-size: 10px; font-weight: 600;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .s-dq .answer-row {
+    display: flex; gap: 10px;
+  }
+  .s-dq .ans {
+    flex: 1; padding: 18px 14px;
+    border-radius: var(--r-md);
+    font-family: var(--font-display);
+    font-weight: 700;
+    text-align: center;
+    box-shadow: var(--shadow-inset);
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+  }
+  .s-dq .ans-up { background: var(--mint); color: var(--ink); }
+  .s-dq .ans-down { background: var(--peach); color: var(--ink); }
+  .s-dq .ans .arrow-glyph {
+    font-size: 22px; font-weight: 800;
+    line-height: 1;
+  }
+  .s-dq .ans .word {
+    font-size: 14px; letter-spacing: 0.04em; text-transform: uppercase;
+  }
+
+  /* ============================================================
+     SCREEN 08 — Trade success (auto-share prompt)
+     ============================================================ */
+  .s-success {
+    flex: 1; display: flex; flex-direction: column;
+    padding: 0 0 110px;
+    background:
+      radial-gradient(circle at 50% 0%, var(--mint) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, var(--peach) 0%, transparent 45%),
+      var(--paper);
+    position: relative;
+    text-align: center;
+  }
+  .s-success .check-wrap {
+    margin-top: 38px; margin-bottom: 18px;
+    display: flex; justify-content: center;
+  }
+  .s-success .check {
+    width: 80px; height: 80px;
+    background: var(--ink); color: var(--paper);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-display); font-weight: 800;
+    font-size: 38px;
+    box-shadow: 0 0 0 14px oklch(100% 0 0 / 0.6);
+  }
+  .s-success h2 {
+    font-family: var(--font-display);
+    font-weight: 700; font-size: 28px;
+    line-height: 1.05; letter-spacing: -0.025em;
+    margin: 0 24px 6px;
+  }
+  .s-success .num {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.05em;
+    font-size: 64px; line-height: 1;
+    margin: 12px 0 4px;
+    color: var(--ink);
+  }
+  .s-success .num .dollar {
+    font-size: 32px;
+    vertical-align: top;
+    font-weight: 500;
+    color: var(--ink-soft);
+    margin-right: 2px;
+    position: relative; top: 6px;
+  }
+  .s-success .qty {
+    font-family: var(--font-display);
+    font-size: 13px; font-weight: 600;
+    color: var(--ink-soft);
+    font-variant-numeric: tabular-nums;
+    margin-bottom: 22px;
+  }
+  .s-success .recap {
+    margin: 0 24px 18px;
+    padding: 12px 14px;
+    background: var(--surface);
+    border-radius: var(--r-md);
+    box-shadow: var(--shadow-pop);
+    text-align: left;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .s-success .recap-row {
+    display: flex; justify-content: space-between;
+    font-family: var(--font-display);
+    font-size: 12px; font-weight: 500;
+  }
+  .s-success .recap-row span:first-child { color: var(--ink-soft); }
+  .s-success .recap-row span:last-child { font-weight: 700; font-variant-numeric: tabular-nums; }
+
+  .s-success .share-prompt {
+    margin: 0 24px 18px;
+    padding: 14px 16px;
+    background: var(--ink); color: var(--paper);
+    border-radius: var(--r-md);
+    text-align: left;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .s-success .share-prompt .icon {
+    width: 36px; height: 36px;
+    background: var(--peach); color: var(--ink);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-family: var(--font-display); font-size: 18px;
+    flex-shrink: 0;
+  }
+  .s-success .share-prompt .meta {
+    flex: 1;
+  }
+  .s-success .share-prompt .title-s {
+    font-family: var(--font-display);
+    font-weight: 700; font-size: 14px;
+    letter-spacing: -0.01em;
+  }
+  .s-success .share-prompt .desc-s {
+    font-family: var(--font-body);
+    font-size: 11px;
+    color: oklch(100% 0 0 / 0.6);
+  }
+  .s-success .share-prompt .arr {
+    width: 28px; height: 28px;
+    background: var(--paper); color: var(--ink);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800;
+    flex-shrink: 0;
+  }
+  .s-success .actions {
+    position: absolute;
+    bottom: 96px; left: 24px; right: 24px;
+    display: flex; gap: 10px;
+  }
+  .s-success .actions .primary {
+    flex: 1;
+    background: var(--ink); color: var(--paper);
+    border-radius: var(--r-pill);
+    padding: 14px;
+    font-family: var(--font-display);
+    font-weight: 700; font-size: 14px;
+    box-shadow: var(--shadow-inset);
+    text-align: center;
+  }
+  .s-success .actions .secondary {
+    background: var(--surface);
+    color: var(--ink);
+    padding: 14px 18px;
+    border-radius: var(--r-pill);
+    font-family: var(--font-display);
+    font-weight: 700; font-size: 14px;
+    box-shadow: var(--shadow-pop);
+  }
+
+  /* ============================================================
+     SCREEN 09 — Ranks (Global)
+     ============================================================ */
+  .s-ranks {
+    flex: 1; display: flex; flex-direction: column;
+    padding: 0 0 96px;
+    overflow-y: auto;
+  }
+  .s-ranks .r-header {
+    padding: 8px 24px 12px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .s-ranks .r-title {
+    font-family: var(--font-display);
+    font-weight: 700; font-size: 22px;
+    letter-spacing: -0.02em;
+  }
+  .s-ranks .r-tabs {
+    margin: 0 24px 18px;
+    display: flex;
+    background: var(--surface-2);
+    border-radius: var(--r-pill);
+    padding: 4px;
+    gap: 2px;
+  }
+  .s-ranks .r-tab {
+    flex: 1;
+    text-align: center;
+    padding: 10px;
+    font-family: var(--font-display);
+    font-weight: 700; font-size: 13px;
+    border-radius: var(--r-pill);
+    color: var(--ink-soft);
+  }
+  .s-ranks .r-tab.active {
+    background: var(--surface); color: var(--ink);
+    box-shadow: var(--shadow-pop);
+  }
+  .s-ranks .reset {
+    padding: 0 24px 12px;
+    font-family: var(--font-display);
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    display: flex; justify-content: space-between;
+  }
+  .s-ranks .reset strong {
+    color: var(--peach-deep);
+    font-variant-numeric: tabular-nums;
+  }
+  .s-ranks .podium {
+    margin: 0 20px 18px;
+    display: grid;
+    grid-template-columns: 1fr 1.15fr 1fr;
+    align-items: end;
+    gap: 6px;
+  }
+  .s-ranks .pillar {
+    border-radius: var(--r-md);
+    padding: 12px 8px 14px;
+    display: flex; flex-direction: column; align-items: center;
+    text-align: center;
+    position: relative;
+  }
+  .s-ranks .pillar .ava {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    border: 3px solid var(--ink);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-display); font-weight: 800;
+    font-size: 18px;
+    margin-bottom: 6px;
+    background: var(--surface);
+  }
+  .s-ranks .pillar.first .ava {
+    width: 60px; height: 60px;
+    font-size: 22px;
+    border-color: var(--peach-deep);
+    background: var(--peach);
+  }
+  .s-ranks .pillar.first { background: var(--peach); padding-top: 14px; }
+  .s-ranks .pillar.first .crown {
+    position: absolute; top: -16px; left: 50%; transform: translateX(-50%);
+    font-size: 22px;
+    line-height: 1;
+  }
+  .s-ranks .pillar.second { background: var(--mint); }
+  .s-ranks .pillar.second .ava { background: var(--mint); }
+  .s-ranks .pillar.third { background: var(--lilac); }
+  .s-ranks .pillar.third .ava { background: var(--lilac); }
+  .s-ranks .pillar .handle {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: -0.01em;
+    margin-bottom: 2px;
+    color: var(--ink);
+  }
+  .s-ranks .pillar .score {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 16px;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+    color: var(--ink);
+  }
+  .s-ranks .pillar .rank-num {
+    position: absolute; top: 6px; right: 8px;
+    font-family: var(--font-display);
+    font-weight: 800; font-size: 12px;
+    color: var(--ink-soft);
+    font-variant-numeric: tabular-nums;
+  }
+  .s-ranks .list {
+    padding: 0 20px;
+    display: flex; flex-direction: column;
+    gap: 4px;
+  }
+  .s-ranks .row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 12px;
+    background: var(--surface);
+    border-radius: var(--r-sm);
+  }
+  .s-ranks .row .pos {
+    font-family: var(--font-display);
+    font-weight: 700; font-size: 13px;
+    color: var(--ink-soft);
+    width: 24px;
+    font-variant-numeric: tabular-nums;
+  }
+  .s-ranks .row .ava-s {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-display); font-weight: 800;
+    font-size: 13px;
+    color: var(--ink);
+    flex-shrink: 0;
+  }
+  .s-ranks .row .h {
+    flex: 1;
+    font-family: var(--font-display);
+    font-weight: 700; font-size: 14px;
+    letter-spacing: -0.01em;
+  }
+  .s-ranks .row .delta {
+    font-family: var(--font-display);
+    font-weight: 600; font-size: 11px;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .s-ranks .row .scr {
+    font-family: var(--font-display);
+    font-weight: 700; font-size: 14px;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+  }
+  .s-ranks .row.you {
+    background: var(--ink); color: var(--paper);
+    position: sticky; bottom: 88px;
+    z-index: 3;
+    box-shadow: var(--shadow-float);
+    margin-top: 8px;
+  }
+  .s-ranks .row.you .pos { color: oklch(100% 0 0 / 0.55); }
+  .s-ranks .row.you .delta { color: var(--mint); }
+  .s-ranks .row.you .h em {
+    margin-left: 6px;
+    font-style: normal;
+    font-size: 10px;
+    font-weight: 600;
+    color: oklch(100% 0 0 / 0.55);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  /* ============================================================
+     SCREEN 10 — Profile / You
+     ============================================================ */
+  .s-profile {
+    flex: 1; display: flex; flex-direction: column;
+    padding: 0 0 96px;
+    overflow-y: auto;
+  }
+  .s-profile .p-top {
+    padding: 8px 24px 18px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .s-profile .p-top h2 {
+    font-family: var(--font-display);
+    font-weight: 700; font-size: 22px;
+    letter-spacing: -0.02em;
+    margin: 0;
+  }
+  .s-profile .p-top .gear {
+    width: 32px; height: 32px;
+    background: var(--surface-2); color: var(--ink);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+  .s-profile .p-hero {
+    margin: 0 20px 16px;
+    padding: 22px 18px;
+    background:
+      radial-gradient(circle at 100% 0%, var(--peach) 0%, transparent 65%),
+      radial-gradient(circle at 0% 100%, var(--lilac) 0%, transparent 60%),
+      var(--surface);
+    border-radius: var(--r-lg);
+    text-align: center;
+    position: relative;
+    box-shadow: var(--shadow-pop);
+  }
+  .s-profile .blob {
+    width: 84px; height: 84px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--mint) 0%, var(--sky) 60%, var(--lilac) 100%);
+    margin: 0 auto 12px;
+    border: 4px solid var(--paper);
+    box-shadow: var(--shadow-pop);
+    position: relative;
+  }
+  .s-profile .handle {
+    font-family: var(--font-display);
+    font-weight: 700; font-size: 22px;
+    letter-spacing: -0.02em;
+    margin: 0 0 4px;
+  }
+  .s-profile .joined {
+    font-family: var(--font-display);
+    font-size: 11px;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 600;
+  }
+  .s-profile .stats {
+    margin: 0 20px 16px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+  .s-profile .stat {
+    padding: 14px 10px;
+    background: var(--surface);
+    border-radius: var(--r-md);
+    text-align: center;
+  }
+  .s-profile .stat .v {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 22px;
+    letter-spacing: -0.03em;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .s-profile .stat .l {
+    font-family: var(--font-display);
+    font-size: 10px;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 600;
+  }
+  .s-profile .stat-streak .v { color: var(--peach-deep); }
+  .s-profile .stat-streak .v::after { content: " 🔥"; font-size: 14px; }
+
+  .s-profile .section-label {
+    padding: 10px 24px 8px;
+    font-family: var(--font-display);
+    font-size: 10px; font-weight: 600;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--muted);
+    display: flex; justify-content: space-between;
+  }
+  .s-profile .cards-strip {
+    display: flex; gap: 8px;
+    padding: 0 20px 14px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .s-profile .cards-strip::-webkit-scrollbar { display: none; }
+  .s-profile .cards-strip .card-thumb {
+    flex-shrink: 0;
+    width: 90px;
+    aspect-ratio: 9/16;
+    background: var(--ink); color: var(--paper);
+    border-radius: var(--r-sm);
+    padding: 8px;
+    position: relative;
+    overflow: hidden;
+    display: flex; flex-direction: column; justify-content: space-between;
+    box-shadow: var(--shadow-pop);
+  }
+  .s-profile .card-thumb::before {
+    content: ""; position: absolute;
+    top: -10%; left: -10%;
+    width: 60%; height: 50%;
+    border-radius: 50%;
+    opacity: 0.55;
+  }
+  .s-profile .card-thumb.t1::before { background: var(--peach); }
+  .s-profile .card-thumb.t2::before { background: var(--mint); }
+  .s-profile .card-thumb.t3::before { background: var(--lilac); }
+  .s-profile .card-thumb.t4::before { background: var(--sky); }
+  .s-profile .card-thumb .ct-num {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.06em;
+    font-size: 26px; line-height: 1;
+    position: relative; z-index: 1;
+  }
+  .s-profile .card-thumb .ct-foot {
+    font-family: var(--font-display);
+    font-size: 7.5px; font-weight: 600;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    opacity: 0.7;
+    position: relative; z-index: 1;
+  }
+
+  .s-profile .settings-list {
+    padding: 0 20px;
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .s-profile .s-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 14px;
+    background: var(--surface);
+    border-radius: var(--r-sm);
+  }
+  .s-profile .s-row .ic {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    font-family: var(--font-display); font-weight: 700;
+  }
+  .s-profile .s-row.r1 .ic { background: var(--mint); }
+  .s-profile .s-row.r2 .ic { background: var(--sky); }
+  .s-profile .s-row.r3 .ic { background: var(--peach); }
+  .s-profile .s-row .label {
+    flex: 1;
+    font-family: var(--font-display);
+    font-weight: 600; font-size: 14px;
+  }
+  .s-profile .s-row .chev { color: var(--muted); font-family: var(--font-display); font-weight: 600; font-size: 18px; }
+  .s-profile .s-row .toggle {
+    width: 36px; height: 22px;
+    background: var(--ink);
+    border-radius: 999px;
+    position: relative;
+  }
+  .s-profile .s-row .toggle::after {
+    content: ""; position: absolute;
+    top: 3px; right: 3px;
+    width: 16px; height: 16px;
+    background: var(--paper);
+    border-radius: 50%;
+  }
+
+  /* Footer */
+  footer.bot {
+    margin-top: 5rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: 0.85rem;
+    color: var(--muted);
+    font-family: var(--font-display);
+    letter-spacing: 0.04em;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <a class="back" href="./index.html"><span>←</span> Marshmallow overview</a>
+    <span class="pill"><span class="dot"></span> Extended flows · 10 screens</span>
+  </div>
+
+  <header class="hero">
+    <span class="eyebrow">Marshmallow · supplementary</span>
+    <h1 class="title">The rest of the <em>v0 surface.</em></h1>
+    <p class="lede">
+      The four hero screens proved Marshmallow's tone. These ten cover the full v0 product —
+      onboarding flow, learning interior, daily prediction modal, trade success, ranks with podium
+      treatment, and profile. The page now imports <code>docs/design/tokens.css</code> directly,
+      so the gallery and the eventual product share one source of truth.
+    </p>
+    <div class="toc">
+      <a href="#onboarding">Onboarding</a>
+      <a href="#learn">Learn</a>
+      <a href="#daily">Daily question</a>
+      <a href="#success">Trade success</a>
+      <a href="#ranks">Ranks</a>
+      <a href="#you">Profile</a>
+    </div>
+  </header>
+
+  <!-- ============================================================
+       Section: Onboarding
+       ============================================================ -->
+  <h2 class="section-title" id="onboarding"><span class="num">A</span> Onboarding</h2>
+  <p class="section-lead">
+    Step 3 (the $10K reveal) lives on the overview page. Here are the bookends — Welcome,
+    Handle, and the First-lesson nudge that hands the user into the retention loop.
+  </p>
+
+  <div class="devices">
+
+    <!-- 01 Welcome -->
+    <div class="device-col">
+      <div class="device-caption"><span>01 · Onboarding 1/4</span><span>Welcome</span></div>
+      <h3 class="device-title">Welcome</h3>
+      <p class="device-note">Pastel field across all four brand hues — first impression sets the
+        tone. The product mark sits quietly; the headline does the selling.</p>
+      <div class="phone"><div class="phone-screen">
+        <div class="status-bar">
+          <span>9:41</span>
+          <div class="status-icons">
+            <svg viewBox="0 0 20 12" fill="currentColor"><rect x="0" y="4" width="3" height="8" rx="1"/><rect x="5" y="2" width="3" height="10" rx="1"/><rect x="10" y="0" width="3" height="12" rx="1"/></svg>
+            <svg viewBox="0 0 22 12" fill="currentColor"><rect x="0" y="0" width="20" height="10" rx="2" opacity="0.3"/><rect x="2" y="2" width="13" height="6" rx="1"/></svg>
+          </div>
+        </div>
+        <div class="s-welcome">
+          <div class="brand">· paper ·</div>
+          <div class="hero-stack">
+            <div class="h-eyebrow">The Duolingo of crypto</div>
+            <h1>Learn, <em>play</em>, never lose a cent.</h1>
+            <div class="body-msg">$10,000 in practice cash. Twenty bite-sized lessons. One paper trade.</div>
+          </div>
+          <button class="cta">
+            <span>Get started</span>
+            <span class="arrow">→</span>
+          </button>
+          <p class="legal">No real money, no KYC. We'll never ask for your wallet.</p>
+        </div>
+      </div></div>
+    </div>
+
+    <!-- 02 Handle -->
+    <div class="device-col">
+      <div class="device-caption"><span>02 · Onboarding 2/4</span><span>Identity</span></div>
+      <h3 class="device-title">Pick your handle</h3>
+      <p class="device-note">Identity, not username. Goes on every share card. Ink-bordered input
+        feels weighty; mint check confirms availability instantly.</p>
+      <div class="phone"><div class="phone-screen">
+        <div class="status-bar">
+          <span>9:41</span>
+          <div class="status-icons">
+            <svg viewBox="0 0 20 12" fill="currentColor"><rect x="0" y="4" width="3" height="8" rx="1"/><rect x="5" y="2" width="3" height="10" rx="1"/><rect x="10" y="0" width="3" height="12" rx="1"/></svg>
+            <svg viewBox="0 0 22 12" fill="currentColor"><rect x="0" y="0" width="20" height="10" rx="2" opacity="0.3"/><rect x="2" y="2" width="13" height="6" rx="1"/></svg>
+          </div>
+        </div>
+        <div class="s-handle">
+          <div class="dots">
+            <span class="done"></span><span class="done"></span><span></span><span></span>
+          </div>
+          <h2>Pick a <em>handle</em>.</h2>
+          <p class="desc">It's how the rest of paper sees you. Goes on every share card you make.</p>
+          <div class="input-shell">
+            <span class="at">@</span>
+            <span class="field">filip.k</span>
+            <span class="check">✓</span>
+          </div>
+          <div class="availability">filip.k is yours</div>
+          <div class="suggestions-label">Or one of these</div>
+          <div class="suggestions">
+            <span class="sg active">filip.k</span>
+            <span class="sg">filipk</span>
+            <span class="sg">filthypaper</span>
+            <span class="sg">f.kasto</span>
+            <span class="sg">paper.filip</span>
+          </div>
+          <div class="cta-fixed">
+            <button class="cta">
+              <span>Continue</span>
+              <span class="arrow">→</span>
+            </button>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+    <!-- 03 First lesson nudge -->
+    <div class="device-col">
+      <div class="device-caption"><span>03 · Onboarding 4/4</span><span>First lesson</span></div>
+      <h3 class="device-title">First-lesson nudge</h3>
+      <p class="device-note">The handoff into the daily ritual. A single Fundamentals card is
+        previewed; tapping starts the 60-second lesson. Skipping is allowed but quietly muted.</p>
+      <div class="phone"><div class="phone-screen">
+        <div class="status-bar">
+          <span>9:41</span>
+          <div class="status-icons">
+            <svg viewBox="0 0 20 12" fill="currentColor"><rect x="0" y="4" width="3" height="8" rx="1"/><rect x="5" y="2" width="3" height="10" rx="1"/><rect x="10" y="0" width="3" height="12" rx="1"/></svg>
+            <svg viewBox="0 0 22 12" fill="currentColor"><rect x="0" y="0" width="20" height="10" rx="2" opacity="0.3"/><rect x="2" y="2" width="13" height="6" rx="1"/></svg>
+          </div>
+        </div>
+        <div class="s-firstlesson">
+          <div class="dots-row">
+            <span class="done"></span><span class="done"></span><span class="done"></span><span class="done"></span>
+          </div>
+          <div class="lesson-eyebrow">· Lesson 01 ·</div>
+          <h2>One <em>tiny</em> lesson before you go?</h2>
+          <div class="lesson-card">
+            <div class="lt-mini">Fundamentals · 01 / 10</div>
+            <div class="lt-title">What is Bitcoin?</div>
+            <div class="lt-meta">
+              <span>· 60 seconds</span>
+              <span>· 3 cards</span>
+              <span>· 1 quiz</span>
+            </div>
+            <div class="lt-body">
+              The first cryptocurrency, invented in 2008. We'll cover what it is, how it moves, and
+              why people care — without anything that sounds like a finance textbook.
+            </div>
+          </div>
+          <div class="skip">Maybe later</div>
+          <div class="cta-fixed">
+            <button class="cta">
+              <span>Start lesson · 60s</span>
+              <span class="arrow">→</span>
+            </button>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+  </div>
+
+  <!-- ============================================================
+       Section: Learn
+       ============================================================ -->
+  <h2 class="section-title" id="learn"><span class="num">B</span> Learn</h2>
+  <p class="section-lead">
+    The 20-card curriculum lives in three tracks — Fundamentals (10), Markets (5), Safety (5).
+    Track home shows progress arcs in the track's pastel; lesson interior is one card-stack per
+    concept; quiz is two-option, immediate-feedback.
+  </p>
+
+  <div class="devices">
+
+    <!-- 04 Learn home -->
+    <div class="device-col">
+      <div class="device-caption"><span>04 · Learn</span><span>Track overview</span></div>
+      <h3 class="device-title">Tracks</h3>
+      <p class="device-note">Each track owns a pastel hue. Locked tracks dim to surface-2 with
+        a key-glyph. The "next up" pinned strip drives the daily-action loop.</p>
+      <div class="phone"><div class="phone-screen">
+        <div class="status-bar">
+          <span>9:41</span>
+          <div class="status-icons">
+            <svg viewBox="0 0 20 12" fill="currentColor"><rect x="0" y="4" width="3" height="8" rx="1"/><rect x="5" y="2" width="3" height="10" rx="1"/><rect x="10" y="0" width="3" height="12" rx="1"/></svg>
+            <svg viewBox="0 0 22 12" fill="currentColor"><rect x="0" y="0" width="20" height="10" rx="2" opacity="0.3"/><rect x="2" y="2" width="13" height="6" rx="1"/></svg>
+          </div>
+        </div>
+        <div class="s-learn">
+          <div class="l-header">
+            <h2>Learn</h2>
+            <p>Twenty hand-crafted cards. About 60 seconds each.</p>
+          </div>
+          <div class="track track-1">
+            <div class="badge">Track 01</div>
+            <h3>Fundamentals</h3>
+            <p class="tline">What crypto is, how wallets work, the basics that make the rest make sense.</p>
+            <div class="progress-row">
+              <div class="pbar"><i style="width:30%"></i></div>
+              <div class="pcount">3 / 10</div>
+            </div>
+          </div>
+          <div class="track track-2">
+            <div class="badge">Track 02</div>
+            <h3>Markets</h3>
+            <p class="tline">Volatility, liquidity, market cap — what moves prices day to day.</p>
+            <div class="progress-row">
+              <div class="pbar"><i style="width:0%"></i></div>
+              <div class="pcount">0 / 5</div>
+            </div>
+          </div>
+          <div class="track track-3 locked">
+            <div class="badge">Track 03 · Locked</div>
+            <h3>Safety</h3>
+            <p class="tline">Scams, phishing, 2FA. Unlocks after Fundamentals.</p>
+            <div class="progress-row">
+              <div class="pbar"><i style="width:0%"></i></div>
+              <div class="pcount">0 / 5</div>
+            </div>
+          </div>
+          <div class="next-up">
+            <div class="nu-num">04</div>
+            <div class="nu-meta">
+              <div class="nu-eyebrow">Next up · Fundamentals</div>
+              <div class="nu-title">What's a stablecoin?</div>
+            </div>
+            <div class="arr">→</div>
+          </div>
+        </div>
+        <nav class="nav-bar">
+          <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><span>Home</span></div>
+          <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 7L3 7M21 12L3 12M21 17L3 17"/></svg><span>Trade</span></div>
+          <div class="nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v16h16"/><circle cx="9" cy="11" r="1"/><circle cx="15" cy="8" r="1"/></svg><span>Learn</span></div>
+          <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M7 21V10M12 21V4M17 21v-7"/></svg><span>Ranks</span></div>
+          <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg><span>You</span></div>
+        </nav>
+      </div></div>
+    </div>
+
+    <!-- 05 Lesson interior -->
+    <div class="device-col">
+      <div class="device-caption"><span>05 · Lesson interior</span><span>Card 2 of 3</span></div>
+      <h3 class="device-title">Lesson card</h3>
+      <p class="device-note">One concept per card-stack. Hero block uses the track's pastels;
+        body copy is generous. Mint highlights mark key terms — they earn the user's attention.</p>
+      <div class="phone"><div class="phone-screen">
+        <div class="status-bar">
+          <span>9:41</span>
+          <div class="status-icons">
+            <svg viewBox="0 0 20 12" fill="currentColor"><rect x="0" y="4" width="3" height="8" rx="1"/><rect x="5" y="2" width="3" height="10" rx="1"/><rect x="10" y="0" width="3" height="12" rx="1"/></svg>
+            <svg viewBox="0 0 22 12" fill="currentColor"><rect x="0" y="0" width="20" height="10" rx="2" opacity="0.3"/><rect x="2" y="2" width="13" height="6" rx="1"/></svg>
+          </div>
+        </div>
+        <div class="s-lesson">
+          <div class="ls-top">
+            <div class="ls-close">×</div>
+            <div class="ls-progress"><i></i></div>
+            <div class="ls-counter">2/3</div>
+          </div>
+          <div class="hero-block">
+            <div class="glyph">₿</div>
+          </div>
+          <div class="ls-eyebrow">Fundamentals · Card 02</div>
+          <h2>Why does the price move?</h2>
+          <p class="body">
+            Bitcoin's price is set by <strong>supply and demand</strong> — the same as anything else
+            you can buy. There's a fixed amount of bitcoin (21 million), so when more people want
+            it than have it, the price goes up.
+          </p>
+          <div class="pull">
+            <strong>Key idea</strong>
+            Limited supply + fluctuating demand = volatile price. That's the whole story.
+          </div>
+          <div class="ls-cta">
+            <button class="cta">
+              <span>Got it · keep going</span>
+              <span class="arrow">→</span>
+            </button>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+    <!-- 06 Quiz -->
+    <div class="device-col">
+      <div class="device-caption"><span>06 · Lesson quiz</span><span>Step 4 of 5</span></div>
+      <h3 class="device-title">Quick check</h3>
+      <p class="device-note">Two options, immediate feedback in an ink sheet. Correct answers
+        glow mint; the explanation makes losses feel like progress, not punishment.</p>
+      <div class="phone"><div class="phone-screen">
+        <div class="status-bar">
+          <span>9:41</span>
+          <div class="status-icons">
+            <svg viewBox="0 0 20 12" fill="currentColor"><rect x="0" y="4" width="3" height="8" rx="1"/><rect x="5" y="2" width="3" height="10" rx="1"/><rect x="10" y="0" width="3" height="12" rx="1"/></svg>
+            <svg viewBox="0 0 22 12" fill="currentColor"><rect x="0" y="0" width="20" height="10" rx="2" opacity="0.3"/><rect x="2" y="2" width="13" height="6" rx="1"/></svg>
+          </div>
+        </div>
+        <div class="s-quiz">
+          <div class="ls-top">
+            <div class="ls-close">×</div>
+            <div class="ls-progress"><i></i></div>
+            <div class="ls-counter">4/5</div>
+          </div>
+          <div class="qh-eyebrow">Quick check</div>
+          <h2>How much bitcoin will ever exist?</h2>
+          <div class="options">
+            <div class="opt"><div class="badge">A</div><div>Unlimited — they print more if needed</div></div>
+            <div class="opt correct"><div class="badge">B</div><div>21 million, fixed by code</div></div>
+            <div class="opt"><div class="badge">C</div><div>Whatever miners decide each year</div></div>
+            <div class="opt"><div class="badge">D</div><div>1 billion</div></div>
+          </div>
+          <div class="feedback">
+            <div class="fb-row">
+              <div class="fb-icon">✓</div>
+              <div class="fb-title">Correct.</div>
+            </div>
+            <div class="fb-desc">21 million, written into the protocol. That's why people call bitcoin "digitally scarce" — no one can change the cap.</div>
+            <button class="next">Next question →</button>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+  </div>
+
+  <!-- ============================================================
+       Section: Daily question modal
+       ============================================================ -->
+  <h2 class="section-title" id="daily"><span class="num">C</span> Daily ritual</h2>
+  <p class="section-lead">
+    The 20-second daily prediction. Bottom sheet over a dimmed app, single-question, two big
+    answer pills. Stake slider lives on the same sheet — never a multi-step flow.
+  </p>
+
+  <div class="devices">
+
+    <!-- 07 Daily Q modal -->
+    <div class="device-col">
+      <div class="device-caption"><span>07 · Daily Question</span><span>Bottom sheet</span></div>
+      <h3 class="device-title">Up or down?</h3>
+      <p class="device-note">Server-stamped stake protects integrity. Mint = up, peach = down —
+        but neither is "correct" in any moral sense; both are just colours, both are warm.</p>
+      <div class="phone"><div class="phone-screen">
+        <div class="status-bar">
+          <span>9:41</span>
+          <div class="status-icons">
+            <svg viewBox="0 0 20 12" fill="currentColor"><rect x="0" y="4" width="3" height="8" rx="1"/><rect x="5" y="2" width="3" height="10" rx="1"/><rect x="10" y="0" width="3" height="12" rx="1"/></svg>
+            <svg viewBox="0 0 22 12" fill="currentColor"><rect x="0" y="0" width="20" height="10" rx="2" opacity="0.3"/><rect x="2" y="2" width="13" height="6" rx="1"/></svg>
+          </div>
+        </div>
+        <div class="s-dq">
+          <div class="sheet">
+            <div class="grab"></div>
+            <div class="dq-eyebrow">Daily market question <span class="timer">2h 14m left</span></div>
+            <h2>Will Bitcoin close up or down today?</h2>
+            <p class="reward">
+              Closes at <strong>00:00 UTC</strong> on Binance. Resolves automatically. Right answers
+              double your stake; wrong answers cost it. Either way, your streak counts.
+            </p>
+            <div class="stake-block">
+              <div class="stake-row">
+                <div class="stake-label">Stake</div>
+                <div class="stake-value">250 <small>PP</small></div>
+              </div>
+              <div class="slider"><div class="fill"></div><div class="knob"></div></div>
+              <div class="stake-marks">
+                <span>100</span>
+                <span>250</span>
+                <span>500</span>
+              </div>
+            </div>
+            <div class="answer-row">
+              <div class="ans ans-up">
+                <span class="arrow-glyph">▲</span>
+                <span class="word">Up</span>
+              </div>
+              <div class="ans ans-down">
+                <span class="arrow-glyph">▼</span>
+                <span class="word">Down</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+    <!-- 08 Trade success -->
+    <div class="device-col">
+      <div class="device-caption"><span>08 · Trade success</span><span>Auto share</span></div>
+      <h3 class="device-title">Bought.</h3>
+      <p class="device-note">Big check, hero numeral, recap. The auto-share prompt is offered
+        immediately — virality loop primed without forcing a tap.</p>
+      <div class="phone"><div class="phone-screen">
+        <div class="status-bar">
+          <span>9:41</span>
+          <div class="status-icons">
+            <svg viewBox="0 0 20 12" fill="currentColor"><rect x="0" y="4" width="3" height="8" rx="1"/><rect x="5" y="2" width="3" height="10" rx="1"/><rect x="10" y="0" width="3" height="12" rx="1"/></svg>
+            <svg viewBox="0 0 22 12" fill="currentColor"><rect x="0" y="0" width="20" height="10" rx="2" opacity="0.3"/><rect x="2" y="2" width="13" height="6" rx="1"/></svg>
+          </div>
+        </div>
+        <div class="s-success">
+          <div class="check-wrap">
+            <div class="check">✓</div>
+          </div>
+          <h2>You bought Bitcoin.</h2>
+          <div class="num"><span class="dollar">$</span>100<span style="font-size:32px; color: var(--ink-soft); font-weight:500;">.00</span></div>
+          <div class="qty">0.00148 BTC @ $67,402.18</div>
+          <div class="recap">
+            <div class="recap-row"><span>Order placed</span><span>09:41 · today</span></div>
+            <div class="recap-row"><span>Cash remaining</span><span>$7,382.52</span></div>
+            <div class="recap-row"><span>Holding total</span><span>$2,930.88</span></div>
+          </div>
+          <div class="share-prompt">
+            <div class="icon">↗</div>
+            <div class="meta">
+              <div class="title-s">Share the moment?</div>
+              <div class="desc-s">Auto-generated card, one tap to TikTok</div>
+            </div>
+            <div class="arr">→</div>
+          </div>
+          <div class="actions">
+            <div class="primary">Done</div>
+            <div class="secondary">Trade more</div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+  </div>
+
+  <!-- ============================================================
+       Section: Ranks
+       ============================================================ -->
+  <h2 class="section-title" id="ranks"><span class="num">D</span> Ranks</h2>
+  <p class="section-lead">
+    Two tabs — Friends (invite-link) and Global (weekly reset). Top 3 get a podium with pastel
+    pillar treatment, your row stays pinned at the bottom of the scroll so you always know where
+    you stand.
+  </p>
+
+  <div class="devices">
+
+    <!-- 09 Ranks Global -->
+    <div class="device-col">
+      <div class="device-caption"><span>09 · Ranks · Global</span><span>Week 17</span></div>
+      <h3 class="device-title">Podium</h3>
+      <p class="device-note">Top 3 in pastel pillars; everyone else in a clean list. Your row
+        sticks to the bottom and casts a soft shadow — always present, never demanding.</p>
+      <div class="phone"><div class="phone-screen">
+        <div class="status-bar">
+          <span>9:41</span>
+          <div class="status-icons">
+            <svg viewBox="0 0 20 12" fill="currentColor"><rect x="0" y="4" width="3" height="8" rx="1"/><rect x="5" y="2" width="3" height="10" rx="1"/><rect x="10" y="0" width="3" height="12" rx="1"/></svg>
+            <svg viewBox="0 0 22 12" fill="currentColor"><rect x="0" y="0" width="20" height="10" rx="2" opacity="0.3"/><rect x="2" y="2" width="13" height="6" rx="1"/></svg>
+          </div>
+        </div>
+        <div class="s-ranks">
+          <div class="r-header">
+            <div class="r-title">Ranks</div>
+          </div>
+          <div class="r-tabs">
+            <div class="r-tab">Friends</div>
+            <div class="r-tab active">Global</div>
+          </div>
+          <div class="reset"><span>Resets in</span><strong>03d 14h</strong></div>
+          <div class="podium">
+            <div class="pillar second">
+              <div class="rank-num">2</div>
+              <div class="ava">M</div>
+              <div class="handle">@mira</div>
+              <div class="score">847</div>
+            </div>
+            <div class="pillar first">
+              <div class="crown">👑</div>
+              <div class="rank-num">1</div>
+              <div class="ava">N</div>
+              <div class="handle">@nat.eth</div>
+              <div class="score">1,204</div>
+            </div>
+            <div class="pillar third">
+              <div class="rank-num">3</div>
+              <div class="ava">J</div>
+              <div class="handle">@josua</div>
+              <div class="score">792</div>
+            </div>
+          </div>
+          <div class="list">
+            <div class="row">
+              <div class="pos">04</div>
+              <div class="ava-s" style="background: var(--peach)">D</div>
+              <div class="h">@diego.s</div>
+              <div class="delta">+12</div>
+              <div class="scr">681</div>
+            </div>
+            <div class="row">
+              <div class="pos">05</div>
+              <div class="ava-s" style="background: var(--sky)">A</div>
+              <div class="h">@aleks</div>
+              <div class="delta">−2</div>
+              <div class="scr">654</div>
+            </div>
+            <div class="row">
+              <div class="pos">06</div>
+              <div class="ava-s" style="background: var(--mint)">L</div>
+              <div class="h">@leonore</div>
+              <div class="delta">+5</div>
+              <div class="scr">612</div>
+            </div>
+            <div class="row">
+              <div class="pos">07</div>
+              <div class="ava-s" style="background: var(--lilac)">B</div>
+              <div class="h">@bea.io</div>
+              <div class="delta">+1</div>
+              <div class="scr">588</div>
+            </div>
+            <div class="row">
+              <div class="pos">08</div>
+              <div class="ava-s" style="background: var(--peach)">R</div>
+              <div class="h">@ramin</div>
+              <div class="delta">−4</div>
+              <div class="scr">541</div>
+            </div>
+            <div class="row you">
+              <div class="pos">42</div>
+              <div class="ava-s" style="background: var(--lilac)">F</div>
+              <div class="h">@filip.k <em>· you</em></div>
+              <div class="delta">+18</div>
+              <div class="scr">312</div>
+            </div>
+          </div>
+        </div>
+        <nav class="nav-bar">
+          <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><span>Home</span></div>
+          <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 7L3 7M21 12L3 12M21 17L3 17"/></svg><span>Trade</span></div>
+          <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v16h16"/><circle cx="9" cy="11" r="1"/><circle cx="15" cy="8" r="1"/></svg><span>Learn</span></div>
+          <div class="nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M7 21V10M12 21V4M17 21v-7"/></svg><span>Ranks</span></div>
+          <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg><span>You</span></div>
+        </nav>
+      </div></div>
+    </div>
+
+    <!-- 10 Profile -->
+    <div class="device-col">
+      <div class="device-caption"><span>10 · You</span><span>Profile</span></div>
+      <h3 class="device-title">Profile</h3>
+      <p class="device-note">Pastel-blob avatar (no uploads, ever). Three stat tiles; share-card
+        history strip pulls users back into the virality loop. Settings stay quiet at the bottom.</p>
+      <div class="phone"><div class="phone-screen">
+        <div class="status-bar">
+          <span>9:41</span>
+          <div class="status-icons">
+            <svg viewBox="0 0 20 12" fill="currentColor"><rect x="0" y="4" width="3" height="8" rx="1"/><rect x="5" y="2" width="3" height="10" rx="1"/><rect x="10" y="0" width="3" height="12" rx="1"/></svg>
+            <svg viewBox="0 0 22 12" fill="currentColor"><rect x="0" y="0" width="20" height="10" rx="2" opacity="0.3"/><rect x="2" y="2" width="13" height="6" rx="1"/></svg>
+          </div>
+        </div>
+        <div class="s-profile">
+          <div class="p-top">
+            <h2>You</h2>
+            <div class="gear">⚙</div>
+          </div>
+          <div class="p-hero">
+            <div class="blob"></div>
+            <div class="handle">@filip.k</div>
+            <div class="joined">· Member since April ·</div>
+          </div>
+          <div class="stats">
+            <div class="stat stat-streak">
+              <div class="v">7</div>
+              <div class="l">Streak</div>
+            </div>
+            <div class="stat">
+              <div class="v">14</div>
+              <div class="l">Trades</div>
+            </div>
+            <div class="stat">
+              <div class="v">3 <span style="font-size:11px;color:var(--muted);font-weight:500">/20</span></div>
+              <div class="l">Lessons</div>
+            </div>
+          </div>
+          <div class="section-label" id="you">
+            <span>Share-card library</span>
+            <span style="font-weight:500;color:var(--muted)">4 saved</span>
+          </div>
+          <div class="cards-strip">
+            <div class="card-thumb t1">
+              <div class="ct-num">7</div>
+              <div class="ct-foot">Streak · Apr</div>
+            </div>
+            <div class="card-thumb t2">
+              <div class="ct-num">+12%</div>
+              <div class="ct-foot">Gain · Apr</div>
+            </div>
+            <div class="card-thumb t3">
+              <div class="ct-num">42</div>
+              <div class="ct-foot">Rank · w17</div>
+            </div>
+            <div class="card-thumb t4">
+              <div class="ct-num">$100</div>
+              <div class="ct-foot">First buy</div>
+            </div>
+          </div>
+          <div class="section-label">
+            <span>Settings</span>
+            <span></span>
+          </div>
+          <div class="settings-list">
+            <div class="s-row r1">
+              <div class="ic">🔔</div>
+              <div class="label">Notifications</div>
+              <div class="toggle"></div>
+            </div>
+            <div class="s-row r2">
+              <div class="ic">@</div>
+              <div class="label">Add email for recovery</div>
+              <div class="chev">›</div>
+            </div>
+            <div class="s-row r3">
+              <div class="ic">↺</div>
+              <div class="label">Reset paper account</div>
+              <div class="chev">›</div>
+            </div>
+          </div>
+        </div>
+        <nav class="nav-bar">
+          <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><span>Home</span></div>
+          <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 7L3 7M21 12L3 12M21 17L3 17"/></svg><span>Trade</span></div>
+          <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v16h16"/><circle cx="9" cy="11" r="1"/><circle cx="15" cy="8" r="1"/></svg><span>Learn</span></div>
+          <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M7 21V10M12 21V4M17 21v-7"/></svg><span>Ranks</span></div>
+          <div class="nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg><span>You</span></div>
+        </nav>
+      </div></div>
+    </div>
+
+  </div>
+
+  <footer class="bot">
+    <span>Marshmallow · extended flows · 10 / 10</span>
+    <a class="back" href="./index.html">← Back to Marshmallow overview</a>
+  </footer>
+
+</div>
+</body>
+</html>

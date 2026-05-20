@@ -1,0 +1,74 @@
+/*
+ * Marshmallow — React + Tailwind v4 entry point
+ *
+ * tokens.css is the canonical source of truth for the design system.
+ * This file maps those CSS variables onto Tailwind utility classes via
+ * @theme inline. To change a colour, weight, radius, etc. — touch
+ * tokens.css. Do not edit values in this file.
+ *
+ * Setup (any React build):
+ *   1. Place tokens.css next to this file (or adjust the @import path).
+ *   2. npm i clsx tailwind-merge class-variance-authority
+ *   3. npm i -D tailwindcss
+ *      - Vite: also `@tailwindcss/vite` and add the plugin to vite.config
+ *      - Next.js: also `@tailwindcss/postcss` in postcss.config.mjs
+ *   4. Add Bricolage Grotesque + Hanken Grotesk to <head> via Google Fonts.
+ *   5. Import this file once at app entry (main.tsx / app/layout.tsx).
+ */
+
+@import "../tokens.css";
+@import "tailwindcss";
+
+@theme inline {
+  /* Colours → bg-{name}, text-{name}, border-{name}, ring-{name} */
+  --color-paper:      var(--paper);
+  --color-surface:    var(--surface);
+  --color-surface-2:  var(--surface-2);
+  --color-ink:        var(--ink);
+  --color-ink-soft:   var(--ink-soft);
+  --color-muted:      var(--muted);
+  --color-line:       var(--line);
+
+  --color-mint:        var(--mint);
+  --color-mint-deep:   var(--mint-deep);
+  --color-peach:       var(--peach);
+  --color-peach-deep:  var(--peach-deep);
+  --color-sky:         var(--sky);
+  --color-sky-deep:    var(--sky-deep);
+  --color-lilac:       var(--lilac);
+  --color-lilac-deep:  var(--lilac-deep);
+
+  --color-up:    var(--up);
+  --color-down:  var(--down);
+
+  /* Fonts → font-{name} */
+  --font-display: var(--font-display);
+  --font-body:    var(--font-body);
+
+  /* Radii → rounded-{name} */
+  --radius-xs:   var(--r-xs);
+  --radius-sm:   var(--r-sm);
+  --radius-md:   var(--r-md);
+  --radius-lg:   var(--r-lg);
+  --radius-xl:   var(--r-xl);
+  --radius-pill: var(--r-pill);
+
+  /* Shadows → shadow-{name} */
+  --shadow-pop:    var(--shadow-pop);
+  --shadow-float:  var(--shadow-float);
+  --shadow-inset:  var(--shadow-inset);
+  --shadow-phone:  var(--shadow-phone);
+
+  /* Easing — use as ease-out-marshmallow */
+  --ease-out-marshmallow: var(--ease-out);
+}
+
+/* Body defaults — body styles already set in tokens.css; this layer
+   adds Tailwind-aware niceties without conflicting. */
+@layer base {
+  h1, h2, h3, h4 { text-wrap: balance; }
+  p, li          { text-wrap: pretty; }
+
+  /* Tabular figures everywhere we render currency-like numerals.
+     Components opt in via .tabular-nums; default body stays proportional. */
+}
